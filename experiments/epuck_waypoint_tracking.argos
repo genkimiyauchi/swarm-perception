@@ -49,6 +49,11 @@
   <!-- ****************** -->
   <loop_functions library="build/loop_functions/waypoint_tracking_loop_functions/libwaypoint_tracking_loop_functions"
                   label="waypoint_tracking_loop_functions">
+
+    <!-- Output path -->
+    <output frame_grabbing="true"
+            camera_index="0" />
+
   </loop_functions>
 
   <!-- *********************** -->
@@ -138,6 +143,15 @@
   <!-- ****************** -->
   <visualization>
     <qt-opengl>
+
+      <frame_grabbing directory="frames"
+                      base_name="frame_"
+                      format="png"
+                      quality="100"
+                      headless_grabbing="false"
+                      headless_frame_size="1600x1200"
+                      headless_frame_rate="1"/>
+
       <camera>
         <placements>
           <placement index="0" position="0,0,13" look_at="0,0,0" up="0,1,0" lens_focal_length="65" />

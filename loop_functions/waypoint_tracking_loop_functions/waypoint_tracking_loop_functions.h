@@ -12,25 +12,32 @@ class CWaypointTrackingLoopFunctions : public CLoopFunctions {
 
 public:
 
-   CWaypointTrackingLoopFunctions();
-   virtual ~CWaypointTrackingLoopFunctions() {}
+    CWaypointTrackingLoopFunctions();
+    virtual ~CWaypointTrackingLoopFunctions() {}
 
-   virtual void Init(TConfigurationNode& t_tree);
-   virtual void Reset();
-   virtual void Destroy();
-   virtual CColor GetFloorColor(const CVector2& c_position_on_plane);
-   virtual void PreStep();
+    virtual void Init(TConfigurationNode& t_tree);
+    virtual void Reset();
+    virtual void Destroy();
+    virtual CColor GetFloorColor(const CVector2& c_position_on_plane);
+    virtual void PreStep();
+    virtual void PostStep();
 
 private:
 
-   CFloorEntity* m_pcFloor;
-   CRandom::CRNG* m_pcRNG;
+    TConfigurationNode config;
 
-   CVector2 m_cWaypoint;
-   Real m_fWaypointRadius;
+    CFloorEntity* m_pcFloor;
+    CRandom::CRNG* m_pcRNG;
 
-   std::string m_strOutput;
-   std::ofstream m_cOutput;
+    CVector2 m_cWaypoint;
+    Real m_fWaypointRadius;
+
+    /* Frame Grabbing */
+    bool m_bFrameGrabbing;
+    UInt32 m_unCameraIndex;
+
+    std::string m_strOutput;
+    std::ofstream m_cOutput;
 
 };
 
