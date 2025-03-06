@@ -48,6 +48,7 @@ CEPuckWaypointTracking::CEPuckWaypointTracking() :
     m_pcRABSens(NULL),
     m_pcLEDs(NULL),
     m_pcPosSens(NULL),
+    m_pcRNG(NULL),
     m_pcPIDHeading(NULL) {}
 
 /****************************************/
@@ -102,6 +103,9 @@ void CEPuckWaypointTracking::Init(TConfigurationNode& t_node) {
         THROW_ARGOSEXCEPTION_NESTED("Error parsing the controller parameters.", ex);
     }
 
+    /* Create a new RNG */
+    m_pcRNG = CRandom::CreateRNG("argos");
+
     /* Init PID Controller */
     m_pcPIDHeading = new PID(0.1,       // dt  (loop interval time)
         m_sWheelTurningParams.MaxSpeed,  // max
@@ -111,6 +115,8 @@ void CEPuckWaypointTracking::Init(TConfigurationNode& t_node) {
         m_sWaypointTrackingParams.Kd);   // Kd
 
     m_cTargetWaypoint.Set(1.0f, 1.0f); // TEMP hard-coded value
+
+    currentMoveType = MoveType::ANGLE_BIAS; // TEMO hard-coded value
 }
 
 /****************************************/
@@ -118,11 +124,11 @@ void CEPuckWaypointTracking::Init(TConfigurationNode& t_node) {
 
 void CEPuckWaypointTracking::ControlStep() {
 
-    /* Reset variables */
-    ResetVariables();
+    // /* Reset variables */
+    // ResetVariables();
 
-    /* Receive new messages */
-    GetMessages();
+    // /* Receive new messages */
+    // GetMessages();
 
     /* Get position */
     CVector3 pos3d = m_pcPosSens->GetReading().Position;
@@ -137,6 +143,33 @@ void CEPuckWaypointTracking::ControlStep() {
 
     // sumForce.Normalize();
     // sumForce *= m_sWheelTurningParams.MaxSpeed;
+    
+    /* Set move type */
+    switch(currentMoveType) {
+        case MoveType::DIRECT:
+            /* Attraction to waypoint */
+            sumForce = waypointForce;
+            break;
+        case MoveType::ANGLE_BIAS:
+            if(m_unBiasDuration == 0) {
+                /* Choose a random number between 10-30 */
+                m_unBiasDuration = m_pcRNG->Uniform(CRange<UInt32>(10, 30)); // 1-3 seconds, TEMP hard-coded value
+                /* Choose a random angle between 0-30 degrees in radian */
+                m_cAngleBias.FromValueInDegrees(m_pcRNG->Uniform(CRange<Real>(-90, 90))); // TEMP hard-coded value
+            }
+
+            RLOG << "rad: " << m_cAngleBias.GetValue() << ", time = " << m_unBiasDuration << std::endl;
+
+            /* Attraction to waypoint */
+            sumForce = waypointForce;
+            /* Rotate sumForce by m_cAngleBias */
+            sumForce.Rotate(m_cAngleBias);
+            /* Decrease the duration */
+            m_unBiasDuration--;
+            
+            break;
+    }
+
     SetWheelSpeedsFromVectorHoming(sumForce);
 
 }

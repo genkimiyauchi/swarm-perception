@@ -32,6 +32,8 @@
 #include <argos3/plugins/robots/generic/control_interface/ci_positioning_sensor.h>
 /* Vector2 definitions */
 #include <argos3/core/utility/math/vector2.h>
+/* Random number generator definitions */
+#include <argos3/core/utility/math/rng.h>
 
 /* PID controller */
 #include <utility/pid.h>
@@ -102,6 +104,13 @@ public:
         
         void Init(TConfigurationNode& t_node);
     };
+
+    /* List of move types available to the robot */
+    enum class MoveType {
+        STOP = 0,   // Stop moving
+        DIRECT,     // Move directly to a target waypoint
+        ANGLE_BIAS, // Move to a target waypoint with an angle bias
+    } currentMoveType;
 
 public:
 
@@ -185,6 +194,9 @@ private:
     /* Pointer to the positioning sensor */
     CCI_PositioningSensor* m_pcPosSens;
 
+    /* Random number generator */
+    CRandom::CRNG* m_pcRNG;
+
     /* PID to control the heading angle */
     PID* m_pcPIDHeading;
 
@@ -193,6 +205,12 @@ private:
 
     /* Waypoint to move towards */
     CVector2 m_cTargetWaypoint;
+
+    /* ### ANGLE_BIAS: params ### */
+    /* Angle bias */
+    CRadians m_cAngleBias;
+    /* Duration to apply bias */
+    UInt32 m_unBiasDuration;
 
     /*
     * The following variables are used as parameters for the
