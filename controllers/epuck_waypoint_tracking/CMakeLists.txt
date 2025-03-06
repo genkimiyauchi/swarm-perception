@@ -1,0 +1,6 @@
+add_library(epuck_waypoint_tracking SHARED epuck_waypoint_tracking.h epuck_waypoint_tracking.cpp)
+target_link_libraries(epuck_waypoint_tracking
+  utility
+  argos3core_simulator
+  argos3plugin_simulator_epuck
+  argos3plugin_simulator_genericrobot)

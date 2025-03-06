@@ -1,0 +1,7 @@
+build*/
+results*/
+frames*/
+.venv/
+venv/
+*__pycache__*
+.vscode/
