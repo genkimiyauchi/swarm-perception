@@ -5,8 +5,7 @@ if(ARGOS_QTOPENGL_FOUND)
   include_directories(${ARGOS_QTOPENGL_INCLUDE_DIRS})
   set(waypoint_tracking_loop_functions_SOURCES
     ${waypoint_tracking_loop_functions_SOURCES}
-    # waypoint_tracking_qt_user_functions.cpp)
-  )
+    waypoint_tracking_qt_user_functions.cpp)
 endif(ARGOS_QTOPENGL_FOUND)
 
 add_library(waypoint_tracking_loop_functions MODULE ${waypoint_tracking_loop_functions_SOURCES})

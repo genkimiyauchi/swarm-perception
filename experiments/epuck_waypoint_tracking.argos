@@ -144,6 +144,9 @@
   <visualization>
     <qt-opengl>
 
+      <user_functions library="build/loop_functions/waypoint_tracking_loop_functions/libwaypoint_tracking_loop_functions"
+                      label="waypoint_tracking_qt_user_functions" />
+
       <frame_grabbing directory="frames"
                       base_name="frame_"
                       format="png"
