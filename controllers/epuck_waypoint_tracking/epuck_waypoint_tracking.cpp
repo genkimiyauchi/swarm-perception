@@ -116,7 +116,18 @@ void CEPuckWaypointTracking::Init(TConfigurationNode& t_node) {
 
     m_cTargetWaypoint.Set(1.0f, 1.0f); // TEMP hard-coded value
 
-    currentMoveType = MoveType::ANGLE_BIAS; // TEMO hard-coded value
+    currentMoveType = MoveType::DIRECT; // TEMP hard-coded value
+}
+
+/****************************************/
+/****************************************/
+
+void CEPuckWaypointTracking::Reset() {
+
+    /* Initialize the msg contents to 255 (Reserved for "no event has happened") */
+    m_pcRABAct->ClearData();
+    cbyte_msg = CByteArray(MESSAGE_BYTE_SIZE, 255);
+    m_pcRABAct->SetData(cbyte_msg);
 }
 
 /****************************************/
@@ -124,11 +135,13 @@ void CEPuckWaypointTracking::Init(TConfigurationNode& t_node) {
 
 void CEPuckWaypointTracking::ControlStep() {
 
-    // /* Reset variables */
-    // ResetVariables();
+    LOG << "---------- " << GetId() << " ----------" << std::endl;
 
-    // /* Receive new messages */
-    // GetMessages();
+    /* Reset variables */
+    ResetVariables();
+
+    /* Receive new messages */
+    GetMessages();
 
     /* Get position */
     CVector3 pos3d = m_pcPosSens->GetReading().Position;
@@ -170,7 +183,20 @@ void CEPuckWaypointTracking::ControlStep() {
             break;
     }
 
+    /* TEMP */
+    // go through each message in robotMsgs and Print
+    for(size_t i = 0; i < robotMsgs.size(); i++) {
+        robotMsgs[i].Print();
+    }
+
     SetWheelSpeedsFromVectorHoming(sumForce);
+
+    /* Message to broadcast */
+    Message msg = Message();
+    msg.ID = GetId();
+
+    cbyte_msg = msg.GetCByteArray();
+    m_pcRABAct->SetData(cbyte_msg);
 
 }
 

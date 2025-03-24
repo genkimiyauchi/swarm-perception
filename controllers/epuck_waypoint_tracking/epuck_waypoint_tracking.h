@@ -141,7 +141,7 @@ public:
     * so the function could have been omitted. It's here just for
     * completeness.
     */
-    virtual void Reset() {}
+    virtual void Reset();
 
     /*
     * Called to cleanup what done by Init() when the experiment finishes.
@@ -199,6 +199,9 @@ private:
 
     /* PID to control the heading angle */
     PID* m_pcPIDHeading;
+
+    /* Outgoing message */
+    CByteArray cbyte_msg;
 
     /* Messages received from nearby robots */
     std::vector<Message> robotMsgs;

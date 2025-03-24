@@ -25,7 +25,7 @@
       </actuators>
       <sensors>
         <proximity implementation="default" show_rays="false" />
-        <range_and_bearing implementation="medium" medium="rab" show_rays="false" />
+        <range_and_bearing implementation="medium" medium="rab" show_rays="true" />
         <positioning implementation="default" />
       </sensors>
       <params>
@@ -51,7 +51,7 @@
                   label="waypoint_tracking_loop_functions">
 
     <!-- Output path -->
-    <output frame_grabbing="true"
+    <output frame_grabbing="false"
             camera_index="0" />
 
   </loop_functions>

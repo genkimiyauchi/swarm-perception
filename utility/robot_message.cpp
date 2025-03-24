@@ -57,7 +57,7 @@ bool Message::Empty() {
 void Message::Print() const {
 
     std::cout << "\n##########" << std::endl;
-
+    std::cout << "Direction: " << direction << std::endl;
     std::cout << "ID: " << ID << std::endl;
 
 }

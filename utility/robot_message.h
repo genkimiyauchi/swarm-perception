@@ -34,7 +34,7 @@ using namespace argos;
 */
 static const UInt32 MESSAGE_BYTE_SIZE = 
     /* fixed data */
-    2 + 
+    1 + 
     /* End */
     1;
 
