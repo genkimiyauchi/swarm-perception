@@ -41,7 +41,8 @@
                   ki="0"
                   kd="0" 
                   thres_range="0.05" />
-        <motion type="direct" />
+        <motion type="direct"
+                flock="true" />
       </params>
     </robot_controller>
 

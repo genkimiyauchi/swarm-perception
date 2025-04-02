@@ -61,7 +61,18 @@ void CRobot::STargetTrackingParams::Init(TConfigurationNode& t_node) {
 Real CRobot::SFlockingInteractionParams::GeneralizedLennardJones(Real f_distance) {
     Real fNormDistExp = ::pow(TargetDistance / f_distance, Exponent);
     return -Gain / f_distance * (fNormDistExp * fNormDistExp - fNormDistExp);
- }
+}
+
+/****************************************/
+/****************************************/
+
+/*
+ * This function is a generalization of the Lennard-Jones potential for repulsion only 
+ */
+Real CRobot::SFlockingInteractionParams::GeneralizedLennardJonesRepulsion(Real f_distance) {
+    Real fNormDistExp = ::pow(TargetDistance / f_distance, Exponent);
+    return -Gain / f_distance * (fNormDistExp * fNormDistExp);
+}
 
 /****************************************/
 /****************************************/
@@ -124,9 +135,10 @@ void CRobot::Init(TConfigurationNode& t_node) {
         /* Flocking-related */
         m_sFlockingParams.Init(GetNode(t_node, "flocking"));
         /* Motion */
-        std::string strMoveType;
+        std::string strMoveType, strFlock;
         TConfigurationNode& tMove = GetNode(t_node, "motion");
         GetNodeAttributeOrDefault(tMove, "type", strMoveType, std::string("direct"));
+        GetNodeAttributeOrDefault(tMove, "flock", strFlock, std::string("true"));
 
         if(strMoveType == "direct") {
             currentMoveType = MoveType::DIRECT;
@@ -138,6 +150,17 @@ void CRobot::Init(TConfigurationNode& t_node) {
             THROW_ARGOSEXCEPTION("Invalid move type: " << strMoveType);
         }
         RLOG << "Move type: " << strMoveType << std::endl;
+
+        if(strFlock == "true") {
+            m_sFlockingParams.IsFlock = true;
+        }
+        else if(strFlock == "false") {
+            m_sFlockingParams.IsFlock = false;
+        }
+        else {
+            THROW_ARGOSEXCEPTION("Invalid flock param: " << strFlock);
+        }
+        RLOG << "Flock: " << strFlock << std::endl;
     }
     catch(CARGoSException& ex) {
         THROW_ARGOSEXCEPTION_NESTED("Error parsing the controller parameters.", ex);
@@ -299,7 +322,12 @@ CVector2 CRobot::GetFlockingVector(std::vector<Message>& msgs) {
 
     for(size_t i = 0; i < msgs.size(); i++) {
         /* Calculate LJ */
-        Real fLJ = m_sFlockingParams.GeneralizedLennardJones(msgs[i].direction.Length());
+        Real fLJ;
+        if(m_sFlockingParams.IsFlock) {
+            fLJ = m_sFlockingParams.GeneralizedLennardJones(msgs[i].direction.Length());
+        } else {
+            fLJ = m_sFlockingParams.GeneralizedLennardJonesRepulsion(msgs[i].direction.Length());
+        }
         /* Sum to accumulator */
         resVec += CVector2(fLJ,
                            msgs[i].direction.Angle());

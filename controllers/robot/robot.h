@@ -120,10 +120,12 @@ public:
         Real Gain;
         /* Exponent of the Lennard-Jones potential */
         Real Exponent;
+        /* Switch for whether to flock */
+        bool IsFlock;
 
         void Init(TConfigurationNode& t_node);
         Real GeneralizedLennardJones(Real f_distance);
-        // Real GeneralizedLennardJonesRepulsion(Real f_distance);
+        Real GeneralizedLennardJonesRepulsion(Real f_distance);
     };
 
     /* List of move types available to the robot */
