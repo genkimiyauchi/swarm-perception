@@ -1,15 +1,15 @@
-#include "waypoint_tracking_loop_functions.h"
+#include "target_tracking_loop_functions.h"
 #include <argos3/core/simulator/simulator.h>
 #include <argos3/core/utility/configuration/argos_configuration.h>
 #include <argos3/plugins/simulator/visualizations/qt-opengl/qtopengl_render.h>
 #include <argos3/plugins/simulator/visualizations/qt-opengl/qtopengl_widget.h>
 #include <argos3/plugins/robots/e-puck/simulator/epuck_entity.h>
-#include <controllers/epuck_waypoint_tracking/epuck_waypoint_tracking.h>
+#include <controllers/robot/robot.h>
 
 /****************************************/
 /****************************************/
 
-CWaypointTrackingLoopFunctions::CWaypointTrackingLoopFunctions() :
+CTargetTrackingLoopFunctions::CTargetTrackingLoopFunctions() :
     m_pcFloor(NULL),
     m_pcRNG(NULL) {
 }
@@ -17,7 +17,7 @@ CWaypointTrackingLoopFunctions::CWaypointTrackingLoopFunctions() :
 /****************************************/
 /****************************************/
 
-void CWaypointTrackingLoopFunctions::Init(TConfigurationNode& t_node) {
+void CTargetTrackingLoopFunctions::Init(TConfigurationNode& t_node) {
     try {
         
         /*
@@ -54,7 +54,7 @@ void CWaypointTrackingLoopFunctions::Init(TConfigurationNode& t_node) {
 
         /* print all vecTargets */
         for(auto& target : m_vecTargets) {
-            LOG << "Target: " << target.first << " Radius: " << target.second << std::endl;
+            LOG << "[INFO] Target: " << target.first << " Radius: " << target.second << std::endl;
         }
     }
     catch(CARGoSException& ex) {
@@ -77,7 +77,7 @@ void CWaypointTrackingLoopFunctions::Init(TConfigurationNode& t_node) {
         ++itEpuck) {
 
         CEPuckEntity& cEPuck = *any_cast<CEPuckEntity*>(itEpuck->second);
-        CEPuckWaypointTracking& cController = dynamic_cast<CEPuckWaypointTracking&>(cEPuck.GetControllableEntity().GetController());
+        CRobot& cController = dynamic_cast<CRobot&>(cEPuck.GetControllableEntity().GetController());
         cController.SetTarget(m_vecTargets[0].first, m_vecTargets[0].second); // TEMP: Use the first target for all e-pucks
     }
 }
@@ -85,7 +85,7 @@ void CWaypointTrackingLoopFunctions::Init(TConfigurationNode& t_node) {
 /****************************************/
 /****************************************/
 
-void CWaypointTrackingLoopFunctions::Reset() {
+void CTargetTrackingLoopFunctions::Reset() {
     // /* Zero the counters */
     // m_unCollectedFood = 0;
     // m_nEnergy = 0;
@@ -104,7 +104,7 @@ void CWaypointTrackingLoopFunctions::Reset() {
 /****************************************/
 /****************************************/
 
-void CWaypointTrackingLoopFunctions::Destroy() {
+void CTargetTrackingLoopFunctions::Destroy() {
     /* Close the file */
     // m_cOutput.close();
 }
@@ -112,7 +112,7 @@ void CWaypointTrackingLoopFunctions::Destroy() {
 /****************************************/
 /****************************************/
 
-CColor CWaypointTrackingLoopFunctions::GetFloorColor(const CVector2& c_position_on_plane) {
+CColor CTargetTrackingLoopFunctions::GetFloorColor(const CVector2& c_position_on_plane) {
     /* If point is within the area of targets, return red */
     for(const auto& target : m_vecTargets) {
         if((c_position_on_plane - target.first).SquareLength() < target.second) {
@@ -125,7 +125,7 @@ CColor CWaypointTrackingLoopFunctions::GetFloorColor(const CVector2& c_position_
 /****************************************/
 /****************************************/
 
-void CWaypointTrackingLoopFunctions::PreStep() {
+void CTargetTrackingLoopFunctions::PreStep() {
 
     LOG << "TIME: " << GetSpace().GetSimulationClock() << std::endl;
 
@@ -134,7 +134,7 @@ void CWaypointTrackingLoopFunctions::PreStep() {
 /****************************************/
 /****************************************/
 
-void CWaypointTrackingLoopFunctions::PostStep() {
+void CTargetTrackingLoopFunctions::PostStep() {
 
     /* Grab frame */
     if(m_bFrameGrabbing) {
@@ -148,4 +148,4 @@ void CWaypointTrackingLoopFunctions::PostStep() {
 /****************************************/
 /****************************************/
 
-REGISTER_LOOP_FUNCTIONS(CWaypointTrackingLoopFunctions, "waypoint_tracking_loop_functions")
+REGISTER_LOOP_FUNCTIONS(CTargetTrackingLoopFunctions, "target_tracking_loop_functions")

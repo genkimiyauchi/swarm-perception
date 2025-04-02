@@ -1,5 +1,5 @@
 /*
- * AUTHOR: Carlo Pinciroli <cpinciro@ulb.ac.be>
+ * AUTHOR: Genki Miyauchi <g.miyauchi@sheffield.ac.uk>
  *
  * An example controller for obstacle avoidance with the e-puck.
  *
@@ -7,11 +7,11 @@
  * wheels to move the robot around.
  *
  * This controller is meant to be used with the XML files:
- *    experiments/epuck_waypoint_tracking.argos
+ *    experiments/target_tracking.argos
  */
 
-#ifndef EPUCK_WAYPOINT_TRACKING_H
-#define EPUCK_WAYPOINT_TRACKING_H
+#ifndef ROBOT_H
+#define ROBOT_H
 
 /*
  * Include some necessary headers.
@@ -49,7 +49,7 @@ using namespace argos;
 /*
  * A controller is simply an implementation of the CCI_Controller class.
  */
-class CEPuckWaypointTracking : public CCI_Controller {
+class CRobot : public CCI_Controller {
 
 public:
 
@@ -86,20 +86,20 @@ public:
 
     /*
     * The following variables are used as parameters for
-    * tracking waypoints. You can set their value
+    * tracking targets. You can set their value
     * in the <parameters> section of the XML configuration
     * file, under the
-    * <controllers><leader_controller><parameters><waypoint_tracking>
+    * <controllers><leader_controller><parameters><target_tracking>
     * section.
     */
-    struct SWaypointTrackingParams {
-        /* Target angle to waypoint in radians */
+    struct STargetTrackingParams {
+        /* Target angle to target in radians */
         Real TargetAngle;
         /* Parameters to be used for PID */
         Real Kp;
         Real Ki;
         Real Kd;
-        /* Consider it has arrived to a goal/waypoint if it is within a threshold */
+        /* Consider it has arrived to a goal/target if it is within a threshold */
         Real thresRange;
         
         void Init(TConfigurationNode& t_node);
@@ -129,17 +129,17 @@ public:
     /* List of move types available to the robot */
     enum class MoveType {
         STOP = 0,   // Stop moving
-        DIRECT,     // Move directly to a target waypoint
-        ANGLE_BIAS, // Move to a target waypoint with an angle bias
+        DIRECT,     // Move directly to a target target
+        ANGLE_BIAS, // Move to a target target with an angle bias
     } currentMoveType;
 
 public:
 
     /* Class constructor. */
-    CEPuckWaypointTracking();
+    CRobot();
 
     /* Class destructor. */
-    virtual ~CEPuckWaypointTracking() {}
+    virtual ~CRobot() {}
 
     /*
     * This function initializes the controller.
@@ -197,9 +197,9 @@ protected:
     void SetWheelSpeedsFromVectorHoming(const CVector2& c_heading);
 
     /*
-    * Calculates the vector to the next waypoint.
+    * Calculates the vector to the next target.
     */
-    virtual CVector2 VectorToWaypoint();
+    virtual CVector2 VectorToTarget();
 
     /* 
     * Get a flocking vector between itself and the other robots.
@@ -253,8 +253,8 @@ private:
     SWheelTurningParams m_sWheelTurningParams;
     /* The flocking interaction parameters. */
     SFlockingInteractionParams m_sFlockingParams;
-    /* The waypoint tracking parameters */
-    SWaypointTrackingParams m_sWaypointTrackingParams;
+    /* The target tracking parameters */
+    STargetTrackingParams m_sTargetTrackingParams;
 
 };
 

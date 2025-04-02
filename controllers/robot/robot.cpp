@@ -1,11 +1,11 @@
-#include "epuck_waypoint_tracking.h"
+#include "robot.h"
 #include <argos3/core/simulator/simulator.h>
 #include <argos3/core/utility/configuration/argos_configuration.h>
 
 /****************************************/
 /****************************************/
 
-void CEPuckWaypointTracking::SWheelTurningParams::Init(TConfigurationNode& t_node) {
+void CRobot::SWheelTurningParams::Init(TConfigurationNode& t_node) {
    try {
         TurningMechanism = NO_TURN;
         CDegrees cAngle;
@@ -25,7 +25,7 @@ void CEPuckWaypointTracking::SWheelTurningParams::Init(TConfigurationNode& t_nod
 /****************************************/
 /****************************************/
 
-void CEPuckWaypointTracking::SFlockingInteractionParams::Init(TConfigurationNode& t_node) {
+void CRobot::SFlockingInteractionParams::Init(TConfigurationNode& t_node) {
     try {
        GetNodeAttribute(t_node, "target_distance", TargetDistance);
        GetNodeAttribute(t_node, "gain", Gain);
@@ -39,7 +39,7 @@ void CEPuckWaypointTracking::SFlockingInteractionParams::Init(TConfigurationNode
 /****************************************/
 /****************************************/
 
-void CEPuckWaypointTracking::SWaypointTrackingParams::Init(TConfigurationNode& t_node) {
+void CRobot::STargetTrackingParams::Init(TConfigurationNode& t_node) {
     try {
         GetNodeAttribute(t_node, "target_angle", TargetAngle);
         GetNodeAttribute(t_node, "kp", Kp);
@@ -48,7 +48,7 @@ void CEPuckWaypointTracking::SWaypointTrackingParams::Init(TConfigurationNode& t
         GetNodeAttribute(t_node, "thres_range", thresRange);
     }
     catch(CARGoSException& ex) {
-        THROW_ARGOSEXCEPTION_NESTED("Error initializing controller waypoint tracking parameters.", ex);
+        THROW_ARGOSEXCEPTION_NESTED("Error initializing controller target tracking parameters.", ex);
     }
 }
 
@@ -58,7 +58,7 @@ void CEPuckWaypointTracking::SWaypointTrackingParams::Init(TConfigurationNode& t
 /*
  * This function is a generalization of the Lennard-Jones potential
  */
-Real CEPuckWaypointTracking::SFlockingInteractionParams::GeneralizedLennardJones(Real f_distance) {
+Real CRobot::SFlockingInteractionParams::GeneralizedLennardJones(Real f_distance) {
     Real fNormDistExp = ::pow(TargetDistance / f_distance, Exponent);
     return -Gain / f_distance * (fNormDistExp * fNormDistExp - fNormDistExp);
  }
@@ -66,7 +66,7 @@ Real CEPuckWaypointTracking::SFlockingInteractionParams::GeneralizedLennardJones
 /****************************************/
 /****************************************/
 
-CEPuckWaypointTracking::CEPuckWaypointTracking() :
+CRobot::CRobot() :
     m_pcWheels(NULL),
     m_pcProximity(NULL),
     m_pcRABAct(NULL),
@@ -79,7 +79,7 @@ CEPuckWaypointTracking::CEPuckWaypointTracking() :
 /****************************************/
 /****************************************/
 
-void CEPuckWaypointTracking::Init(TConfigurationNode& t_node) {
+void CRobot::Init(TConfigurationNode& t_node) {
     /*
     * Get sensor/actuator handles
     *
@@ -119,8 +119,8 @@ void CEPuckWaypointTracking::Init(TConfigurationNode& t_node) {
     try {
         /* Wheel turning */
         m_sWheelTurningParams.Init(GetNode(t_node, "wheel_turning"));
-        /* Waypoint tracking */
-        m_sWaypointTrackingParams.Init(GetNode(t_node, "waypoint_tracking"));
+        /* Target tracking */
+        m_sTargetTrackingParams.Init(GetNode(t_node, "target_tracking"));
         /* Flocking-related */
         m_sFlockingParams.Init(GetNode(t_node, "flocking"));
         /* Motion */
@@ -137,7 +137,7 @@ void CEPuckWaypointTracking::Init(TConfigurationNode& t_node) {
         else {
             THROW_ARGOSEXCEPTION("Invalid move type: " << strMoveType);
         }
-        RLOG << "[INFO] Move type: " << strMoveType << std::endl;
+        RLOG << "Move type: " << strMoveType << std::endl;
     }
     catch(CARGoSException& ex) {
         THROW_ARGOSEXCEPTION_NESTED("Error parsing the controller parameters.", ex);
@@ -150,15 +150,15 @@ void CEPuckWaypointTracking::Init(TConfigurationNode& t_node) {
     m_pcPIDHeading = new PID(0.1,        // dt  (loop interval time)
         m_sWheelTurningParams.MaxSpeed,  // max
         -m_sWheelTurningParams.MaxSpeed, // min
-        m_sWaypointTrackingParams.Kp,    // Kp
-        m_sWaypointTrackingParams.Ki,    // Ki
-        m_sWaypointTrackingParams.Kd);   // Kd
+        m_sTargetTrackingParams.Kp,    // Kp
+        m_sTargetTrackingParams.Ki,    // Ki
+        m_sTargetTrackingParams.Kd);   // Kd
 }
 
 /****************************************/
 /****************************************/
 
-void CEPuckWaypointTracking::Reset() {
+void CRobot::Reset() {
 
     /* Initialize the msg contents to 255 (Reserved for "no event has happened") */
     m_pcRABAct->ClearData();
@@ -169,7 +169,7 @@ void CEPuckWaypointTracking::Reset() {
 /****************************************/
 /****************************************/
 
-void CEPuckWaypointTracking::ControlStep() {
+void CRobot::ControlStep() {
 
     LOG << "---------- " << GetId() << " ----------" << std::endl;
 
@@ -184,12 +184,12 @@ void CEPuckWaypointTracking::ControlStep() {
     CVector2 pos2d = CVector2(pos3d.GetX(), pos3d.GetY());
     RLOG << "pos: " << pos2d << std::endl;
 
-    /* Attraction to waypoint */
-    CVector2 waypointForce = VectorToWaypoint();
+    /* Attraction to target */
+    CVector2 targetForce = VectorToTarget();
     CVector2 flockingForce = GetFlockingVector(robotMsgs);
-    CVector2 sumForce = waypointForce + flockingForce;
+    CVector2 sumForce = targetForce + flockingForce;
 
-    // RLOG << "waypointForce: " << waypointForce << std::endl;
+    // RLOG << "targetForce: " << targetForce << std::endl;
 
     // sumForce.Normalize();
     // sumForce *= m_sWheelTurningParams.MaxSpeed;
@@ -197,7 +197,7 @@ void CEPuckWaypointTracking::ControlStep() {
     /* Set move type */
     switch(currentMoveType) {
         case MoveType::DIRECT:
-            /* Attraction to waypoint */
+            /* Attraction to target */
             break;
         case MoveType::ANGLE_BIAS:
             if(m_unBiasDuration == 0) {
@@ -209,7 +209,7 @@ void CEPuckWaypointTracking::ControlStep() {
 
             RLOG << "rad: " << m_cAngleBias.GetValue() << ", time = " << m_unBiasDuration << std::endl;
 
-            /* Attraction to waypoint */
+            /* Attraction to target */
             /* Rotate sumForce by m_cAngleBias */
             sumForce.Rotate(m_cAngleBias);
             /* Decrease the duration */
@@ -238,7 +238,7 @@ void CEPuckWaypointTracking::ControlStep() {
 /****************************************/
 /****************************************/
 
-void CEPuckWaypointTracking::ResetVariables() {
+void CRobot::ResetVariables() {
     /* Clear messages received */
     robotMsgs.clear();
 }
@@ -246,7 +246,7 @@ void CEPuckWaypointTracking::ResetVariables() {
 /****************************************/
 /****************************************/
 
-void CEPuckWaypointTracking::GetMessages() {
+void CRobot::GetMessages() {
 
     /* Get RAB messages from nearby e-pucks */
     const CCI_RangeAndBearingSensor::TReadings& tMsgs = m_pcRABSens->GetReadings();
@@ -265,7 +265,7 @@ void CEPuckWaypointTracking::GetMessages() {
 /****************************************/
 /****************************************/
 
-CVector2 CEPuckWaypointTracking::VectorToWaypoint() {
+CVector2 CRobot::VectorToTarget() {
     /* Get current position */
     CVector3 pos3d = m_pcPosSens->GetReading().Position;
     CVector2 pos2d = CVector2(pos3d.GetX(), pos3d.GetY());
@@ -277,7 +277,7 @@ CVector2 CEPuckWaypointTracking::VectorToWaypoint() {
         return CVector2();
     }
 
-    /* Calculate a normalized vector that points to the next waypoint */
+    /* Calculate a normalized vector that points to the next target */
     CVector2 cAccum = m_cTarget - pos2d;
 
     cAccum.Rotate((-cZAngle).SignedNormalize());
@@ -293,7 +293,7 @@ CVector2 CEPuckWaypointTracking::VectorToWaypoint() {
 /****************************************/
 /****************************************/
 
-CVector2 CEPuckWaypointTracking::GetFlockingVector(std::vector<Message>& msgs) {
+CVector2 CRobot::GetFlockingVector(std::vector<Message>& msgs) {
 
     CVector2 resVec = CVector2();
 
@@ -321,7 +321,7 @@ CVector2 CEPuckWaypointTracking::GetFlockingVector(std::vector<Message>& msgs) {
 /****************************************/
 /****************************************/
 
-void CEPuckWaypointTracking::SetWheelSpeedsFromVector(const CVector2& c_heading) {
+void CRobot::SetWheelSpeedsFromVector(const CVector2& c_heading) {
     /* Get the heading angle */
     CRadians cHeadingAngle = c_heading.Angle().SignedNormalize();
     /* Get the length of the heading vector */
@@ -392,7 +392,7 @@ void CEPuckWaypointTracking::SetWheelSpeedsFromVector(const CVector2& c_heading)
 /****************************************/
 /****************************************/
 
-void CEPuckWaypointTracking::SetWheelSpeedsFromVectorHoming(const CVector2& c_heading) {
+void CRobot::SetWheelSpeedsFromVectorHoming(const CVector2& c_heading) {
 
     /* Get the heading angle */
     CRadians cHeadingAngle = c_heading.Angle().SignedNormalize();
@@ -428,4 +428,4 @@ void CEPuckWaypointTracking::SetWheelSpeedsFromVectorHoming(const CVector2& c_he
  * controller class to instantiate.
  * See also the configuration files for an example of how this is used.
  */
-REGISTER_CONTROLLER(CEPuckWaypointTracking, "epuck_waypoint_tracking_controller")
+REGISTER_CONTROLLER(CRobot, "robot_controller")

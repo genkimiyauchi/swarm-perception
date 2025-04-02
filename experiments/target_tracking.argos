@@ -16,8 +16,8 @@
   <!-- *************** -->
   <controllers>
 
-    <epuck_waypoint_tracking_controller id="ewt"
-                                        library="build/controllers/epuck_waypoint_tracking/libepuck_waypoint_tracking.so">
+    <robot_controller id="ewt"
+                      library="build/controllers/robot/librobot.so">
       <actuators>
         <differential_steering implementation="default" />
         <range_and_bearing implementation="default" />
@@ -36,14 +36,14 @@
         <flocking target_distance="20"
                   gain="3000"
                   exponent="6" />
-        <waypoint_tracking target_angle="0"
+        <target_tracking target_angle="0"
                   kp="10"
                   ki="0"
                   kd="0" 
                   thres_range="0.05" />
         <motion type="direct" />
       </params>
-    </epuck_waypoint_tracking_controller>
+    </robot_controller>
 
   </controllers>
 
@@ -51,8 +51,8 @@
   <!-- ****************** -->
   <!-- * Loop functions * -->
   <!-- ****************** -->
-  <loop_functions library="build/loop_functions/waypoint_tracking_loop_functions/libwaypoint_tracking_loop_functions"
-                  label="waypoint_tracking_loop_functions">
+  <loop_functions library="build/loop_functions/target_tracking_loop_functions/libtarget_tracking_loop_functions"
+                  label="target_tracking_loop_functions">
 
     <!-- Output path -->
     <output frame_grabbing="false"
@@ -155,8 +155,8 @@
   <visualization>
     <qt-opengl>
 
-      <user_functions library="build/loop_functions/waypoint_tracking_loop_functions/libwaypoint_tracking_loop_functions"
-                      label="waypoint_tracking_qt_user_functions" />
+      <user_functions library="build/loop_functions/target_tracking_loop_functions/libtarget_tracking_loop_functions"
+                      label="target_tracking_qt_user_functions" />
 
       <frame_grabbing directory="frames"
                       base_name="frame_"

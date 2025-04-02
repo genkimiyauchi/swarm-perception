@@ -1,5 +1,5 @@
-#ifndef WAYPOINT_TRACKING_LOOP_FUNCTIONS_H
-#define WAYPOINT_TRACKING_LOOP_FUNCTIONS_H
+#ifndef TARGET_TRACKING_LOOP_FUNCTIONS_H
+#define TARGET_TRACKING_LOOP_FUNCTIONS_H
 
 #include <argos3/core/simulator/loop_functions.h>
 #include <argos3/core/simulator/entity/floor_entity.h>
@@ -8,12 +8,12 @@
 
 using namespace argos;
 
-class CWaypointTrackingLoopFunctions : public CLoopFunctions {
+class CTargetTrackingLoopFunctions : public CLoopFunctions {
 
 public:
 
-    CWaypointTrackingLoopFunctions();
-    virtual ~CWaypointTrackingLoopFunctions() {}
+    CTargetTrackingLoopFunctions();
+    virtual ~CTargetTrackingLoopFunctions() {}
 
     virtual void Init(TConfigurationNode& t_tree);
     virtual void Reset();
@@ -28,9 +28,6 @@ private:
 
     CFloorEntity* m_pcFloor;
     CRandom::CRNG* m_pcRNG;
-
-    CVector2 m_cWaypoint;
-    Real m_fWaypointRadius;
 
     std::vector<std::pair<CVector2, Real>> m_vecTargets;
 
