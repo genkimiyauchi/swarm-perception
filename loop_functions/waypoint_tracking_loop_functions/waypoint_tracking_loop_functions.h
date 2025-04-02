@@ -32,6 +32,8 @@ private:
     CVector2 m_cWaypoint;
     Real m_fWaypointRadius;
 
+    std::vector<std::pair<CVector2, Real>> m_vecTargets;
+
     /* Frame Grabbing */
     bool m_bFrameGrabbing;
     UInt32 m_unCameraIndex;
