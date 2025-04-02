@@ -52,10 +52,10 @@ void CWaypointTrackingLoopFunctions::Init(TConfigurationNode& t_node) {
             }
         }
 
-        // /* print all vecTargets */
-        // for(auto& target : m_vecTargets) {
-        //     LOG << "Target: " << target.first << " Radius: " << target.second << std::endl;
-        // }
+        /* print all vecTargets */
+        for(auto& target : m_vecTargets) {
+            LOG << "Target: " << target.first << " Radius: " << target.second << std::endl;
+        }
     }
     catch(CARGoSException& ex) {
         THROW_ARGOSEXCEPTION_NESTED("Error parsing loop functions!", ex);

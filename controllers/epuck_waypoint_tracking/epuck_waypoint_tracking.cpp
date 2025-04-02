@@ -123,6 +123,21 @@ void CEPuckWaypointTracking::Init(TConfigurationNode& t_node) {
         m_sWaypointTrackingParams.Init(GetNode(t_node, "waypoint_tracking"));
         /* Flocking-related */
         m_sFlockingParams.Init(GetNode(t_node, "flocking"));
+        /* Motion */
+        std::string strMoveType;
+        TConfigurationNode& tMove = GetNode(t_node, "motion");
+        GetNodeAttributeOrDefault(tMove, "type", strMoveType, std::string("direct"));
+
+        if(strMoveType == "direct") {
+            currentMoveType = MoveType::DIRECT;
+        }
+        else if(strMoveType == "angle_bias") {
+            currentMoveType = MoveType::ANGLE_BIAS;
+        }
+        else {
+            THROW_ARGOSEXCEPTION("Invalid move type: " << strMoveType);
+        }
+        RLOG << "[INFO] Move type: " << strMoveType << std::endl;
     }
     catch(CARGoSException& ex) {
         THROW_ARGOSEXCEPTION_NESTED("Error parsing the controller parameters.", ex);
@@ -132,14 +147,12 @@ void CEPuckWaypointTracking::Init(TConfigurationNode& t_node) {
     m_pcRNG = CRandom::CreateRNG("argos");
 
     /* Init PID Controller */
-    m_pcPIDHeading = new PID(0.1,       // dt  (loop interval time)
+    m_pcPIDHeading = new PID(0.1,        // dt  (loop interval time)
         m_sWheelTurningParams.MaxSpeed,  // max
         -m_sWheelTurningParams.MaxSpeed, // min
         m_sWaypointTrackingParams.Kp,    // Kp
         m_sWaypointTrackingParams.Ki,    // Ki
         m_sWaypointTrackingParams.Kd);   // Kd
-
-    currentMoveType = MoveType::DIRECT; // TEMP hard-coded value
 }
 
 /****************************************/
