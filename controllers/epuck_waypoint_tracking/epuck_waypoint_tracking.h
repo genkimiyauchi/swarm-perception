@@ -105,6 +105,27 @@ public:
         void Init(TConfigurationNode& t_node);
     };
 
+    /*
+    * The following variables are used as parameters for
+    * flocking interaction. You can set their value
+    * in the <parameters> section of the XML configuration
+    * file, under the
+    * <controllers><leader_controller><parameters><team_flocking>
+    * section.
+    */
+    struct SFlockingInteractionParams {
+        /* Target robot-robot distance in cm */
+        Real TargetDistance;
+        /* Gain of the Lennard-Jones potential */
+        Real Gain;
+        /* Exponent of the Lennard-Jones potential */
+        Real Exponent;
+
+        void Init(TConfigurationNode& t_node);
+        Real GeneralizedLennardJones(Real f_distance);
+        // Real GeneralizedLennardJonesRepulsion(Real f_distance);
+    };
+
     /* List of move types available to the robot */
     enum class MoveType {
         STOP = 0,   // Stop moving
@@ -175,9 +196,9 @@ protected:
     virtual CVector2 VectorToWaypoint();
 
     /* 
-    * Get a flocking vector between itself and the other robots not in the same team.
+    * Get a flocking vector between itself and the other robots.
     */
-    virtual CVector2 GetRobotRepulsionVector(std::vector<Message>& msgs);
+    virtual CVector2 GetFlockingVector(std::vector<Message>& msgs);
 
 private:
 
@@ -223,6 +244,8 @@ private:
     */
     /* The turning parameters. */
     SWheelTurningParams m_sWheelTurningParams;
+    /* The flocking interaction parameters. */
+    SFlockingInteractionParams m_sFlockingParams;
     /* The waypoint tracking parameters */
     SWaypointTrackingParams m_sWaypointTrackingParams;
 

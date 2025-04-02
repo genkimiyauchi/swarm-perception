@@ -25,6 +25,20 @@ void CEPuckWaypointTracking::SWheelTurningParams::Init(TConfigurationNode& t_nod
 /****************************************/
 /****************************************/
 
+void CEPuckWaypointTracking::SFlockingInteractionParams::Init(TConfigurationNode& t_node) {
+    try {
+       GetNodeAttribute(t_node, "target_distance", TargetDistance);
+       GetNodeAttribute(t_node, "gain", Gain);
+       GetNodeAttribute(t_node, "exponent", Exponent);
+    }
+    catch(CARGoSException& ex) {
+       THROW_ARGOSEXCEPTION_NESTED("Error initializing controller flocking parameters.", ex);
+    }
+ }
+
+/****************************************/
+/****************************************/
+
 void CEPuckWaypointTracking::SWaypointTrackingParams::Init(TConfigurationNode& t_node) {
     try {
         GetNodeAttribute(t_node, "target_angle", TargetAngle);
@@ -37,6 +51,17 @@ void CEPuckWaypointTracking::SWaypointTrackingParams::Init(TConfigurationNode& t
         THROW_ARGOSEXCEPTION_NESTED("Error initializing controller waypoint tracking parameters.", ex);
     }
 }
+
+/****************************************/
+/****************************************/
+
+/*
+ * This function is a generalization of the Lennard-Jones potential
+ */
+Real CEPuckWaypointTracking::SFlockingInteractionParams::GeneralizedLennardJones(Real f_distance) {
+    Real fNormDistExp = ::pow(TargetDistance / f_distance, Exponent);
+    return -Gain / f_distance * (fNormDistExp * fNormDistExp - fNormDistExp);
+ }
 
 /****************************************/
 /****************************************/
@@ -96,8 +121,8 @@ void CEPuckWaypointTracking::Init(TConfigurationNode& t_node) {
         m_sWheelTurningParams.Init(GetNode(t_node, "wheel_turning"));
         /* Waypoint tracking */
         m_sWaypointTrackingParams.Init(GetNode(t_node, "waypoint_tracking"));
-        // /* Flocking-related */
-        // m_sFlockingParams.Init(GetNode(t_node, "flocking"));
+        /* Flocking-related */
+        m_sFlockingParams.Init(GetNode(t_node, "flocking"));
     }
     catch(CARGoSException& ex) {
         THROW_ARGOSEXCEPTION_NESTED("Error parsing the controller parameters.", ex);
@@ -150,7 +175,8 @@ void CEPuckWaypointTracking::ControlStep() {
 
     /* Attraction to waypoint */
     CVector2 waypointForce = VectorToWaypoint();
-    CVector2 sumForce = waypointForce;
+    CVector2 flockingForce = GetFlockingVector(robotMsgs);
+    CVector2 sumForce = waypointForce + flockingForce;
 
     // RLOG << "waypointForce: " << waypointForce << std::endl;
 
@@ -161,7 +187,6 @@ void CEPuckWaypointTracking::ControlStep() {
     switch(currentMoveType) {
         case MoveType::DIRECT:
             /* Attraction to waypoint */
-            sumForce = waypointForce;
             break;
         case MoveType::ANGLE_BIAS:
             if(m_unBiasDuration == 0) {
@@ -174,7 +199,6 @@ void CEPuckWaypointTracking::ControlStep() {
             RLOG << "rad: " << m_cAngleBias.GetValue() << ", time = " << m_unBiasDuration << std::endl;
 
             /* Attraction to waypoint */
-            sumForce = waypointForce;
             /* Rotate sumForce by m_cAngleBias */
             sumForce.Rotate(m_cAngleBias);
             /* Decrease the duration */
@@ -183,13 +207,13 @@ void CEPuckWaypointTracking::ControlStep() {
             break;
     }
 
-    /* TEMP */
-    // go through each message in robotMsgs and Print
-    for(size_t i = 0; i < robotMsgs.size(); i++) {
-        robotMsgs[i].Print();
-    }
+    // /* TEMP */
+    // // go through each message in robotMsgs and Print
+    // for(size_t i = 0; i < robotMsgs.size(); i++) {
+    //     robotMsgs[i].Print();
+    // }
 
-    SetWheelSpeedsFromVectorHoming(sumForce);
+    SetWheelSpeedsFromVector(sumForce);
 
     /* Message to broadcast */
     Message msg = Message();
@@ -253,27 +277,27 @@ CVector2 CEPuckWaypointTracking::VectorToWaypoint() {
 /****************************************/
 /****************************************/
 
-CVector2 CEPuckWaypointTracking::GetRobotRepulsionVector(std::vector<Message>& msgs) {
+CVector2 CEPuckWaypointTracking::GetFlockingVector(std::vector<Message>& msgs) {
 
     CVector2 resVec = CVector2();
 
-    // for(size_t i = 0; i < msgs.size(); i++) {
-    //     /* Calculate LJ */
-    //     Real fLJ = m_sTeamFlockingParams.GeneralizedLennardJonesRepulsion(msgs[i].direction.Length());
-    //     /* Sum to accumulator */
-    //     resVec += CVector2(fLJ,
-    //                         msgs[i].direction.Angle());
-    // }
+    for(size_t i = 0; i < msgs.size(); i++) {
+        /* Calculate LJ */
+        Real fLJ = m_sFlockingParams.GeneralizedLennardJones(msgs[i].direction.Length());
+        /* Sum to accumulator */
+        resVec += CVector2(fLJ,
+                           msgs[i].direction.Angle());
+    }
 
-    // /* Calculate the average vector */
-    // if( !msgs.empty() )
-    //     resVec /= msgs.size();
+    /* Calculate the average vector */
+    if( !msgs.empty() )
+        resVec /= msgs.size();
 
-    // /* Limit the length of the vector to the max speed */
-    // if(resVec.Length() > m_sWheelTurningParams.MaxSpeed) {
-    //     resVec.Normalize();
-    //     resVec *= m_sWheelTurningParams.MaxSpeed * 0.5;
-    // }
+    /* Limit the length of the vector to the max speed */
+    if(resVec.Length() > m_sWheelTurningParams.MaxSpeed) {
+        resVec.Normalize();
+        resVec *= m_sWheelTurningParams.MaxSpeed;
+    }
 
     return resVec;
 }
