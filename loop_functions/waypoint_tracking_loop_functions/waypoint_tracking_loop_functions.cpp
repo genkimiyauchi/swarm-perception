@@ -41,12 +41,8 @@ void CWaypointTrackingLoopFunctions::Init(TConfigurationNode& t_node) {
             /* Get current node (team/custom_team) */
             TConfigurationNode& tTarget = *itTargets;
 
-            LOG << "HI " << itTargets->Value() << std::endl;
-
             /* Get target positions */
             if(itTargets->Value() == "target") {
-                LOG << "IN " << itTargets->Value() << std::endl;
-
                 CVector2 cCenter;
                 Real fRadius;
                 GetNodeAttributeOrDefault(tTarget, "center", cCenter, CVector2());
@@ -56,10 +52,10 @@ void CWaypointTrackingLoopFunctions::Init(TConfigurationNode& t_node) {
             }
         }
 
-        /* print all vecTargets */
-        for(auto& target : m_vecTargets) {
-            LOG << "Target: " << target.first << " Radius: " << target.second << std::endl;
-        }
+        // /* print all vecTargets */
+        // for(auto& target : m_vecTargets) {
+        //     LOG << "Target: " << target.first << " Radius: " << target.second << std::endl;
+        // }
     }
     catch(CARGoSException& ex) {
         THROW_ARGOSEXCEPTION_NESTED("Error parsing loop functions!", ex);
@@ -71,12 +67,19 @@ void CWaypointTrackingLoopFunctions::Init(TConfigurationNode& t_node) {
     /* Create a new RNG */
     m_pcRNG = CRandom::CreateRNG("argos");
 
-    // m_cWaypoint.Set(1.0f, 1.0f); // TEMP hard-coded value
-    // m_fWaypointRadius = 0.1f; // TEMP hard-coded value
-    // LOG << "Waypoint: " << m_cWaypoint << std::endl;
-
     /* Update floor */
     m_pcFloor->SetChanged();
+
+    /* Access all e-puck entities in simulation and print their ids */
+    CSpace::TMapPerType& m_cEPucks = GetSpace().GetEntitiesByType("e-puck");
+    for(CSpace::TMapPerType::iterator itEpuck = m_cEPucks.begin();
+        itEpuck != m_cEPucks.end();
+        ++itEpuck) {
+
+        CEPuckEntity& cEPuck = *any_cast<CEPuckEntity*>(itEpuck->second);
+        CEPuckWaypointTracking& cController = dynamic_cast<CEPuckWaypointTracking&>(cEPuck.GetControllableEntity().GetController());
+        cController.SetTarget(m_vecTargets[0].first, m_vecTargets[0].second); // TEMP: Use the first target for all e-pucks
+    }
 }
 
 /****************************************/

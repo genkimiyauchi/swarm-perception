@@ -172,6 +172,12 @@ public:
     */
     virtual void Destroy() {}
 
+    /* Set target to move towards */
+    virtual void SetTarget(const CVector2& c_target, const Real& f_radius) {
+        m_cTarget = c_target;
+        m_fTargetRadius = f_radius;
+    }
+
 protected:
 
     /*
@@ -227,8 +233,9 @@ private:
     /* Messages received from nearby robots */
     std::vector<Message> robotMsgs;
 
-    /* Waypoint to move towards */
-    CVector2 m_cTargetWaypoint;
+    /* Target to move towards */
+    CVector2 m_cTarget;
+    Real m_fTargetRadius;
 
     /* ### ANGLE_BIAS: params ### */
     /* Angle bias */

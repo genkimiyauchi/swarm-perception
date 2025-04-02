@@ -139,8 +139,6 @@ void CEPuckWaypointTracking::Init(TConfigurationNode& t_node) {
         m_sWaypointTrackingParams.Ki,    // Ki
         m_sWaypointTrackingParams.Kd);   // Kd
 
-    m_cTargetWaypoint.Set(1.0f, 1.0f); // TEMP hard-coded value
-
     currentMoveType = MoveType::DIRECT; // TEMP hard-coded value
 }
 
@@ -261,8 +259,13 @@ CVector2 CEPuckWaypointTracking::VectorToWaypoint() {
     CRadians cZAngle, cYAngle, cXAngle;
     m_pcPosSens->GetReading().Orientation.ToEulerAngles(cZAngle, cYAngle, cXAngle);
 
+    /* No attraction if it is within the target area */
+    if((pos2d - m_cTarget).Length() < m_fTargetRadius) {
+        return CVector2();
+    }
+
     /* Calculate a normalized vector that points to the next waypoint */
-    CVector2 cAccum = m_cTargetWaypoint - pos2d;
+    CVector2 cAccum = m_cTarget - pos2d;
 
     cAccum.Rotate((-cZAngle).SignedNormalize());
 
