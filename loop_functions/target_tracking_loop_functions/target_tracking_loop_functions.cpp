@@ -78,7 +78,8 @@ void CTargetTrackingLoopFunctions::Init(TConfigurationNode& t_node) {
 
         CEPuckEntity& cEPuck = *any_cast<CEPuckEntity*>(itEpuck->second);
         CRobot& cController = dynamic_cast<CRobot&>(cEPuck.GetControllableEntity().GetController());
-        cController.SetTarget(m_vecTargets[0].first, m_vecTargets[0].second); // TEMP: Use the first target for all e-pucks
+        UInt8 teamID = cController.GetTeamID();
+        cController.SetTarget(m_vecTargets[teamID-1].first, m_vecTargets[teamID-1].second); // TEMP: Use team assigned target
     }
 }
 

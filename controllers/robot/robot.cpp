@@ -2,6 +2,18 @@
 #include <argos3/core/simulator/simulator.h>
 #include <argos3/core/utility/configuration/argos_configuration.h>
 
+#include <unordered_map>
+
+/* Team colors */
+std::unordered_map<UInt8, CColor> teamColor = {
+    {1, CColor::RED},
+    {2, CColor::BLUE},
+    {3, CColor::GREEN},
+    {4, CColor::YELLOW},
+    {5, CColor::ORANGE},
+    {6, CColor::WHITE},
+};
+
 /****************************************/
 /****************************************/
 
@@ -128,6 +140,9 @@ void CRobot::Init(TConfigurationNode& t_node) {
         * have to recompile if we want to try other settings.
         */
     try {
+        /* Team ID */
+        TConfigurationNode& cTeamNode = GetNode(t_node, "team");
+        GetNodeAttribute(cTeamNode, "id", m_unTeamID);
         /* Wheel turning */
         m_sWheelTurningParams.Init(GetNode(t_node, "wheel_turning"));
         /* Target tracking */
@@ -136,31 +151,27 @@ void CRobot::Init(TConfigurationNode& t_node) {
         m_sFlockingParams.Init(GetNode(t_node, "flocking"));
         /* Motion */
         std::string strMoveType, strFlock;
-        TConfigurationNode& tMove = GetNode(t_node, "motion");
-        GetNodeAttributeOrDefault(tMove, "type", strMoveType, std::string("direct"));
-        GetNodeAttributeOrDefault(tMove, "flock", strFlock, std::string("true"));
+        TConfigurationNode& cMotionNode = GetNode(t_node, "motion");
+        GetNodeAttribute(cMotionNode, "type", strMoveType);
+        GetNodeAttribute(cMotionNode, "flock", strFlock);
 
         if(strMoveType == "direct") {
             currentMoveType = MoveType::DIRECT;
-        }
-        else if(strMoveType == "angle_bias") {
+        } else if(strMoveType == "angle_bias") {
             currentMoveType = MoveType::ANGLE_BIAS;
-        }
-        else {
+        } else {
             THROW_ARGOSEXCEPTION("Invalid move type: " << strMoveType);
         }
-        RLOG << "Move type: " << strMoveType << std::endl;
 
         if(strFlock == "true") {
             m_sFlockingParams.IsFlock = true;
-        }
-        else if(strFlock == "false") {
+        } else if(strFlock == "false") {
             m_sFlockingParams.IsFlock = false;
-        }
-        else {
+        } else {
             THROW_ARGOSEXCEPTION("Invalid flock param: " << strFlock);
         }
-        RLOG << "Flock: " << strFlock << std::endl;
+
+        RLOG << "Team: " << m_unTeamID << ", Move type: " << strMoveType << ", Flock: " << strFlock << std::endl;
     }
     catch(CARGoSException& ex) {
         THROW_ARGOSEXCEPTION_NESTED("Error parsing the controller parameters.", ex);
@@ -173,9 +184,12 @@ void CRobot::Init(TConfigurationNode& t_node) {
     m_pcPIDHeading = new PID(0.1,        // dt  (loop interval time)
         m_sWheelTurningParams.MaxSpeed,  // max
         -m_sWheelTurningParams.MaxSpeed, // min
-        m_sTargetTrackingParams.Kp,    // Kp
-        m_sTargetTrackingParams.Ki,    // Ki
-        m_sTargetTrackingParams.Kd);   // Kd
+        m_sTargetTrackingParams.Kp,      // Kp
+        m_sTargetTrackingParams.Ki,      // Ki
+        m_sTargetTrackingParams.Kd);     // Kd
+
+    /* Set team color */
+    m_pcLEDs->SetAllColors(teamColor[m_unTeamID]);
 }
 
 /****************************************/
@@ -194,7 +208,7 @@ void CRobot::Reset() {
 
 void CRobot::ControlStep() {
 
-    LOG << "---------- " << GetId() << " ----------" << std::endl;
+    // LOG << "---------- " << GetId() << " ----------" << std::endl;
 
     /* Reset variables */
     ResetVariables();
@@ -205,11 +219,18 @@ void CRobot::ControlStep() {
     /* Get position */
     CVector3 pos3d = m_pcPosSens->GetReading().Position;
     CVector2 pos2d = CVector2(pos3d.GetX(), pos3d.GetY());
-    RLOG << "pos: " << pos2d << std::endl;
+    // RLOG << "pos: " << pos2d << std::endl;
 
     /* Attraction to target */
     CVector2 targetForce = VectorToTarget();
-    CVector2 flockingForce = GetFlockingVector(robotMsgs);
+
+    /* Flocking or Repulsion force */
+    std::vector<Message> allMsgs;
+    allMsgs.insert(allMsgs.end(), teamMsgs.begin(), teamMsgs.end());
+    allMsgs.insert(allMsgs.end(), otherMsgs.begin(), otherMsgs.end());
+    CVector2 flockingForce = GetFlockingVector(allMsgs);
+
+    /* Sum of forces */
     CVector2 sumForce = targetForce + flockingForce;
 
     // RLOG << "targetForce: " << targetForce << std::endl;
@@ -242,9 +263,9 @@ void CRobot::ControlStep() {
     }
 
     // /* TEMP */
-    // // go through each message in robotMsgs and Print
-    // for(size_t i = 0; i < robotMsgs.size(); i++) {
-    //     robotMsgs[i].Print();
+    // // go through each message in teamMsgs and Print
+    // for(size_t i = 0; i < teamMsgs.size(); i++) {
+    //     teamMsgs[i].Print();
     // }
 
     SetWheelSpeedsFromVector(sumForce);
@@ -252,6 +273,7 @@ void CRobot::ControlStep() {
     /* Message to broadcast */
     Message msg = Message();
     msg.ID = GetId();
+    msg.teamID = m_unTeamID;
 
     cbyte_msg = msg.GetCByteArray();
     m_pcRABAct->SetData(cbyte_msg);
@@ -263,7 +285,8 @@ void CRobot::ControlStep() {
 
 void CRobot::ResetVariables() {
     /* Clear messages received */
-    robotMsgs.clear();
+    teamMsgs.clear();
+    otherMsgs.clear();
 }
 
 /****************************************/
@@ -280,7 +303,11 @@ void CRobot::GetMessages() {
             Message msg = Message(tMsgs[i]);
 
             /* Store message */
-            robotMsgs.push_back(msg);
+            if(msg.teamID == m_unTeamID) {
+                teamMsgs.push_back(msg);
+            } else {
+                otherMsgs.push_back(msg);
+            }
         }
     }
 }
@@ -295,10 +322,10 @@ CVector2 CRobot::VectorToTarget() {
     CRadians cZAngle, cYAngle, cXAngle;
     m_pcPosSens->GetReading().Orientation.ToEulerAngles(cZAngle, cYAngle, cXAngle);
 
-    /* No attraction if it is within the target area */
-    if((pos2d - m_cTarget).Length() < m_fTargetRadius) {
-        return CVector2();
-    }
+    // /* No attraction if it is within the target area */
+    // if((pos2d - m_cTarget).Length() < m_fTargetRadius) {
+    //     return CVector2();
+    // }
 
     /* Calculate a normalized vector that points to the next target */
     CVector2 cAccum = m_cTarget - pos2d;
@@ -323,7 +350,7 @@ CVector2 CRobot::GetFlockingVector(std::vector<Message>& msgs) {
     for(size_t i = 0; i < msgs.size(); i++) {
         /* Calculate LJ */
         Real fLJ;
-        if(m_sFlockingParams.IsFlock) {
+        if(m_sFlockingParams.IsFlock && msgs[i].teamID == m_unTeamID) {
             fLJ = m_sFlockingParams.GeneralizedLennardJones(msgs[i].direction.Length());
         } else {
             fLJ = m_sFlockingParams.GeneralizedLennardJonesRepulsion(msgs[i].direction.Length());

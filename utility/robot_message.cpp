@@ -17,6 +17,7 @@ Message::Message(CCI_RangeAndBearingSensor::SPacket packet) {
     /* Core */
     direction = CVector2(packet.Range, packet.HorizontalBearing);
     ID = std::to_string(packet.Data[index++]); // Only stores number part of the id here
+    teamID = packet.Data[index++];
 
 }
 
@@ -37,6 +38,8 @@ CByteArray Message::GetCByteArray() {
 
     /* Sender ID */
     arr[index++] = stoi(ID.substr(2));
+    /* Team ID */
+    arr[index++] = teamID;
 
     return arr;
 }
@@ -59,5 +62,6 @@ void Message::Print() const {
     std::cout << "\n##########" << std::endl;
     std::cout << "Direction: " << direction << std::endl;
     std::cout << "ID: " << ID << std::endl;
+    std::cout << "Team ID: " << (int)teamID << std::endl;
 
 }

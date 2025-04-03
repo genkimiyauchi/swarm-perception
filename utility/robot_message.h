@@ -29,8 +29,8 @@ using namespace argos;
 * Communication buffer size
 **
 * size = fixed data + End;
-*      = 2         + 1
-*      = 3
+*      = 1          + 1
+*      = 2
 */
 static const UInt32 MESSAGE_BYTE_SIZE = 
     /* fixed data */
@@ -64,6 +64,7 @@ class Message {
         /* Core */
         CVector2 direction = CVector2();
         std::string ID;
+        UInt8 teamID;
 
 };
 

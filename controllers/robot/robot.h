@@ -174,6 +174,11 @@ public:
     */
     virtual void Destroy() {}
 
+    /* Get team ID */
+    virtual UInt8 GetTeamID() const {
+        return m_unTeamID;
+    }
+
     /* Set target to move towards */
     virtual void SetTarget(const CVector2& c_target, const Real& f_radius) {
         m_cTarget = c_target;
@@ -232,8 +237,12 @@ private:
     /* Outgoing message */
     CByteArray cbyte_msg;
 
+    /* Team ID */
+    UInt8 m_unTeamID;
+
     /* Messages received from nearby robots */
-    std::vector<Message> robotMsgs;
+    std::vector<Message> teamMsgs;
+    std::vector<Message> otherMsgs;
 
     /* Target to move towards */
     CVector2 m_cTarget;
