@@ -291,7 +291,7 @@ void CRobot::ControlStep() {
     Message msg = Message();
     msg.ID = GetId();
     msg.teamID = m_unTeamID;
-    msg.inTarget = bInTarget ? true : false;
+    msg.inTarget = bInTarget;
 
     cbyte_msg = msg.GetCByteArray();
     m_pcRABAct->SetData(cbyte_msg);
@@ -345,32 +345,32 @@ CVector2 CRobot::VectorToTarget() {
     /* Move to the edge if it is in the target area */
     if(DistToTarget < m_fTargetRadius) {
 
-        // /* Surround target area */
-        // if(DistToTarget < m_fTargetRadius - BODY_RADIUS) {
-        //     cAccum = pos2d - m_cTarget; // move away from target
-        // } else {
-        //     cAccum = m_cTarget - pos2d; // move towards target
-        // }
+        /* Surround target area */
+        if(DistToTarget < m_fTargetRadius - BODY_RADIUS) {
+            cAccum = pos2d - m_cTarget; // move away from target
+        } else {
+            cAccum = m_cTarget - pos2d; // move towards target
+        }
 
-        // cAccum.Rotate((-cZAngle).SignedNormalize());
-        // cAccum.Normalize();
-        // cAccum *= Abs((m_fTargetRadius - BODY_RADIUS) - (pos2d - m_cTarget).Length());
-        // cAccum *= 50; // TEMP: hard-coded value
-        // // RLOG << "length: " << cAccum.Length() << std::endl;
+        cAccum.Rotate((-cZAngle).SignedNormalize());
+        cAccum.Normalize();
+        cAccum *= Abs((m_fTargetRadius - BODY_RADIUS) - (pos2d - m_cTarget).Length());
+        cAccum *= 50; // TEMP: hard-coded value
 
-        // // Attract to other robots
-        // CVector2 avgPos = CVector2();
-        // for(const auto& msg : otherMsgs) {
-        //     avgPos += CVector2(msg.direction.GetX(), msg.direction.GetY());
-        // }
+        // Attract to other robots
+        CVector2 avgPos = CVector2();
+        for(const auto& msg : otherMsgs) {
+            avgPos += CVector2(msg.direction.GetX(), msg.direction.GetY());
+        }
 
-        // if( !otherMsgs.empty() ) {
-        //     avgPos /= otherMsgs.size();
-        //     avgPos.Normalize();
-        //     avgPos *= 0.1; // TEMP: hard-coded value
-        // }
+        if( !otherMsgs.empty() ) {
+            avgPos /= otherMsgs.size();
+            avgPos.Normalize();
+            avgPos *= 0.1; // TEMP: hard-coded value
+        }
 
-        // cAccum += avgPos;
+        cAccum += avgPos;
+        // RLOG << "length: " << cAccum.Length() << std::endl;
 
     } else {
         /* Calculate a normalized vector that points to the next target */
@@ -406,14 +406,15 @@ CVector2 CRobot::GetFlockingVector(std::vector<Message>& msgs) {
     for(size_t i = 0; i < msgs.size(); i++) {
         /* Calculate LJ */
         Real fLJ;
+        size_t prev_counter = counter;
 
-        // if(bInTarget) { // Blocking behavior while inside target area
+        if(bInTarget) { // Blocking behavior while inside target area
 
-        //     fLJ = m_sBlockingParams.GeneralizedLennardJonesRepulsion(msgs[i].direction.Length());
-        //     ++counter;
+            fLJ = m_sBlockingParams.GeneralizedLennardJonesRepulsion(msgs[i].direction.Length());
+            ++counter;
 
-        // } else {
-        //     if(msgs[i].inTarget == false) { // Don't flock with or avoid robots in target area
+        } else {
+            if(msgs[i].inTarget == false) { // Don't flock with or avoid robots in target area
                 if(m_sFlockingParams.IsFlock && // Flocking enabled for this team
                     msgs[i].teamID == m_unTeamID) { // Flock with robots in the same team
                      
@@ -423,12 +424,13 @@ CVector2 CRobot::GetFlockingVector(std::vector<Message>& msgs) {
                     fLJ = m_sFlockingParams.GeneralizedLennardJonesRepulsion(msgs[i].direction.Length());
                     ++counter;
                 }
-        //     }
-        // }
+            }
+        }
 
         /* Sum to accumulator */
-        resVec += CVector2(fLJ,
-                           msgs[i].direction.Angle());
+        if(counter > prev_counter) {
+            resVec += CVector2(fLJ, msgs[i].direction.Angle());
+        }
     }
 
     /* Calculate the average vector */
