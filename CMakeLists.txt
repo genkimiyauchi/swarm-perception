@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8.0)
-project(argos3_sct)
+project(swarm-competence)
 
 # Set the compilation type
 if(CMAKE_BUILD_TYPE STREQUAL "")

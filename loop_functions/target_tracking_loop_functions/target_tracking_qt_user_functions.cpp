@@ -19,7 +19,7 @@ void CTargetTrackingQTUserFunctions::Draw(CEPuckEntity& c_entity) {
 
     std::string id = c_entity.GetId().c_str();
 
-    DrawText(CVector3(0.0, 0.0, 0.2), id);
+   //  DrawText(CVector3(0.0, 0.0, 0.2), id);
 
 }
 

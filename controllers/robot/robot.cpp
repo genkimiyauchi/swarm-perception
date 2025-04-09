@@ -4,6 +4,13 @@
 
 #include <unordered_map>
 
+/****************************************/
+/****************************************/
+
+/* Constants */
+
+static const Real BODY_RADIUS = 0.035f; // meters
+
 /* Team colors */
 std::unordered_map<UInt8, CColor> teamColor = {
     {1, CColor::RED},
@@ -149,6 +156,7 @@ void CRobot::Init(TConfigurationNode& t_node) {
         m_sTargetTrackingParams.Init(GetNode(t_node, "target_tracking"));
         /* Flocking-related */
         m_sFlockingParams.Init(GetNode(t_node, "flocking"));
+        m_sBlockingParams.Init(GetNode(t_node, "blocking"));
         /* Motion */
         std::string strMoveType, strFlock;
         TConfigurationNode& cMotionNode = GetNode(t_node, "motion");
@@ -216,10 +224,14 @@ void CRobot::ControlStep() {
     /* Receive new messages */
     GetMessages();
 
-    /* Get position */
+    /* Get current position */
     CVector3 pos3d = m_pcPosSens->GetReading().Position;
     CVector2 pos2d = CVector2(pos3d.GetX(), pos3d.GetY());
-    // RLOG << "pos: " << pos2d << std::endl;
+    CRadians cZAngle, cYAngle, cXAngle;
+    m_pcPosSens->GetReading().Orientation.ToEulerAngles(cZAngle, cYAngle, cXAngle);
+
+    DistToTarget = Distance(pos2d, m_cTarget);
+    bInTarget = DistToTarget < m_fTargetRadius ? true : false;
 
     /* Attraction to target */
     CVector2 targetForce = VectorToTarget();
@@ -268,12 +280,18 @@ void CRobot::ControlStep() {
     //     teamMsgs[i].Print();
     // }
 
-    SetWheelSpeedsFromVector(sumForce);
+    /* Set Wheel Speed */
+    if(sumForce.Length() > 0.1f) {
+        SetWheelSpeedsFromVector(sumForce);
+    } else {
+        m_pcWheels->SetLinearVelocity(0.0f, 0.0f);
+    }
 
     /* Message to broadcast */
     Message msg = Message();
     msg.ID = GetId();
     msg.teamID = m_unTeamID;
+    msg.inTarget = bInTarget ? true : false;
 
     cbyte_msg = msg.GetCByteArray();
     m_pcRABAct->SetData(cbyte_msg);
@@ -322,17 +340,46 @@ CVector2 CRobot::VectorToTarget() {
     CRadians cZAngle, cYAngle, cXAngle;
     m_pcPosSens->GetReading().Orientation.ToEulerAngles(cZAngle, cYAngle, cXAngle);
 
-    // /* No attraction if it is within the target area */
-    // if((pos2d - m_cTarget).Length() < m_fTargetRadius) {
-    //     return CVector2();
-    // }
+    CVector2 cAccum;
 
-    /* Calculate a normalized vector that points to the next target */
-    CVector2 cAccum = m_cTarget - pos2d;
+    /* Move to the edge if it is in the target area */
+    if(DistToTarget < m_fTargetRadius) {
 
-    cAccum.Rotate((-cZAngle).SignedNormalize());
+        if(DistToTarget < m_fTargetRadius - BODY_RADIUS) {
+            cAccum = pos2d - m_cTarget; // move away from target
+        } else {
+            cAccum = m_cTarget - pos2d; // move towards target
+        }
 
-    if(cAccum.Length() > 0.0f) {
+        cAccum.Rotate((-cZAngle).SignedNormalize());
+        cAccum.Normalize();
+        cAccum *= Abs((m_fTargetRadius - BODY_RADIUS) - (pos2d - m_cTarget).Length());
+        cAccum *= 50; // TEMP: hard-coded value
+        // RLOG << "length: " << cAccum.Length() << std::endl;
+
+        // Attract to other robots
+        CVector2 avgPos = CVector2();
+        for(const auto& msg : otherMsgs) {
+            avgPos += CVector2(msg.direction.GetX(), msg.direction.GetY());
+        }
+
+        if( !otherMsgs.empty() ) {
+            avgPos /= otherMsgs.size();
+            avgPos.Normalize();
+            avgPos *= 0.1; // TEMP: hard-coded value
+        }
+
+        cAccum += avgPos;
+
+    } else {
+        /* Calculate a normalized vector that points to the next target */
+        cAccum = m_cTarget - pos2d;
+        cAccum.Rotate((-cZAngle).SignedNormalize());
+        cAccum.Normalize();
+        cAccum *= m_sWheelTurningParams.MaxSpeed;
+    }
+
+    if(cAccum.Length() > m_sWheelTurningParams.MaxSpeed) {
         /* Make the vector as long as the max speed */
         cAccum.Normalize();
         cAccum *= m_sWheelTurningParams.MaxSpeed;
@@ -347,22 +394,45 @@ CVector2 CRobot::GetFlockingVector(std::vector<Message>& msgs) {
 
     CVector2 resVec = CVector2();
 
+    /* Get current position */
+    CVector3 pos3d = m_pcPosSens->GetReading().Position;
+    CVector2 pos2d = CVector2(pos3d.GetX(), pos3d.GetY());
+    CRadians cZAngle, cYAngle, cXAngle;
+    m_pcPosSens->GetReading().Orientation.ToEulerAngles(cZAngle, cYAngle, cXAngle);
+
+    size_t counter = 0;
+
     for(size_t i = 0; i < msgs.size(); i++) {
         /* Calculate LJ */
         Real fLJ;
-        if(m_sFlockingParams.IsFlock && msgs[i].teamID == m_unTeamID) {
-            fLJ = m_sFlockingParams.GeneralizedLennardJones(msgs[i].direction.Length());
+
+        if(bInTarget) { // Blocking behavior while inside target area
+
+            fLJ = m_sBlockingParams.GeneralizedLennardJonesRepulsion(msgs[i].direction.Length());
+            ++counter;
+
         } else {
-            fLJ = m_sFlockingParams.GeneralizedLennardJonesRepulsion(msgs[i].direction.Length());
+            if(msgs[i].inTarget == false) { // Don't flock with or avoid robots in target area
+                if(m_sFlockingParams.IsFlock && // Flocking enabled for this team
+                    msgs[i].teamID == m_unTeamID) { // Flock with robots in the same team
+                     
+                    fLJ = m_sFlockingParams.GeneralizedLennardJones(msgs[i].direction.Length());
+                    ++counter;
+                } else {
+                    fLJ = m_sFlockingParams.GeneralizedLennardJonesRepulsion(msgs[i].direction.Length());
+                    ++counter;
+                }
+            }
         }
+
         /* Sum to accumulator */
         resVec += CVector2(fLJ,
                            msgs[i].direction.Angle());
     }
 
     /* Calculate the average vector */
-    if( !msgs.empty() )
-        resVec /= msgs.size();
+    if(counter > 0)
+        resVec /= counter;
 
     /* Limit the length of the vector to the max speed */
     if(resVec.Length() > m_sWheelTurningParams.MaxSpeed) {

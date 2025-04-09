@@ -116,7 +116,7 @@ void CTargetTrackingLoopFunctions::Destroy() {
 CColor CTargetTrackingLoopFunctions::GetFloorColor(const CVector2& c_position_on_plane) {
     /* If point is within the area of targets, return red */
     for(const auto& target : m_vecTargets) {
-        if((c_position_on_plane - target.first).SquareLength() < target.second) {
+        if(Distance(c_position_on_plane, target.first) < target.second) {
             return CColor(255,191,191);
         }
     }

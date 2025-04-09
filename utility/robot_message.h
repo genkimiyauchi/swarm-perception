@@ -34,7 +34,7 @@ using namespace argos;
 */
 static const UInt32 MESSAGE_BYTE_SIZE = 
     /* fixed data */
-    1 + 
+    3 + 
     /* End */
     1;
 
@@ -65,6 +65,7 @@ class Message {
         CVector2 direction = CVector2();
         std::string ID;
         UInt8 teamID;
+        bool inTarget;
 
 };
 

@@ -26,7 +26,7 @@
       </actuators>
       <sensors>
         <proximity implementation="default" show_rays="false" />
-        <range_and_bearing implementation="medium" medium="rab" show_rays="true" />
+        <range_and_bearing implementation="medium" medium="rab" show_rays="false" />
         <positioning implementation="default" />
       </sensors>
       <params>
@@ -36,7 +36,10 @@
                   no_turn_angle_threshold="10"
                   max_speed="15" />
         <flocking target_distance="20"
-                  gain="3000"
+                  gain="1000"
+                  exponent="6" />
+        <blocking target_distance="8"
+                  gain="1000"
                   exponent="6" />
         <target_tracking target_angle="0"
                   kp="10"
@@ -58,7 +61,7 @@
       </actuators>
       <sensors>
         <proximity implementation="default" show_rays="false" />
-        <range_and_bearing implementation="medium" medium="rab" show_rays="true" />
+        <range_and_bearing implementation="medium" medium="rab" show_rays="false" />
         <positioning implementation="default" />
       </sensors>
       <params>
@@ -68,7 +71,10 @@
                   no_turn_angle_threshold="10"
                   max_speed="15" />
         <flocking target_distance="20"
-                  gain="3000"
+                  gain="1000"
+                  exponent="6" />
+        <blocking target_distance="8"
+                  gain="1000"
                   exponent="6" />
         <target_tracking target_angle="0"
                   kp="10"
@@ -76,7 +82,7 @@
                   kd="0" 
                   thres_range="0.05" />
         <motion type="direct"
-                flock="false" />
+                flock="true" />
       </params>
     </robot_controller>
 
@@ -90,14 +96,14 @@
                   label="target_tracking_loop_functions">
 
     <!-- Output path -->
-    <output frame_grabbing="false"
+    <output frame_grabbing="true"
             camera_index="0" />
 
     <targets>
-      <target center="1,1" radius="0.1" />
+      <target center="1,1" radius="0.3" />
       <!-- <target center="1,-1" radius="0.2" />
       <target center="-1,-1" radius="0.3" /> -->
-      <target center="-1,1" radius="0.1" />
+      <target center="0,1" radius="0.3" />
     </targets>
 
   </loop_functions>
@@ -136,8 +142,8 @@
     <distribute>
       <position method="uniform" min="-1.5,-1.5,0" max="-0.5,-0.5,0" />
       <orientation method="gaussian" mean="0,0,0" std_dev="360,0,0" />
-      <entity quantity="10" max_trials="100" base_num="1">
-        <e-puck id="ep">
+      <entity quantity="8" max_trials="100" base_num="1">
+        <e-puck id="ep" rab_data_size="4" >
           <controller config="epc1" />
         </e-puck>
       </entity>
@@ -146,8 +152,8 @@
     <distribute>
       <position method="uniform" min="0.5,-1.5,0" max="1.5,-0.5,0" />
       <orientation method="gaussian" mean="0,0,0" std_dev="360,0,0" />
-      <entity quantity="10" max_trials="100" base_num="11">
-        <e-puck id="ep">
+      <entity quantity="8" max_trials="100" base_num="9">
+        <e-puck id="ep" rab_data_size="4" >
           <controller config="epc2" />
         </e-puck>
       </entity>

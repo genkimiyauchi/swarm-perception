@@ -247,6 +247,8 @@ private:
     /* Target to move towards */
     CVector2 m_cTarget;
     Real m_fTargetRadius;
+    Real DistToTarget;
+    bool bInTarget;
 
     /* ### ANGLE_BIAS: params ### */
     /* Angle bias */
@@ -264,6 +266,7 @@ private:
     SWheelTurningParams m_sWheelTurningParams;
     /* The flocking interaction parameters. */
     SFlockingInteractionParams m_sFlockingParams;
+    SFlockingInteractionParams m_sBlockingParams;
     /* The target tracking parameters */
     STargetTrackingParams m_sTargetTrackingParams;
 
