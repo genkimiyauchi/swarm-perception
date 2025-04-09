@@ -16,11 +16,20 @@ public:
     virtual ~CTargetTrackingLoopFunctions() {}
 
     virtual void Init(TConfigurationNode& t_tree);
+    
     virtual void Reset();
+
     virtual void Destroy();
+
     virtual CColor GetFloorColor(const CVector2& c_position_on_plane);
+
     virtual void PreStep();
+
     virtual void PostStep();
+
+    virtual bool IsDrawRobotLabel() const {
+        return m_bDrawRobotLabel;
+    }
 
 private:
 
@@ -34,6 +43,9 @@ private:
     /* Frame Grabbing */
     bool m_bFrameGrabbing;
     UInt32 m_unCameraIndex;
+
+    /* Draw configurations */
+    bool m_bDrawRobotLabel;
 
     std::string m_strOutput;
     std::ofstream m_cOutput;

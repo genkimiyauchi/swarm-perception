@@ -30,6 +30,9 @@ void CTargetTrackingLoopFunctions::Init(TConfigurationNode& t_node) {
         GetNodeAttributeOrDefault(tSettings, "frame_grabbing", m_bFrameGrabbing, false);
         GetNodeAttributeOrDefault(tSettings, "camera_index", m_unCameraIndex, (UInt32)0);
 
+        TConfigurationNode& tDraw = GetNode(config, "draw");
+        GetNodeAttributeOrDefault(tDraw, "robot_label", m_bDrawRobotLabel, true);
+
         /* Target position */
         TConfigurationNode& etTargets = GetNode(config, "targets");
         TConfigurationNodeIterator itTargets;
