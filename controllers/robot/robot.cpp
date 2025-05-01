@@ -11,6 +11,17 @@
 
 static const Real BODY_RADIUS = 0.035f; // meters
 
+static const std::vector<CRadians> PROX_ANGLE {
+    CRadians::PI / 10.5884f,
+    CRadians::PI / 3.5999f,
+    CRadians::PI_OVER_TWO,  // side sensor
+    CRadians::PI / 1.2f,    // back sensor
+    CRadians::PI / 0.8571f, // back sensor
+    CRadians::PI / 0.6667f, // side sensor
+    CRadians::PI / 0.5806f,
+    CRadians::PI / 0.5247f
+  };
+
 /* Team colors */
 std::unordered_map<UInt8, CColor> teamColor = {
     {1, CColor::RED},
@@ -158,19 +169,60 @@ void CRobot::Init(TConfigurationNode& t_node) {
         m_sFlockingParams.Init(GetNode(t_node, "flocking"));
         m_sBlockingParams.Init(GetNode(t_node, "blocking"));
         /* Motion */
-        std::string strMoveType, strFlock;
+        std::string strMoveType, strAngleDriftRange, strAngleDriftDuration, strWheelDriftRatio, strWheelDriftDuration, strFlock;
         TConfigurationNode& cMotionNode = GetNode(t_node, "motion");
         GetNodeAttribute(cMotionNode, "type", strMoveType);
+        GetNodeAttributeOrDefault(cMotionNode, "angle_drift_range", strAngleDriftRange, std::string("45,45"));
+        GetNodeAttributeOrDefault(cMotionNode, "angle_drift_duration", strAngleDriftDuration, std::string("10,30"));
+        // GetNodeAttributeOrDefault(cMotionNode, "wheel_drift_range", strWheelDriftRatio, std::string("0.5"));
+        // GetNodeAttributeOrDefault(cMotionNode, "wheel_drift_duration", strWheelDriftDuration, std::string("10,30"));
         GetNodeAttribute(cMotionNode, "flock", strFlock);
 
+        /* Parse move type */
         if(strMoveType == "direct") {
             currentMoveType = MoveType::DIRECT;
-        } else if(strMoveType == "angle_bias") {
-            currentMoveType = MoveType::ANGLE_BIAS;
+        } else if(strMoveType == "angle_drift") {
+            currentMoveType = MoveType::ANGLE_DRIFT;
+        } else if(strMoveType == "wheel_drift") {
+            currentMoveType = MoveType::WHEEL_DRIFT;
         } else {
             THROW_ARGOSEXCEPTION("Invalid move type: " << strMoveType);
         }
 
+        /* Parse angle drift range */
+        std::string::size_type comma_pos = strAngleDriftRange.find(',');
+        if(comma_pos == std::string::npos) {
+            THROW_ARGOSEXCEPTION("Invalid angle drift format: " << strAngleDriftRange);
+        }
+        m_fMinAngleDrift = std::stod(strAngleDriftRange.substr(0, comma_pos));
+        m_fMaxAngleDrift = std::stod(strAngleDriftRange.substr(comma_pos + 1));
+        if(m_fMinAngleDrift > m_fMaxAngleDrift) {
+            THROW_ARGOSEXCEPTION("Invalid angle drift range: min > max (" << m_fMinAngleDrift << " > " << m_fMaxAngleDrift << ")");
+        }
+        
+        /* Parse angle drift duration */
+        comma_pos = strAngleDriftDuration.find(',');
+        if(comma_pos == std::string::npos) {
+            THROW_ARGOSEXCEPTION("Invalid angle drift duration format: " << strAngleDriftDuration);
+        }
+        m_unMinAngleDriftDuration = std::stoi(strAngleDriftDuration.substr(0, comma_pos));
+        m_unMaxAngleDriftDuration = std::stoi(strAngleDriftDuration.substr(comma_pos + 1));
+        if(m_unMinAngleDriftDuration > m_unMaxAngleDriftDuration) {
+            THROW_ARGOSEXCEPTION("Invalid angle drift duration range: min > max (" << m_unMinAngleDriftDuration << " > " << m_unMaxAngleDriftDuration << ")");
+        }
+
+        // /* parse wheel drift duration */
+        // comma_pos = strWheelDriftDuration.find(',');
+        // if(comma_pos == std::string::npos) {
+        //     THROW_ARGOSEXCEPTION("Invalid wheel drift duration format: " << strWheelDriftDuration);
+        // }
+        // m_unMinWheelDriftDuration = std::stoi(strWheelDriftDuration.substr(0, comma_pos));
+        // m_unMaxWheelDriftDuration = std::stoi(strWheelDriftDuration.substr(comma_pos + 1));
+        // if(m_unMinWheelDriftDuration > m_unMaxWheelDriftDuration) {
+        //     THROW_ARGOSEXCEPTION("Invalid wheel drift duration range: min > max (" << m_unMinWheelDriftDuration << " > " << m_unMaxWheelDriftDuration << ")");
+        // }
+
+        /* Parse whether to flock */
         if(strFlock == "true") {
             m_sFlockingParams.IsFlock = true;
         } else if(strFlock == "false") {
@@ -179,11 +231,23 @@ void CRobot::Init(TConfigurationNode& t_node) {
             THROW_ARGOSEXCEPTION("Invalid flock param: " << strFlock);
         }
 
-        RLOG << "Team: " << m_unTeamID << ", Move type: " << strMoveType << ", Flock: " << strFlock << std::endl;
+        /* Print parsed parameters */
+        RLOG << "Team: " << m_unTeamID << ", Move type: " << strMoveType;
+        if(currentMoveType == MoveType::ANGLE_DRIFT) {
+            LOG << " range=(" << m_fMinAngleDrift << "," << m_fMaxAngleDrift << ")";
+            LOG << " t=(" << m_unMinAngleDriftDuration << "," << m_unMaxAngleDriftDuration << ")";
+        } 
+        // else if(currentMoveType == MoveType::WHEEL_DRIFT) {
+        //     LOG << " t=(" << m_unMinWheelDriftDuration << "," << m_unMaxWheelDriftDuration << ")";
+        // }
+        LOG << ", Flock: " << strFlock << std::endl;
     }
     catch(CARGoSException& ex) {
         THROW_ARGOSEXCEPTION_NESTED("Error parsing the controller parameters.", ex);
     }
+
+    m_unAngleDriftDurationTimer = 0;
+    // m_unWheelDriftDurationTimer = 0;
 
     /* Create a new RNG */
     m_pcRNG = CRandom::CreateRNG("argos");
@@ -234,18 +298,24 @@ void CRobot::ControlStep() {
     bInTarget = DistToTarget < m_fTargetRadius ? true : false;
 
     /* Attraction to target */
-    CVector2 targetForce = VectorToTarget();
+    CVector2 targetForce = GetAttractionVector();
 
     /* Flocking or Repulsion force */
     std::vector<Message> allMsgs;
     allMsgs.insert(allMsgs.end(), teamMsgs.begin(), teamMsgs.end());
     allMsgs.insert(allMsgs.end(), otherMsgs.begin(), otherMsgs.end());
-    CVector2 flockingForce = GetFlockingVector(allMsgs);
+    // CVector2 flockingForce = GetFlockingVector(allMsgs);
+    CVector2 repulsionForce = GetRobotRepulsionVector(allMsgs);
+
+    CVector2 obstacleForce = GetObstacleRepulsionVector();
 
     /* Sum of forces */
-    CVector2 sumForce = targetForce + flockingForce;
+    CVector2 sumForce = targetForce + repulsionForce + obstacleForce * 10;
 
+    /* DEBUGGING */
     // RLOG << "targetForce: " << targetForce << std::endl;
+    // RLOG << "repulsionForce: " << repulsionForce << std::endl;
+    // RLOG << "sumForce: " << sumForce << std::endl;
 
     // sumForce.Normalize();
     // sumForce *= m_sWheelTurningParams.MaxSpeed;
@@ -253,24 +323,37 @@ void CRobot::ControlStep() {
     /* Set move type */
     switch(currentMoveType) {
         case MoveType::DIRECT:
-            /* Attraction to target */
             break;
-        case MoveType::ANGLE_BIAS:
-            if(m_unBiasDuration == 0) {
-                /* Choose a random number between 10-30 */
-                m_unBiasDuration = m_pcRNG->Uniform(CRange<UInt32>(10, 30)); // 1-3 seconds, TEMP hard-coded value
-                /* Choose a random angle between 0-30 degrees in radian */
-                m_cAngleBias.FromValueInDegrees(m_pcRNG->Uniform(CRange<Real>(-90, 90))); // TEMP hard-coded value
+
+        case MoveType::ANGLE_DRIFT:
+            if(m_unAngleDriftDurationTimer == 0) {
+                /* Choose a random duration */
+                m_unAngleDriftDurationTimer = m_pcRNG->Uniform(CRange<UInt32>(m_unMinAngleDriftDuration, m_unMaxAngleDriftDuration));
+                /* Choose a random angle */
+                m_cAngleDriftRange.FromValueInDegrees(m_pcRNG->Uniform(CRange<Real>(m_fMinAngleDrift, m_fMaxAngleDrift)));
             }
 
-            RLOG << "rad: " << m_cAngleBias.GetValue() << ", time = " << m_unBiasDuration << std::endl;
+            // RLOG << "rad: " << m_cAngleDriftRange.GetValue() << ", time = " << m_unAngleDriftDurationTimer << std::endl;
 
-            /* Attraction to target */
-            /* Rotate sumForce by m_cAngleBias */
-            sumForce.Rotate(m_cAngleBias);
+            /* Rotate sumForce by m_cAngleDriftRange */
+            sumForce.Rotate(m_cAngleDriftRange);
             /* Decrease the duration */
-            m_unBiasDuration--;
+            m_unAngleDriftDurationTimer--;
             
+            break;
+
+        // case MoveType::WHEEL_DRIFT:
+        //     if(m_unWheelDriftDurationTimer == 0) {
+        //         /* Choose a random duration */
+        //         m_unWheelDriftDurationTimer = m_pcRNG->Uniform(CRange<UInt32>(m_unMinWheelDriftDuration, m_unMaxWheelDriftDuration));
+        //     }
+
+        //     /* Apply wheel drift */
+        //     // sumForce = m_cPreviouSumForce;
+
+        //     m_unWheelDriftDurationTimer--;
+
+        default:
             break;
     }
 
@@ -333,59 +416,125 @@ void CRobot::GetMessages() {
 /****************************************/
 /****************************************/
 
-CVector2 CRobot::VectorToTarget() {
+CVector2 CRobot::GetAttractionVector() {
     /* Get current position */
     CVector3 pos3d = m_pcPosSens->GetReading().Position;
     CVector2 pos2d = CVector2(pos3d.GetX(), pos3d.GetY());
     CRadians cZAngle, cYAngle, cXAngle;
     m_pcPosSens->GetReading().Orientation.ToEulerAngles(cZAngle, cYAngle, cXAngle);
 
-    CVector2 cAccum;
+    CVector2 resVec;
 
     /* Move to the edge if it is in the target area */
     if(DistToTarget < m_fTargetRadius) {
 
-        /* Surround target area */
-        if(DistToTarget < m_fTargetRadius - BODY_RADIUS) {
-            cAccum = pos2d - m_cTarget; // move away from target
-        } else {
-            cAccum = m_cTarget - pos2d; // move towards target
-        }
+        /* No attraction */
 
-        cAccum.Rotate((-cZAngle).SignedNormalize());
-        cAccum.Normalize();
-        cAccum *= Abs((m_fTargetRadius - BODY_RADIUS) - (pos2d - m_cTarget).Length());
-        cAccum *= 50; // TEMP: hard-coded value
+        // /* Surround target area */
+        // if(DistToTarget < m_fTargetRadius - BODY_RADIUS) {
+        //     resVec = pos2d - m_cTarget; // move away from target
+        // } else {
+        //     resVec = m_cTarget - pos2d; // move towards target
+        // }
 
-        // Attract to other robots
-        CVector2 avgPos = CVector2();
-        for(const auto& msg : otherMsgs) {
-            avgPos += CVector2(msg.direction.GetX(), msg.direction.GetY());
-        }
+        // resVec.Rotate((-cZAngle).SignedNormalize());
+        // resVec.Normalize();
+        // resVec *= Abs((m_fTargetRadius - BODY_RADIUS) - (pos2d - m_cTarget).Length());
+        // resVec *= 50; // TEMP: hard-coded value
 
-        if( !otherMsgs.empty() ) {
-            avgPos /= otherMsgs.size();
-            avgPos.Normalize();
-            avgPos *= 0.1; // TEMP: hard-coded value
-        }
+        // // Attract to other robots
+        // CVector2 avgPos = CVector2();
+        // for(const auto& msg : otherMsgs) {
+        //     avgPos += CVector2(msg.direction.GetX(), msg.direction.GetY());
+        // }
 
-        cAccum += avgPos;
-        // RLOG << "length: " << cAccum.Length() << std::endl;
+        // if( !otherMsgs.empty() ) {
+        //     avgPos /= otherMsgs.size();
+        //     avgPos.Normalize();
+        //     avgPos *= 0.1; // TEMP: hard-coded value
+        // }
+
+        // resVec += avgPos;
+        // // RLOG << "length: " << resVec.Length() << std::endl;
 
     } else {
         /* Calculate a normalized vector that points to the next target */
-        cAccum = m_cTarget - pos2d;
-        cAccum.Rotate((-cZAngle).SignedNormalize());
-        cAccum.Normalize();
-        cAccum *= m_sWheelTurningParams.MaxSpeed/5;
+        resVec = m_cTarget - pos2d;
+        resVec.Rotate((-cZAngle).SignedNormalize());
+        resVec.Normalize();
+        resVec *= m_sWheelTurningParams.MaxSpeed;
     }
 
-    if(cAccum.Length() > m_sWheelTurningParams.MaxSpeed) {
+    if(resVec.Length() > m_sWheelTurningParams.MaxSpeed) {
         /* Make the vector as long as the max speed */
-        cAccum.Normalize();
-        cAccum *= m_sWheelTurningParams.MaxSpeed;
+        resVec.Normalize();
+        resVec *= m_sWheelTurningParams.MaxSpeed;
     }
-    return cAccum;
+
+    return resVec;
+}
+
+/****************************************/
+/****************************************/
+
+CVector2 CRobot::GetRobotRepulsionVector(std::vector<Message>& msgs) {
+    
+    CVector2 resVec = CVector2();
+    size_t counter = 0;
+
+    for(size_t i = 0; i < msgs.size(); i++) {
+        /* Calculate LJ */
+        Real fLJ = m_sFlockingParams.GeneralizedLennardJonesRepulsion(msgs[i].direction.Length());
+        /* Sum to accumulator */
+        resVec += CVector2(fLJ, msgs[i].direction.Angle());
+        /* Count the number of messages */
+        ++counter;
+    }
+
+    /* Calculate the average vector */
+    if(counter > 0)
+        resVec /= counter;
+
+    /* Limit the length of the vector to the max speed */
+    if(resVec.Length() > m_sWheelTurningParams.MaxSpeed) {
+        /* Make the vector as long as the max speed */
+        resVec.Normalize();
+        resVec *= m_sWheelTurningParams.MaxSpeed;
+    }
+
+    return resVec;
+}
+
+/****************************************/
+/****************************************/
+
+CVector2 CRobot::GetObstacleRepulsionVector() {
+    /* Get proximity sensor readings */
+    std::vector<Real> fProxReads = m_pcProximity->GetReadings();
+
+    CVector2 resVec = CVector2();
+
+    for(size_t i = 0; i < fProxReads.size(); i++) {
+        CVector2 vec = CVector2();
+        if(fProxReads[i] > 0.0f) {
+
+            Real distance = -( log(fProxReads[i]) / log(exp(1)) );
+            Real length = (0.1 - distance) / 0.1 * m_sWheelTurningParams.MaxSpeed;
+            vec = CVector2(length, PROX_ANGLE[i]);
+            
+            resVec -= vec; // Subtract because we want the vector pointing away from the obstacle
+        }
+    }
+
+    resVec /= 8; // Number of e-puck sensors
+
+    /* Limit the length of the vector to the max speed */
+    if(resVec.Length() > m_sWheelTurningParams.MaxSpeed) {
+        resVec.Normalize();
+        resVec *= m_sWheelTurningParams.MaxSpeed;
+    }
+
+    return resVec;
 }
 
 /****************************************/
@@ -532,8 +681,9 @@ void CRobot::SetWheelSpeedsFromVectorHoming(const CVector2& c_heading) {
 
     /* Apply the calculated speeds to the appropriate wheels */
     Real fLeftWheelSpeed, fRightWheelSpeed;
-    fLeftWheelSpeed  = m_sWheelTurningParams.MaxSpeed+fSpeed;
-    fRightWheelSpeed = m_sWheelTurningParams.MaxSpeed-fSpeed;
+    fLeftWheelSpeed  = m_sWheelTurningParams.MaxSpeed - abs(fSpeed) + fSpeed;
+    fRightWheelSpeed = m_sWheelTurningParams.MaxSpeed - abs(fSpeed) - fSpeed;
+    RLOG << "fSpeed " << fSpeed << ", abs " << abs(fSpeed) << ", left " << fLeftWheelSpeed << ", right " << fRightWheelSpeed << std::endl;
 
     /* Clamp the speed so that it's not greater than MaxSpeed */
     fLeftWheelSpeed = Min<Real>(fLeftWheelSpeed, m_sWheelTurningParams.MaxSpeed);

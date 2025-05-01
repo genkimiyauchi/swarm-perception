@@ -130,9 +130,10 @@ public:
 
     /* List of move types available to the robot */
     enum class MoveType {
-        STOP = 0,   // Stop moving
-        DIRECT,     // Move directly to a target target
-        ANGLE_BIAS, // Move to a target target with an angle bias
+        STOP = 0,    // Stop moving
+        DIRECT,      // Move directly to a target target
+        ANGLE_DRIFT, // Move to a target target with an angle drift
+        WHEEL_DRIFT, // Move to a target target with a wheel drift
     } currentMoveType;
 
 public:
@@ -206,7 +207,17 @@ protected:
     /*
     * Calculates the vector to the next target.
     */
-    virtual CVector2 VectorToTarget();
+    virtual CVector2 GetAttractionVector();
+
+    /*
+    * Calculate the vector to avoid nearby robots.
+    */
+    virtual CVector2 GetRobotRepulsionVector(std::vector<Message>& msgs);
+
+    /*
+    * Calculate the vector to avoid obstacles.
+    */
+    virtual CVector2 GetObstacleRepulsionVector();
 
     /* 
     * Get a flocking vector between itself and the other robots.
@@ -250,11 +261,20 @@ private:
     Real DistToTarget;
     bool bInTarget;
 
-    /* ### ANGLE_BIAS: params ### */
-    /* Angle bias */
-    CRadians m_cAngleBias;
-    /* Duration to apply bias */
-    UInt32 m_unBiasDuration;
+    /* ### ANGLE_DRIFT: parameters ### */
+    /* Angle drift range */
+    CRadians m_cAngleDriftRange;
+    Real m_fMinAngleDrift, m_fMaxAngleDrift;
+    /* Angle drift duration */
+    size_t m_unAngleDriftDurationTimer;
+    size_t m_unMinAngleDriftDuration, m_unMaxAngleDriftDuration;
+
+    // /* ### WHEEL_DRIFT: parameters ### */
+    // /* Wheel drift duraion */
+    // size_t m_unWheelDriftDurationTimer;
+    // size_t m_unMinWheelDriftDuration, m_unMaxWheelDriftDuration;
+    // /* Wheel drift direction */
+    // CVector2 m_cPreviouSumForce;
 
     /*
     * The following variables are used as parameters for the
