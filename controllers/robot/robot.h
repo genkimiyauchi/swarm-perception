@@ -224,6 +224,11 @@ protected:
     */
     virtual CVector2 GetFlockingVector(std::vector<Message>& msgs);
 
+    /*
+    * Run the random walk algorithm.
+    */
+    virtual CVector2 RandomWalk();
+
 private:
 
     /* Pointer to the differential steering actuator */
@@ -261,13 +266,18 @@ private:
     Real DistToTarget;
     bool bInTarget;
 
+    /* ### Random walk: parameters ### */
+    int m_unRandomWalkTimer;
+    int m_unMinRandomWalkDuration, m_unMaxRandomWalkDuration;
+    CVector2 currentRotation;
+
     /* ### ANGLE_DRIFT: parameters ### */
     /* Angle drift range */
     CRadians m_cAngleDriftRange;
     Real m_fMinAngleDrift, m_fMaxAngleDrift;
     /* Angle drift duration */
-    size_t m_unAngleDriftDurationTimer;
-    size_t m_unMinAngleDriftDuration, m_unMaxAngleDriftDuration;
+    int m_unAngleDriftDurationTimer;
+    int m_unMinAngleDriftDuration, m_unMaxAngleDriftDuration;
 
     // /* ### WHEEL_DRIFT: parameters ### */
     // /* Wheel drift duraion */

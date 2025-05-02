@@ -26,7 +26,7 @@
       </actuators>
       <sensors>
         <proximity implementation="default" show_rays="false" />
-        <range_and_bearing implementation="medium" medium="rab" show_rays="true" />
+        <range_and_bearing implementation="medium" medium="rab" show_rays="false" />
         <positioning implementation="default" />
       </sensors>
       <params>
@@ -34,8 +34,8 @@
         <wheel_turning hard_turn_angle_threshold="90"
                   soft_turn_angle_threshold="70"
                   no_turn_angle_threshold="10"
-                  max_speed="15" />
-        <flocking target_distance="20"
+                  max_speed="10" />
+        <flocking target_distance="25"
                   gain="1000"
                   exponent="6" />
         <blocking target_distance="20"
@@ -48,13 +48,15 @@
                   thres_range="0.05" />
         <!-- Parameters for motion                                                  -->
         <!--   type = {"direct", "angle_drift", "wheel_drift"}                      -->
+        <!--   random_walk_duration(seconds) = "[0:inf],[0:inf]" (e.g. "5,10")      -->
         <!--   angle_drift_range(degrees) = "[-180:180],[-180:180]" (e.g. "-45,45") -->
         <!--   angle_drift_duration(seconds) = "[0:inf],[0:inf]" (e.g. "10,30")     -->
         <!--   wheel_drift_speed(ratio) = "[0:1]" (e.g. "0.5")                      -->
         <!--   wheel_drift_duration(seconds) = "[0:inf],[0:inf]" (e.g. "10,30")     -->
         <!--   flock = {"true", "false"}                                            -->
         <motion type="angle_drift"
-                angle_drift_range="-45,45"
+                random_walk_duration="5,10"
+                angle_drift_range="-30,30"
                 angle_drift_duration="10,30"
                 wheel_drift_speed="0.5"
                 wheel_drift_duration="10,30"
@@ -76,10 +78,10 @@
             camera_index="0" />
 
     <!-- Things to draw in the qt-opengl visualization -->
-    <draw robot_label="true"/>
+    <draw robot_label="false"/>
 
     <targets>
-      <target center="1,1" radius="0.4" />
+      <target center="1,1" radius="0.5" />
       <!-- <target center="1,-1" radius="0.2" />
       <target center="-1,-1" radius="0.3" /> -->
       <!-- <target center="0,1" radius="0.4" /> -->
@@ -121,7 +123,7 @@
     <distribute>
       <position method="uniform" min="-2,-2,0" max="2,2,0" />
       <orientation method="gaussian" mean="0,0,0" std_dev="360,0,0" />
-      <entity quantity="5" max_trials="100" base_num="1">
+      <entity quantity="10" max_trials="100" base_num="1">
         <e-puck id="ep" rab_data_size="4" >
           <controller config="epc1" />
         </e-puck>
@@ -131,13 +133,13 @@
     <!--
         We distribute 5 boxes uniformly in position and rotation around Z.
     -->
-    <!-- <distribute>
+    <distribute>
       <position method="uniform" min="-2,-2,0" max="2,2,0" />
       <orientation method="uniform" min="0,0,0" max="360,0,0" />
-      <entity quantity="10" max_trials="100">
-        <box id="b" size="0.3,0.3,0.5" movable="false" />
+      <entity quantity="15" max_trials="100">
+        <box id="b" size="0.1,0.5,0.5" movable="false" />
       </entity>
-    </distribute> -->
+    </distribute>
 
     <!--
         We distribute cylinders uniformly in position and with

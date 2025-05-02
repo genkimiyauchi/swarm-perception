@@ -73,17 +73,6 @@ void CTargetTrackingLoopFunctions::Init(TConfigurationNode& t_node) {
     /* Update floor */
     m_pcFloor->SetChanged();
 
-    /* Access all e-puck entities in simulation and print their ids */
-    CSpace::TMapPerType& m_cEPucks = GetSpace().GetEntitiesByType("e-puck");
-    for(CSpace::TMapPerType::iterator itEpuck = m_cEPucks.begin();
-        itEpuck != m_cEPucks.end();
-        ++itEpuck) {
-
-        CEPuckEntity& cEPuck = *any_cast<CEPuckEntity*>(itEpuck->second);
-        CRobot& cController = dynamic_cast<CRobot&>(cEPuck.GetControllableEntity().GetController());
-        UInt8 teamID = cController.GetTeamID();
-        cController.SetTarget(m_vecTargets[teamID-1].first, m_vecTargets[teamID-1].second); // TEMP: Use team assigned target
-    }
 }
 
 /****************************************/
@@ -133,6 +122,45 @@ void CTargetTrackingLoopFunctions::PreStep() {
 
     LOG << "TIME: " << GetSpace().GetSimulationClock() << std::endl;
 
+    /* Check if any robot is in the target area, and send the location if there is */
+    bool bInTarget = false;
+    UInt8 teamID; // TEMP: Assume only one team for now
+
+    CSpace::TMapPerType& m_cEPucks = GetSpace().GetEntitiesByType("e-puck");
+    for(CSpace::TMapPerType::iterator itEpuck = m_cEPucks.begin();
+        itEpuck != m_cEPucks.end();
+        ++itEpuck) {
+
+        CEPuckEntity& cEPuck = *any_cast<CEPuckEntity*>(itEpuck->second);
+        CRobot& cController = dynamic_cast<CRobot&>(cEPuck.GetControllableEntity().GetController());
+        CVector3 pos3d = cEPuck.GetEmbodiedEntity().GetOriginAnchor().Position;
+        CVector2 pos2d = CVector2(pos3d.GetX(), pos3d.GetY());
+        teamID = cController.GetTeamID();
+        CVector2 targetPos = m_vecTargets[teamID-1].first;
+        Real radius = m_vecTargets[teamID-1].second;
+
+        /* Check if the robot is in the target area */
+        if((targetPos - pos2d).Length() < radius) {
+            bInTarget = true;
+            break;
+        }
+    }
+
+    if(bInTarget) {
+
+        /* Set target location to every robot in the team */
+        for(CSpace::TMapPerType::iterator itEpuck = m_cEPucks.begin();
+            itEpuck != m_cEPucks.end();
+            ++itEpuck) {
+
+            CEPuckEntity& cEPuck = *any_cast<CEPuckEntity*>(itEpuck->second);
+            CRobot& cController = dynamic_cast<CRobot&>(cEPuck.GetControllableEntity().GetController());
+
+            if(cController.GetTeamID() == teamID) {
+                cController.SetTarget(m_vecTargets[cController.GetTeamID()-1].first, m_vecTargets[cController.GetTeamID()-1].second); // TEMP: Use team assigned target
+            }
+        }
+    }
 }
 
 /****************************************/
