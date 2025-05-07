@@ -28,8 +28,11 @@ Message::Message(CCI_RangeAndBearingSensor::SPacket packet) {
 
     int unpackedX = (msbX << 8) | lsbX;
     Real recoveredX = (unpackedX / 1000.0f) - 3.0f; // Assuming the coordinate is in the range of -3.0 to 3.0
+    recoveredX = std::round(recoveredX * 1000.0) / 1000.0;
+
     int unpackedY = (msbY << 8) | lsbY;
     Real recoveredY = (unpackedY / 1000.0f) - 3.0f;
+    recoveredY = std::round(recoveredY * 1000.0) / 1000.0;
 
     targetPosition = CVector2(recoveredX, recoveredY);
 }

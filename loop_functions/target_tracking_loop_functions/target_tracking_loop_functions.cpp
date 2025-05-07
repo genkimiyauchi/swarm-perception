@@ -9,6 +9,14 @@
 /****************************************/
 /****************************************/
 
+/* Constants */
+static const Real ARENA_SIZE_X = 2;
+static const Real ARENA_SIZE_Y = 2;
+static const Real WALL_WIDTH = 0.05;
+
+/****************************************/
+/****************************************/
+
 CTargetTrackingLoopFunctions::CTargetTrackingLoopFunctions() :
     m_pcFloor(NULL),
     m_pcRNG(NULL) {
@@ -20,6 +28,12 @@ CTargetTrackingLoopFunctions::CTargetTrackingLoopFunctions() :
 void CTargetTrackingLoopFunctions::Init(TConfigurationNode& t_node) {
     try {
         
+        /* Get a pointer to the floor entity */
+        m_pcFloor = &GetSpace().GetFloorEntity();
+
+        /* Create a new RNG */
+        m_pcRNG = CRandom::CreateRNG("argos");
+
         /*
         * Parse the configuration file
         */
@@ -33,42 +47,130 @@ void CTargetTrackingLoopFunctions::Init(TConfigurationNode& t_node) {
         TConfigurationNode& tDraw = GetNode(config, "draw");
         GetNodeAttributeOrDefault(tDraw, "robot_label", m_bDrawRobotLabel, true);
 
-        /* Target position */
-        TConfigurationNode& etTargets = GetNode(config, "targets");
-        TConfigurationNodeIterator itTargets;
+        /*** Target location ***/
+        TConfigurationNode& tTarget = GetNode(config, "target");
 
-        for(itTargets = itTargets.begin(&etTargets);
-            itTargets != itTargets.end();
-            ++itTargets) {
+        Real fRadius;
+        CVector2 cCenter;
 
-            /* Get current node (team/custom_team) */
-            TConfigurationNode& tTarget = *itTargets;
+        GetNodeAttributeOrDefault(tTarget, "radius", fRadius, 0.25);
 
-            /* Get target positions */
-            if(itTargets->Value() == "target") {
-                CVector2 cCenter;
-                Real fRadius;
-                GetNodeAttributeOrDefault(tTarget, "center", cCenter, CVector2());
-                GetNodeAttributeOrDefault(tTarget, "radius", fRadius, 0.0);
-                /* Add target to vector */
-                m_vecTargets.push_back({cCenter, fRadius});
-            }
-        }
+        /* Select a random target location within the arena */
+        Real fX = m_pcRNG->Uniform(CRange<Real>(-ARENA_SIZE_X/2 + WALL_WIDTH/2 + fRadius, 
+                                                 ARENA_SIZE_X/2 - WALL_WIDTH/2 - fRadius));
+        Real fY = m_pcRNG->Uniform(CRange<Real>(-ARENA_SIZE_Y/2 + WALL_WIDTH/2 + fRadius,
+                                                 ARENA_SIZE_Y/2 - WALL_WIDTH/2 - fRadius));
+        
+                                                 /* Round to 3 decimal places */
+        fX = std::round(fX * 1000.0) / 1000.0;
+        fY = std::round(fY * 1000.0) / 1000.0;
+        cCenter.Set(fX, fY);
+
+        m_vecTargets.push_back({cCenter, fRadius});
 
         /* print all vecTargets */
         for(auto& target : m_vecTargets) {
             LOG << "[INFO] Target: " << target.first << " Radius: " << target.second << std::endl;
         }
+
+        /*** Teams ***/
+        TConfigurationNode& etRobots = GetNode(config, "teams");
+        /* Go through the nodes (teams) */
+        TConfigurationNodeIterator itDistr;
+
+        UInt8 teamID = 1;
+        
+        for(itDistr = itDistr.begin(&etRobots);
+            itDistr != itDistr.end();
+            ++itDistr) {
+        
+            /* Get current node (team/custom_team) */
+            TConfigurationNode& tRobots = *itDistr;
+
+            /* Get the controller */
+            std::string strController;
+            GetNodeAttribute(tRobots, "controller", strController);
+            /* Get base name */
+            std::string strBaseName;
+            GetNodeAttributeOrDefault(tRobots, "base_name", strBaseName, std::string("ep"));
+            /* Get base number */
+            size_t unBaseNumber;
+            GetNodeAttributeOrDefault(tRobots, "base_number", unBaseNumber, (size_t)1);
+            /* Get the number of robots */
+            UInt32 unRobots = 0;
+            GetNodeAttribute(tRobots, "quantity", unRobots);
+            /* Get the maximum number of trials for placing a robot */
+            UInt32 unMaxTrials = 0;
+            GetNodeAttributeOrDefault(tRobots, "max_trials", unMaxTrials, (UInt32)100);
+            /* Get RAB range */
+            Real fRABRange = 0.0f;
+            GetNodeAttributeOrDefault(tRobots, "rab_range", fRABRange, (Real)0.8f);
+
+            LOG << "[INFO] TEAM: " << teamID << std::endl;
+            LOG << "[INFO] \t--Controller: " << strController << std::endl;
+            LOG << "[INFO] \t--Base name: " << strBaseName << std::endl;
+            LOG << "[INFO] \t--Number of robots: " << unRobots << std::endl;
+            LOG << "[INFO] \t--Max trials: " << unMaxTrials << std::endl;
+            LOG << "[INFO] \t--RAB range: " << fRABRange << std::endl;
+
+            /* Place the robots */
+            for(size_t i = 0; i < unRobots; ++i) {
+
+                UInt32 unTrials = 0;
+                CEPuckEntity* pcEP;
+                std::ostringstream cEPId;
+                CVector3 cEPPos;
+                CQuaternion cEPRot;
+
+                /* Make the id */
+                cEPId.str("");
+                cEPId << strBaseName << (i + unBaseNumber);
+                /* Create the robot in the origin and add it to ARGoS space */
+                pcEP = new CEPuckEntity(cEPId.str(),
+                                        strController,
+                                        CVector3(),
+                                        CQuaternion(),
+                                        fRABRange,
+                                        MESSAGE_BYTE_SIZE,
+                                        "");
+                AddEntity(*pcEP);
+
+                /* Set team ID */
+                CRobot* cController = dynamic_cast<CRobot*>(&pcEP->GetControllableEntity().GetController());
+                cController->SetTeamID(teamID);
+
+                bool bDone = false;
+                do {
+                    /* Choose a random position and orientation */
+                    ++unTrials;
+                    cEPPos.Set(m_pcRNG->Uniform(CRange<Real>(-ARENA_SIZE_X/2 + WALL_WIDTH/2 + fRadius, 
+                                                            ARENA_SIZE_X/2 - WALL_WIDTH/2 - fRadius)),
+                            m_pcRNG->Uniform(CRange<Real>(-ARENA_SIZE_Y/2 + WALL_WIDTH/2 + fRadius, 
+                                                            ARENA_SIZE_Y/2 - WALL_WIDTH/2 - fRadius)),
+                            0.0f);
+                    cEPRot.FromAngleAxis(m_pcRNG->Uniform(CRadians::UNSIGNED_RANGE), CVector3::Z);
+
+                    /* Check the position is not in the target area */
+                    CVector2 cEPPos2 = CVector2(cEPPos.GetX(), cEPPos.GetY());
+                    if(Distance(cEPPos2, cCenter) < fRadius) {
+                        LOG << "[INFO] Robot " << cEPId.str() << " is in the target area, retrying..." << std::endl;
+                        continue;
+                    }
+
+                    bDone = MoveEntity(pcEP->GetEmbodiedEntity(), cEPPos, cEPRot);
+
+                } while(!bDone && unTrials <= unMaxTrials);
+                if(!bDone) {
+                    THROW_ARGOSEXCEPTION("Can't place " << cEPId.str());
+                }
+            }
+
+            ++teamID; // Increment team ID
+        }
     }
     catch(CARGoSException& ex) {
         THROW_ARGOSEXCEPTION_NESTED("Error parsing loop functions!", ex);
     }
-
-    /* Get a pointer to the floor entity */
-    m_pcFloor = &GetSpace().GetFloorEntity();
-
-    /* Create a new RNG */
-    m_pcRNG = CRandom::CreateRNG("argos");
 
     /* Update floor */
     m_pcFloor->SetChanged();
@@ -109,7 +211,7 @@ CColor CTargetTrackingLoopFunctions::GetFloorColor(const CVector2& c_position_on
     /* If point is within the area of targets, return red */
     for(const auto& target : m_vecTargets) {
         if(Distance(c_position_on_plane, target.first) < target.second) {
-            return CColor(191,191,255);
+            return CColor(191,255,191);
         }
     }
     return CColor::WHITE;

@@ -185,6 +185,11 @@ public:
     */
     virtual void Destroy() {}
 
+    /* Set team ID */
+    virtual void SetTeamID(UInt8 un_team_id) {
+        m_unTeamID = un_team_id;
+    }
+
     /* Get team ID */
     virtual UInt8 GetTeamID() const {
         return m_unTeamID;

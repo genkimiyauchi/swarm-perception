@@ -170,9 +170,6 @@ void CRobot::Init(TConfigurationNode& t_node) {
         * have to recompile if we want to try other settings.
         */
     try {
-        /* Team ID */
-        TConfigurationNode& cTeamNode = GetNode(t_node, "team");
-        GetNodeAttribute(cTeamNode, "id", m_unTeamID);
         /* Wheel turning */
         m_sWheelTurningParams.Init(GetNode(t_node, "wheel_turning"));
         /* Target tracking */
@@ -260,7 +257,6 @@ void CRobot::Init(TConfigurationNode& t_node) {
         // }
 
         /* Print parsed parameters */
-        RLOG << "Team: " << m_unTeamID;
         // LOG << ", Move type: " << strMoveType;
         // if(currentMoveType == MoveType::ANGLE_DRIFT) {
         //     LOG << " range=(" << m_fMinAngleDrift << "," << m_fMaxAngleDrift << ")";
@@ -270,7 +266,7 @@ void CRobot::Init(TConfigurationNode& t_node) {
         //     LOG << " t=(" << m_unMinWheelDriftDuration << "," << m_unMaxWheelDriftDuration << ")";
         // }
         // LOG << ", Flock: " << strFlock;
-        LOG << std::endl;
+        // LOG << std::endl;
     }
     catch(CARGoSException& ex) {
         THROW_ARGOSEXCEPTION_NESTED("Error parsing the controller parameters.", ex);
@@ -294,7 +290,7 @@ void CRobot::Init(TConfigurationNode& t_node) {
     currentState = State::RANDOM_WALK;
 
     /* Set LED color */
-    m_cCurrentLEDColor = CColor::GREEN;
+    m_cCurrentLEDColor = CColor::BLUE;
     m_pcLEDs->SetAllColors(m_cCurrentLEDColor);
 
     /* Initialize variables */
@@ -356,7 +352,7 @@ void CRobot::ControlStep() {
         if(m_bInTarget || bTargetReceived) {
             currentState = State::BROADCAST_WALK;
             m_nBroadCastDuration = 150; // TEMP: hard-coded value (15 seconds)
-            size_t numberOfBlinks = 10; // TEMP: hard-coded value
+            size_t numberOfBlinks = 30; // TEMP: hard-coded value
             m_unBlinkInterval = (size_t)(m_nBroadCastDuration / (numberOfBlinks * 2));
             m_nBroadcastTimer = m_nBroadCastDuration;
             m_nBlinkTimer = 0;
@@ -408,7 +404,7 @@ void CRobot::ControlStep() {
 
     /* Set LED color according to its state */
     if(currentState == State::RANDOM_WALK) {
-        m_cCurrentLEDColor = CColor::GREEN;
+        m_cCurrentLEDColor = CColor::BLUE;
     }
     else if(currentState == State::BROADCAST_WALK || currentState == State::BROADCAST_HOMING) {
         
@@ -418,7 +414,7 @@ void CRobot::ControlStep() {
 
             /* Toggle color */
             if(m_cCurrentLEDColor == CColor::RED) {
-                m_cCurrentLEDColor = CColor::BLACK;
+                m_cCurrentLEDColor = CColor::YELLOW;
             } else {
                 m_cCurrentLEDColor = CColor::RED;
             }
@@ -427,7 +423,7 @@ void CRobot::ControlStep() {
         }
     }
     else if(currentState == State::IN_TARGET) {
-        m_cCurrentLEDColor = CColor::BLUE;
+        m_cCurrentLEDColor = CColor::GREEN;
     }
     m_pcLEDs->SetAllColors(m_cCurrentLEDColor); // Set LED color
 

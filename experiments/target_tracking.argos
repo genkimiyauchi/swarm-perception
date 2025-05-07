@@ -26,11 +26,10 @@
       </actuators>
       <sensors>
         <proximity implementation="default" show_rays="false" />
-        <range_and_bearing implementation="medium" medium="rab" show_rays="true" />
+        <range_and_bearing implementation="medium" medium="rab" show_rays="false" />
         <positioning implementation="default" />
       </sensors>
       <params>
-        <team id="1" />
         <wheel_turning hard_turn_angle_threshold="90"
                   soft_turn_angle_threshold="70"
                   no_turn_angle_threshold="10"
@@ -75,9 +74,25 @@
     <!-- Things to draw in the qt-opengl visualization -->
     <draw robot_label="false"/>
 
-    <targets>
-      <target center="0.5,0.5" radius="0.25" />
-    </targets>
+    <!-- Randomly place a target in the arena -->
+    <target radius="0.25" />
+
+    <!-- Randomly place robots in the arena -->
+    <!-- 'base_name' must to be two characters -->
+    <teams>
+      <robots controller="epc1"
+              base_name="ep"
+              base_num="1"
+              quantity="10"
+              max_trials="100" 
+              rab_range="0.5" />
+      <!-- <robots controller="epc1"
+              base_name="eB"
+              base_num="1"
+              quantity="10" 
+              max_trials="100" 
+              rab_range="0.5" /> -->
+    </teams>
 
   </loop_functions>
 
@@ -112,15 +127,15 @@
         from a gaussian distribution, whose mean is zero degrees and
         standard deviation is 360 degrees.
     -->
-    <distribute>
+    <!-- <distribute>
       <position method="uniform" min="-1,-1,0" max="1,1,0" />
       <orientation method="gaussian" mean="0,0,0" std_dev="360,0,0" />
       <entity quantity="10" max_trials="100" base_num="1">
-        <e-puck id="ep" rab_data_size="8" >
+        <e-puck id="ep" rab_data_size="8" rab_range="0.5">
           <controller config="epc1" />
         </e-puck>
       </entity>
-    </distribute>
+    </distribute> -->
 
     <!--
         We distribute 5 boxes uniformly in position and rotation around Z.
