@@ -115,7 +115,8 @@ public:
     */
     struct SFlockingInteractionParams {
         /* Target robot-robot distance in cm */
-        Real TargetDistance;
+        Real TargetDistanceWalk;   // when exploring
+        Real TargetDistanceTarget; // when moving to target
         /* Gain of the Lennard-Jones potential */
         Real Gain;
         /* Exponent of the Lennard-Jones potential */
@@ -125,16 +126,25 @@ public:
 
         void Init(TConfigurationNode& t_node);
         Real GeneralizedLennardJones(Real f_distance);
-        Real GeneralizedLennardJonesRepulsion(Real f_distance);
+        Real GeneralizedLennardJonesRepulsionWalk(Real f_distance);
+        Real GeneralizedLennardJonesRepulsionTarget(Real f_distance);
     };
 
-    /* List of move types available to the robot */
-    enum class MoveType {
-        STOP = 0,    // Stop moving
-        DIRECT,      // Move directly to a target target
-        ANGLE_DRIFT, // Move to a target target with an angle drift
-        WHEEL_DRIFT, // Move to a target target with a wheel drift
-    } currentMoveType;
+    // /* List of move types available to the robot */
+    // enum class MoveType {
+    //     STOP = 0,    // Stop moving
+    //     DIRECT,      // Move directly to a target target
+    //     ANGLE_DRIFT, // Move to a target target with an angle drift
+    //     WHEEL_DRIFT, // Move to a target target with a wheel drift
+    // } currentMoveType;
+
+    /* List of states */
+    enum class State {
+        RANDOM_WALK = 0,  // Random walk
+        BROADCAST_WALK,   // Random walk with broadcast
+        BROADCAST_HOMING, // Move to target with broadcast
+        IN_TARGET,        // In target with broadcast
+    } currentState;
 
 public:
 
@@ -178,6 +188,11 @@ public:
     /* Get team ID */
     virtual UInt8 GetTeamID() const {
         return m_unTeamID;
+    }
+
+    /* Get whether robot has found the target */
+    virtual bool HasFoundTarget() const {
+        return m_bTargetFound;
     }
 
     /* Set target to move towards */
@@ -263,21 +278,29 @@ private:
     /* Target to move towards */
     CVector2 m_cTarget;
     Real m_fTargetRadius;
-    Real DistToTarget;
-    bool bInTarget;
+    Real m_fDistToTarget;
+    bool m_bTargetFound;
+    bool m_bInTarget;
 
     /* ### Random walk: parameters ### */
-    int m_unRandomWalkTimer;
-    int m_unMinRandomWalkDuration, m_unMaxRandomWalkDuration;
+    int m_nRandomWalkTimer;
+    int m_nMinRandomWalkDuration, m_nMaxRandomWalkDuration;
     CVector2 currentRotation;
 
-    /* ### ANGLE_DRIFT: parameters ### */
-    /* Angle drift range */
-    CRadians m_cAngleDriftRange;
-    Real m_fMinAngleDrift, m_fMaxAngleDrift;
-    /* Angle drift duration */
-    int m_unAngleDriftDurationTimer;
-    int m_unMinAngleDriftDuration, m_unMaxAngleDriftDuration;
+    /* Broadcast timer */
+    int m_nBroadcastTimer;
+    int m_nBroadCastDuration;
+    size_t m_unBlinkInterval;
+    int m_nBlinkTimer;
+    CColor m_cCurrentLEDColor;
+
+    // /* ### ANGLE_DRIFT: parameters ### */
+    // /* Angle drift range */
+    // CRadians m_cAngleDriftRange;
+    // Real m_fMinAngleDrift, m_fMaxAngleDrift;
+    // /* Angle drift duration */
+    // int m_unAngleDriftDurationTimer;
+    // int m_unMinAngleDriftDuration, m_unMaxAngleDriftDuration;
 
     // /* ### WHEEL_DRIFT: parameters ### */
     // /* Wheel drift duraion */

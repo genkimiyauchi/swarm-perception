@@ -22,15 +22,15 @@ static const std::vector<CRadians> PROX_ANGLE {
     CRadians::PI / 0.5247f
   };
 
-/* Team colors */
-std::unordered_map<UInt8, CColor> teamColor = {
-    {1, CColor::RED},
-    {2, CColor::BLUE},
-    {3, CColor::GREEN},
-    {4, CColor::YELLOW},
-    {5, CColor::ORANGE},
-    {6, CColor::WHITE},
-};
+// /* Team colors */
+// std::unordered_map<UInt8, CColor> teamColor = {
+//     {1, CColor::RED},
+//     {2, CColor::BLUE},
+//     {3, CColor::GREEN},
+//     {4, CColor::YELLOW},
+//     {5, CColor::ORANGE},
+//     {6, CColor::WHITE},
+// };
 
 /****************************************/
 /****************************************/
@@ -57,7 +57,8 @@ void CRobot::SWheelTurningParams::Init(TConfigurationNode& t_node) {
 
 void CRobot::SFlockingInteractionParams::Init(TConfigurationNode& t_node) {
     try {
-       GetNodeAttribute(t_node, "target_distance", TargetDistance);
+       GetNodeAttribute(t_node, "target_distance_walk", TargetDistanceWalk);
+       GetNodeAttribute(t_node, "target_distance_target", TargetDistanceTarget);
        GetNodeAttribute(t_node, "gain", Gain);
        GetNodeAttribute(t_node, "exponent", Exponent);
     }
@@ -89,7 +90,7 @@ void CRobot::STargetTrackingParams::Init(TConfigurationNode& t_node) {
  * This function is a generalization of the Lennard-Jones potential
  */
 Real CRobot::SFlockingInteractionParams::GeneralizedLennardJones(Real f_distance) {
-    Real fNormDistExp = ::pow(TargetDistance / f_distance, Exponent);
+    Real fNormDistExp = ::pow(TargetDistanceWalk / f_distance, Exponent);
     return -Gain / f_distance * (fNormDistExp * fNormDistExp - fNormDistExp);
 }
 
@@ -99,8 +100,19 @@ Real CRobot::SFlockingInteractionParams::GeneralizedLennardJones(Real f_distance
 /*
  * This function is a generalization of the Lennard-Jones potential for repulsion only 
  */
-Real CRobot::SFlockingInteractionParams::GeneralizedLennardJonesRepulsion(Real f_distance) {
-    Real fNormDistExp = ::pow(TargetDistance / f_distance, Exponent);
+Real CRobot::SFlockingInteractionParams::GeneralizedLennardJonesRepulsionWalk(Real f_distance) {
+    Real fNormDistExp = ::pow(TargetDistanceWalk / f_distance, Exponent);
+    return -Gain / f_distance * (fNormDistExp * fNormDistExp);
+}
+
+/****************************************/
+/****************************************/
+
+/*
+ * This function is a generalization of the Lennard-Jones potential for repulsion only 
+ */
+Real CRobot::SFlockingInteractionParams::GeneralizedLennardJonesRepulsionTarget(Real f_distance) {
+    Real fNormDistExp = ::pow(TargetDistanceTarget / f_distance, Exponent);
     return -Gain / f_distance * (fNormDistExp * fNormDistExp);
 }
 
@@ -167,61 +179,65 @@ void CRobot::Init(TConfigurationNode& t_node) {
         m_sTargetTrackingParams.Init(GetNode(t_node, "target_tracking"));
         /* Flocking-related */
         m_sFlockingParams.Init(GetNode(t_node, "flocking"));
-        m_sBlockingParams.Init(GetNode(t_node, "blocking"));
+        // m_sBlockingParams.Init(GetNode(t_node, "blocking"));
         /* Motion */
-        std::string strMoveType, strRandomWalkDuration, strAngleDriftRange, strAngleDriftDuration, strWheelDriftRatio, strWheelDriftDuration, strFlock;
+        std::string strRandomWalkDuration;
+        // std::string strMoveType, strAngleDriftRange, strAngleDriftDuration, strWheelDriftRatio, strWheelDriftDuration, strFlock;
         TConfigurationNode& cMotionNode = GetNode(t_node, "motion");
-        GetNodeAttribute(cMotionNode, "type", strMoveType);
+        // GetNodeAttribute(cMotionNode, "type", strMoveType);
         GetNodeAttribute(cMotionNode, "random_walk_duration", strRandomWalkDuration);
-        GetNodeAttributeOrDefault(cMotionNode, "angle_drift_range", strAngleDriftRange, std::string("45,45"));
-        GetNodeAttributeOrDefault(cMotionNode, "angle_drift_duration", strAngleDriftDuration, std::string("10,30"));
+        // GetNodeAttributeOrDefault(cMotionNode, "angle_drift_range", strAngleDriftRange, std::string("45,45"));
+        // GetNodeAttributeOrDefault(cMotionNode, "angle_drift_duration", strAngleDriftDuration, std::string("10,30"));
         // GetNodeAttributeOrDefault(cMotionNode, "wheel_drift_range", strWheelDriftRatio, std::string("0.5"));
         // GetNodeAttributeOrDefault(cMotionNode, "wheel_drift_duration", strWheelDriftDuration, std::string("10,30"));
-        GetNodeAttribute(cMotionNode, "flock", strFlock);
+        // GetNodeAttribute(cMotionNode, "flock", strFlock);
 
-        /* Parse move type */
-        if(strMoveType == "direct") {
-            currentMoveType = MoveType::DIRECT;
-        } else if(strMoveType == "angle_drift") {
-            currentMoveType = MoveType::ANGLE_DRIFT;
-        } else if(strMoveType == "wheel_drift") {
-            currentMoveType = MoveType::WHEEL_DRIFT;
-        } else {
-            THROW_ARGOSEXCEPTION("Invalid move type: " << strMoveType);
-        }
+        // /* Parse move type */
+        // if(strMoveType == "direct") {
+        //     currentMoveType = MoveType::DIRECT;
+        // } 
+        // else if(strMoveType == "angle_drift") {
+        //     currentMoveType = MoveType::ANGLE_DRIFT;
+        // } 
+        // else if(strMoveType == "wheel_drift") {
+        //     currentMoveType = MoveType::WHEEL_DRIFT;
+        // } 
+        // else {
+        //     THROW_ARGOSEXCEPTION("Invalid move type: " << strMoveType);
+        // }
 
         /* Parse random walk rotation duration */
         std::string::size_type comma_pos = strRandomWalkDuration.find(',');
         if(comma_pos == std::string::npos) {
             THROW_ARGOSEXCEPTION("Invalid random walk duration format: " << strRandomWalkDuration);
         }
-        m_unMinRandomWalkDuration = std::stoi(strRandomWalkDuration.substr(0, comma_pos));
-        m_unMaxRandomWalkDuration = std::stoi(strRandomWalkDuration.substr(comma_pos + 1));
-        if(m_unMinRandomWalkDuration > m_unMaxRandomWalkDuration) {
-            THROW_ARGOSEXCEPTION("Invalid random walk duration range: min > max (" << m_unMinRandomWalkDuration << " > " << m_unMaxRandomWalkDuration << ")");
+        m_nMinRandomWalkDuration = std::stoi(strRandomWalkDuration.substr(0, comma_pos));
+        m_nMaxRandomWalkDuration = std::stoi(strRandomWalkDuration.substr(comma_pos + 1));
+        if(m_nMinRandomWalkDuration > m_nMaxRandomWalkDuration) {
+            THROW_ARGOSEXCEPTION("Invalid random walk duration range: min > max (" << m_nMinRandomWalkDuration << " > " << m_nMaxRandomWalkDuration << ")");
         }
 
-        /* Parse angle drift range */
-        comma_pos = strAngleDriftRange.find(',');
-        if(comma_pos == std::string::npos) {
-            THROW_ARGOSEXCEPTION("Invalid angle drift format: " << strAngleDriftRange);
-        }
-        m_fMinAngleDrift = std::stod(strAngleDriftRange.substr(0, comma_pos));
-        m_fMaxAngleDrift = std::stod(strAngleDriftRange.substr(comma_pos + 1));
-        if(m_fMinAngleDrift > m_fMaxAngleDrift) {
-            THROW_ARGOSEXCEPTION("Invalid angle drift range: min > max (" << m_fMinAngleDrift << " > " << m_fMaxAngleDrift << ")");
-        }
+        // /* Parse angle drift range */
+        // comma_pos = strAngleDriftRange.find(',');
+        // if(comma_pos == std::string::npos) {
+        //     THROW_ARGOSEXCEPTION("Invalid angle drift format: " << strAngleDriftRange);
+        // }
+        // m_fMinAngleDrift = std::stod(strAngleDriftRange.substr(0, comma_pos));
+        // m_fMaxAngleDrift = std::stod(strAngleDriftRange.substr(comma_pos + 1));
+        // if(m_fMinAngleDrift > m_fMaxAngleDrift) {
+        //     THROW_ARGOSEXCEPTION("Invalid angle drift range: min > max (" << m_fMinAngleDrift << " > " << m_fMaxAngleDrift << ")");
+        // }
         
-        /* Parse angle drift duration */
-        comma_pos = strAngleDriftDuration.find(',');
-        if(comma_pos == std::string::npos) {
-            THROW_ARGOSEXCEPTION("Invalid angle drift duration format: " << strAngleDriftDuration);
-        }
-        m_unMinAngleDriftDuration = std::stoi(strAngleDriftDuration.substr(0, comma_pos));
-        m_unMaxAngleDriftDuration = std::stoi(strAngleDriftDuration.substr(comma_pos + 1));
-        if(m_unMinAngleDriftDuration > m_unMaxAngleDriftDuration) {
-            THROW_ARGOSEXCEPTION("Invalid angle drift duration range: min > max (" << m_unMinAngleDriftDuration << " > " << m_unMaxAngleDriftDuration << ")");
-        }
+        // /* Parse angle drift duration */
+        // comma_pos = strAngleDriftDuration.find(',');
+        // if(comma_pos == std::string::npos) {
+        //     THROW_ARGOSEXCEPTION("Invalid angle drift duration format: " << strAngleDriftDuration);
+        // }
+        // m_unMinAngleDriftDuration = std::stoi(strAngleDriftDuration.substr(0, comma_pos));
+        // m_unMaxAngleDriftDuration = std::stoi(strAngleDriftDuration.substr(comma_pos + 1));
+        // if(m_unMinAngleDriftDuration > m_unMaxAngleDriftDuration) {
+        //     THROW_ARGOSEXCEPTION("Invalid angle drift duration range: min > max (" << m_unMinAngleDriftDuration << " > " << m_unMaxAngleDriftDuration << ")");
+        // }
 
         // /* parse wheel drift duration */
         // comma_pos = strWheelDriftDuration.find(',');
@@ -234,31 +250,33 @@ void CRobot::Init(TConfigurationNode& t_node) {
         //     THROW_ARGOSEXCEPTION("Invalid wheel drift duration range: min > max (" << m_unMinWheelDriftDuration << " > " << m_unMaxWheelDriftDuration << ")");
         // }
 
-        /* Parse whether to flock */
-        if(strFlock == "true") {
-            m_sFlockingParams.IsFlock = true;
-        } else if(strFlock == "false") {
-            m_sFlockingParams.IsFlock = false;
-        } else {
-            THROW_ARGOSEXCEPTION("Invalid flock param: " << strFlock);
-        }
+        // /* Parse whether to flock */
+        // if(strFlock == "true") {
+        //     m_sFlockingParams.IsFlock = true;
+        // } else if(strFlock == "false") {
+        //     m_sFlockingParams.IsFlock = false;
+        // } else {
+        //     THROW_ARGOSEXCEPTION("Invalid flock param: " << strFlock);
+        // }
 
         /* Print parsed parameters */
-        RLOG << "Team: " << m_unTeamID << ", Move type: " << strMoveType;
-        if(currentMoveType == MoveType::ANGLE_DRIFT) {
-            LOG << " range=(" << m_fMinAngleDrift << "," << m_fMaxAngleDrift << ")";
-            LOG << " t=(" << m_unMinAngleDriftDuration << "," << m_unMaxAngleDriftDuration << ")";
-        } 
+        RLOG << "Team: " << m_unTeamID;
+        // LOG << ", Move type: " << strMoveType;
+        // if(currentMoveType == MoveType::ANGLE_DRIFT) {
+        //     LOG << " range=(" << m_fMinAngleDrift << "," << m_fMaxAngleDrift << ")";
+        //     LOG << " t=(" << m_unMinAngleDriftDuration << "," << m_unMaxAngleDriftDuration << ")";
+        // } 
         // else if(currentMoveType == MoveType::WHEEL_DRIFT) {
         //     LOG << " t=(" << m_unMinWheelDriftDuration << "," << m_unMaxWheelDriftDuration << ")";
         // }
-        LOG << ", Flock: " << strFlock << std::endl;
+        // LOG << ", Flock: " << strFlock;
+        LOG << std::endl;
     }
     catch(CARGoSException& ex) {
         THROW_ARGOSEXCEPTION_NESTED("Error parsing the controller parameters.", ex);
     }
 
-    m_unAngleDriftDurationTimer = 0;
+    // m_unAngleDriftDurationTimer = 0;
     // m_unWheelDriftDurationTimer = 0;
 
     /* Create a new RNG */
@@ -272,8 +290,18 @@ void CRobot::Init(TConfigurationNode& t_node) {
         m_sTargetTrackingParams.Ki,      // Ki
         m_sTargetTrackingParams.Kd);     // Kd
 
-    /* Set team color */
-    m_pcLEDs->SetAllColors(teamColor[m_unTeamID]);
+    /* Set initial state */
+    currentState = State::RANDOM_WALK;
+
+    /* Set LED color */
+    m_cCurrentLEDColor = CColor::GREEN;
+    m_pcLEDs->SetAllColors(m_cCurrentLEDColor);
+
+    /* Initialize variables */
+    m_bInTarget = false;
+    m_bTargetFound = false;
+    m_nRandomWalkTimer = 0;
+    m_nBroadcastTimer = 0;
 }
 
 /****************************************/
@@ -306,60 +334,102 @@ void CRobot::ControlStep() {
     CRadians cZAngle, cYAngle, cXAngle;
     m_pcPosSens->GetReading().Orientation.ToEulerAngles(cZAngle, cYAngle, cXAngle);
 
-    DistToTarget = Distance(pos2d, m_cTarget);
-    bInTarget = DistToTarget < m_fTargetRadius ? true : false;
-    
-    /* Check if target has been found */
-    bool bTargetFound = false;
-    if(m_cTarget.Length() > 0.0f) {
-        bTargetFound = true;
+    m_fDistToTarget = Distance(pos2d, m_cTarget);
+    m_bInTarget = m_fDistToTarget < m_fTargetRadius ? true : false;
+
+    /* Switch states */
+    if(currentState == State::RANDOM_WALK) {
+        
+        bool bTargetReceived = false;
+        if(!m_bInTarget) {
+            /* Check if neighboring robots have found the target */
+            for(const auto& msg : teamMsgs) {
+                if(msg.targetPosition == m_cTarget) { // Check if the received target matches to true target position
+                    bTargetReceived = true;
+                    RLOG << "Target received from " << msg.ID << std::endl;
+                    break;
+                }
+            }
+        }
+        
+        /* Switch to BROADCAST_WALK if target found */
+        if(m_bInTarget || bTargetReceived) {
+            currentState = State::BROADCAST_WALK;
+            m_nBroadCastDuration = 150; // TEMP: hard-coded value (15 seconds)
+            size_t numberOfBlinks = 10; // TEMP: hard-coded value
+            m_unBlinkInterval = (size_t)(m_nBroadCastDuration / (numberOfBlinks * 2));
+            m_nBroadcastTimer = m_nBroadCastDuration;
+            m_nBlinkTimer = 0;
+        }
+    }
+    else if(currentState == State::BROADCAST_WALK) {
+
+        /* Broadcast message while walking randomly for a certain duration */
+        --m_nBroadcastTimer;
+
+        if(m_nBroadcastTimer <= 0) {
+            currentState = State::BROADCAST_HOMING;
+        }
+    }
+    else if(currentState == State::BROADCAST_HOMING) {
+        
+        /* Move towards target */
+        if(m_bInTarget) {
+            currentState = State::IN_TARGET;
+        }
+    }
+    else if(currentState == State::IN_TARGET) {
+        // no switching
     }
 
+    /* Set vector to move */
     CVector2 motionVector;
-
-    if(bInTarget) {
-        /* Stay in target */
-        // RLOG << "IN TARGET" << std::endl;
-        CVector2 targetForce = GetAttractionVector();
-
-        /* Flocking or Repulsion force */
-        std::vector<Message> allMsgs;
-        allMsgs.insert(allMsgs.end(), teamMsgs.begin(), teamMsgs.end());
-        allMsgs.insert(allMsgs.end(), otherMsgs.begin(), otherMsgs.end());
-        // CVector2 flockingForce = GetFlockingVector(allMsgs);
-        CVector2 repulsionForce = GetRobotRepulsionVector(allMsgs);
-
-        CVector2 obstacleForce = GetObstacleRepulsionVector();
-
-        /* Sum of forces */
-        motionVector = targetForce + repulsionForce + obstacleForce * 10;
-
-    } else if (bTargetFound) {
-
-        /* Move towards target */
-        // RLOG << "Moving towards target" << std::endl;
-
-        CVector2 targetForce = GetAttractionVector();
-
-        /* Flocking or Repulsion force */
-        std::vector<Message> allMsgs;
-        allMsgs.insert(allMsgs.end(), teamMsgs.begin(), teamMsgs.end());
-        allMsgs.insert(allMsgs.end(), otherMsgs.begin(), otherMsgs.end());
-        // CVector2 flockingForce = GetFlockingVector(allMsgs);
-        CVector2 repulsionForce = GetRobotRepulsionVector(allMsgs);
-
-        CVector2 obstacleForce = GetObstacleRepulsionVector();
-
-        /* Sum of forces */
-        motionVector = targetForce + repulsionForce + obstacleForce * 10;
-
-    } else {
+    if(currentState == State::RANDOM_WALK || currentState == State::BROADCAST_WALK) {
         /* Random walk */
         motionVector = RandomWalk();
-        // RLOG << "RANDOM WALK" << std::endl;
+    }
+    else if(currentState == State::BROADCAST_HOMING || currentState == State::IN_TARGET) {
+        /* Move towards target */
+
+        CVector2 targetForce = GetAttractionVector();
+
+        /* Flocking or Repulsion force */
+        std::vector<Message> allMsgs;
+        allMsgs.insert(allMsgs.end(), teamMsgs.begin(), teamMsgs.end());
+        allMsgs.insert(allMsgs.end(), otherMsgs.begin(), otherMsgs.end());
+        // CVector2 flockingForce = GetFlockingVector(allMsgs);
+        CVector2 repulsionForce = GetRobotRepulsionVector(allMsgs);
+
+        CVector2 obstacleForce = GetObstacleRepulsionVector();
+
+        /* Sum of forces */
+        motionVector = targetForce + repulsionForce + obstacleForce * 10;
     }
 
+    /* Set LED color according to its state */
+    if(currentState == State::RANDOM_WALK) {
+        m_cCurrentLEDColor = CColor::GREEN;
+    }
+    else if(currentState == State::BROADCAST_WALK || currentState == State::BROADCAST_HOMING) {
+        
+        if(m_nBlinkTimer <= 0) {
 
+            m_nBlinkTimer = m_unBlinkInterval; // Reset blink timer
+
+            /* Toggle color */
+            if(m_cCurrentLEDColor == CColor::RED) {
+                m_cCurrentLEDColor = CColor::BLACK;
+            } else {
+                m_cCurrentLEDColor = CColor::RED;
+            }
+        } else {
+            --m_nBlinkTimer;
+        }
+    }
+    else if(currentState == State::IN_TARGET) {
+        m_cCurrentLEDColor = CColor::BLUE;
+    }
+    m_pcLEDs->SetAllColors(m_cCurrentLEDColor); // Set LED color
 
     /* DEBUGGING */
     // RLOG << "targetForce: " << targetForce << std::endl;
@@ -369,42 +439,42 @@ void CRobot::ControlStep() {
     // sumForce.Normalize();
     // sumForce *= m_sWheelTurningParams.MaxSpeed;
     
-    /* Set move type */
-    switch(currentMoveType) {
-        case MoveType::DIRECT:
-            break;
+    // /* Set move type */
+    // switch(currentMoveType) {
+    //     case MoveType::DIRECT:
+    //         break;
 
-        case MoveType::ANGLE_DRIFT:
-            if(m_unAngleDriftDurationTimer == 0) {
-                /* Choose a random duration */
-                m_unAngleDriftDurationTimer = m_pcRNG->Uniform(CRange<UInt32>(m_unMinAngleDriftDuration, m_unMaxAngleDriftDuration));
-                /* Choose a random angle */
-                m_cAngleDriftRange.FromValueInDegrees(m_pcRNG->Uniform(CRange<Real>(m_fMinAngleDrift, m_fMaxAngleDrift)));
-            }
+    //     case MoveType::ANGLE_DRIFT:
+    //         if(m_unAngleDriftDurationTimer == 0) {
+    //             /* Choose a random duration */
+    //             m_unAngleDriftDurationTimer = m_pcRNG->Uniform(CRange<UInt32>(m_unMinAngleDriftDuration, m_unMaxAngleDriftDuration));
+    //             /* Choose a random angle */
+    //             m_cAngleDriftRange.FromValueInDegrees(m_pcRNG->Uniform(CRange<Real>(m_fMinAngleDrift, m_fMaxAngleDrift)));
+    //         }
 
-            // RLOG << "rad: " << m_cAngleDriftRange.GetValue() << ", time = " << m_unAngleDriftDurationTimer << std::endl;
+    //         // RLOG << "rad: " << m_cAngleDriftRange.GetValue() << ", time = " << m_unAngleDriftDurationTimer << std::endl;
 
-            /* Rotate sumForce by m_cAngleDriftRange */
-            motionVector.Rotate(m_cAngleDriftRange);
-            /* Decrease the duration */
-            m_unAngleDriftDurationTimer--;
+    //         /* Rotate sumForce by m_cAngleDriftRange */
+    //         motionVector.Rotate(m_cAngleDriftRange);
+    //         /* Decrease the duration */
+    //         m_unAngleDriftDurationTimer--;
             
-            break;
+    //         break;
 
-        // case MoveType::WHEEL_DRIFT:
-        //     if(m_unWheelDriftDurationTimer == 0) {
-        //         /* Choose a random duration */
-        //         m_unWheelDriftDurationTimer = m_pcRNG->Uniform(CRange<UInt32>(m_unMinWheelDriftDuration, m_unMaxWheelDriftDuration));
-        //     }
+    //     // case MoveType::WHEEL_DRIFT:
+    //     //     if(m_unWheelDriftDurationTimer == 0) {
+    //     //         /* Choose a random duration */
+    //     //         m_unWheelDriftDurationTimer = m_pcRNG->Uniform(CRange<UInt32>(m_unMinWheelDriftDuration, m_unMaxWheelDriftDuration));
+    //     //     }
 
-        //     /* Apply wheel drift */
-        //     // sumForce = m_cPreviouSumForce;
+    //     //     /* Apply wheel drift */
+    //     //     // sumForce = m_cPreviouSumForce;
 
-        //     m_unWheelDriftDurationTimer--;
+    //     //     m_unWheelDriftDurationTimer--;
 
-        default:
-            break;
-    }
+    //     default:
+    //         break;
+    // }
 
     // /* TEMP */
     // // go through each message in teamMsgs and Print
@@ -423,7 +493,10 @@ void CRobot::ControlStep() {
     Message msg = Message();
     msg.ID = GetId();
     msg.teamID = m_unTeamID;
-    msg.inTarget = bInTarget;
+    msg.inTarget = m_bInTarget;
+    if(currentState == State::BROADCAST_WALK || currentState == State::BROADCAST_HOMING) {
+        msg.targetPosition = m_cTarget;
+    }
 
     cbyte_msg = msg.GetCByteArray();
     m_pcRABAct->SetData(cbyte_msg);
@@ -533,7 +606,12 @@ CVector2 CRobot::GetRobotRepulsionVector(std::vector<Message>& msgs) {
 
     for(size_t i = 0; i < msgs.size(); i++) {
         /* Calculate LJ */
-        Real fLJ = m_sFlockingParams.GeneralizedLennardJonesRepulsion(msgs[i].direction.Length());
+        Real fLJ;
+        if(currentState == State::RANDOM_WALK || currentState == State::BROADCAST_WALK) {
+            fLJ = m_sFlockingParams.GeneralizedLennardJonesRepulsionWalk(msgs[i].direction.Length());
+        } else if(currentState == State::BROADCAST_HOMING || currentState == State::IN_TARGET) {
+            fLJ = m_sFlockingParams.GeneralizedLennardJonesRepulsionTarget(msgs[i].direction.Length());
+        }
         /* Sum to accumulator */
         resVec += CVector2(fLJ, msgs[i].direction.Angle());
         /* Count the number of messages */
@@ -606,9 +684,9 @@ CVector2 CRobot::GetFlockingVector(std::vector<Message>& msgs) {
         Real fLJ;
         size_t prev_counter = counter;
 
-        if(bInTarget) { // Blocking behavior while inside target area
+        if(m_bInTarget) { // Blocking behavior while inside target area
 
-            fLJ = m_sBlockingParams.GeneralizedLennardJonesRepulsion(msgs[i].direction.Length());
+            fLJ = m_sBlockingParams.GeneralizedLennardJonesRepulsionTarget(msgs[i].direction.Length());
             ++counter;
 
         } else {
@@ -619,7 +697,7 @@ CVector2 CRobot::GetFlockingVector(std::vector<Message>& msgs) {
                     fLJ = m_sFlockingParams.GeneralizedLennardJones(msgs[i].direction.Length());
                     ++counter;
                 } else {
-                    fLJ = m_sFlockingParams.GeneralizedLennardJonesRepulsion(msgs[i].direction.Length());
+                    fLJ = m_sFlockingParams.GeneralizedLennardJonesRepulsionWalk(msgs[i].direction.Length());
                     ++counter;
                 }
             }
@@ -650,14 +728,14 @@ CVector2 CRobot::GetFlockingVector(std::vector<Message>& msgs) {
 CVector2 CRobot::RandomWalk() {
 
     /* Decrement timer */
-    --m_unRandomWalkTimer;
+    --m_nRandomWalkTimer;
 
     std::vector<Message> allMsgs;
     allMsgs.insert(allMsgs.end(), teamMsgs.begin(), teamMsgs.end());
     allMsgs.insert(allMsgs.end(), otherMsgs.begin(), otherMsgs.end());
 
     for(const auto& msg : allMsgs) {
-        if(msg.direction.Length() < m_sFlockingParams.TargetDistance) {
+        if(msg.direction.Length() < m_sFlockingParams.TargetDistanceWalk) {
             RLOG << "Avoiding robots" << std::endl;
             return GetRobotRepulsionVector(allMsgs);
         }
@@ -666,7 +744,7 @@ CVector2 CRobot::RandomWalk() {
     /* Get proximity sensor readings */
     std::vector<Real> fProxReads = m_pcProximity->GetReadings();
 
-    if(m_unRandomWalkTimer <= 0) {
+    if(m_nRandomWalkTimer <= 0) {
         Real fDistanceLeft, fDistanceRight;
         Real fLengthLeft = 1;
         Real fLengthRight = 1;
@@ -688,7 +766,7 @@ CVector2 CRobot::RandomWalk() {
         if(fLengthLeft < 1 || fLengthRight < 1) {
     
             /* Choose a random duration */
-            m_unRandomWalkTimer = m_pcRNG->Uniform(CRange<UInt32>(m_unMinRandomWalkDuration, m_unMaxRandomWalkDuration));
+            m_nRandomWalkTimer = m_pcRNG->Uniform(CRange<UInt32>(m_nMinRandomWalkDuration, m_nMaxRandomWalkDuration));
             // RLOG << "Random walk duration: " << m_unRandomWalkTimer << std::endl;
     
             if(fLengthLeft > fLengthRight) {
