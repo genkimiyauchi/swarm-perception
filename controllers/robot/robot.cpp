@@ -378,7 +378,7 @@ void CRobot::ControlStep() {
         // no switching
     }
 
-    /* Set vector to move */
+    /* Set motion vector */
     CVector2 motionVector;
     if(currentState == State::RANDOM_WALK || currentState == State::BROADCAST_WALK) {
         /* Random walk */
@@ -389,6 +389,11 @@ void CRobot::ControlStep() {
 
         CVector2 targetForce = GetAttractionVector();
 
+        if(currentState == State::IN_TARGET) {
+            /* Reduce attraction from the target center as it gets closer to it */
+            targetForce *= m_fDistToTarget / m_fTargetRadius;
+        }
+
         /* Flocking or Repulsion force */
         std::vector<Message> allMsgs;
         allMsgs.insert(allMsgs.end(), teamMsgs.begin(), teamMsgs.end());
@@ -396,10 +401,10 @@ void CRobot::ControlStep() {
         // CVector2 flockingForce = GetFlockingVector(allMsgs);
         CVector2 repulsionForce = GetRobotRepulsionVector(allMsgs);
 
-        CVector2 obstacleForce = GetObstacleRepulsionVector();
+        // CVector2 obstacleForce = GetObstacleRepulsionVector();
 
         /* Sum of forces */
-        motionVector = targetForce + repulsionForce + obstacleForce * 10;
+        motionVector = targetForce + repulsionForce;// + obstacleForce * 10;
     }
 
     /* Set LED color according to its state */
@@ -479,9 +484,10 @@ void CRobot::ControlStep() {
     // }
 
     /* Set Wheel Speed */
-    if(motionVector.Length() > 0.1f) {
+    if(motionVector.Length() > 1.0f) {
         SetWheelSpeedsFromVector(motionVector);
-    } else {
+    } 
+    else {
         m_pcWheels->SetLinearVelocity(0.0f, 0.0f);
     }
 
