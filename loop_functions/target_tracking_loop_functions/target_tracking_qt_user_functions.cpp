@@ -1,6 +1,7 @@
 #include "target_tracking_qt_user_functions.h"
 #include <controllers/robot/robot.h>
 #include <argos3/core/simulator/entity/controllable_entity.h>
+#include <QPainter>
 
 using namespace argos;
 
@@ -11,6 +12,7 @@ CTargetTrackingQTUserFunctions::CTargetTrackingQTUserFunctions() {
    m_pcTargetTrackingLoopFunctions = static_cast<CTargetTrackingLoopFunctions *>(
       &CSimulator::GetInstance().GetLoopFunctions());
    m_bDrawRobotLabel = m_pcTargetTrackingLoopFunctions->IsDrawRobotLabel();
+   m_unNumRobots = m_pcTargetTrackingLoopFunctions->GetNumRobots();
 
    RegisterUserFunction<CTargetTrackingQTUserFunctions,CEPuckEntity>(&CTargetTrackingQTUserFunctions::Draw);
 }
@@ -25,6 +27,29 @@ void CTargetTrackingQTUserFunctions::Draw(CEPuckEntity& c_entity) {
       std::string id = c_entity.GetId().c_str();
       DrawText(CVector3(0.0, 0.0, 0.2), id);
    }
+}
+
+/****************************************/
+/****************************************/
+
+void CTargetTrackingQTUserFunctions::DrawOverlay(QPainter& c_painter) {
+
+   size_t unNumRobotsInTarget = m_pcTargetTrackingLoopFunctions->GetNumRobotsInTarget();
+
+   /* Draw the total number of robots */
+   c_painter.setPen(Qt::black); // Set text color
+   QFont font = c_painter.font();
+   font.setPointSize(20); // Set font size
+   font.setBold(true); // Default font style
+   c_painter.setFont(font);
+   c_painter.drawText(210, 70, QString("Number of robots in target:"));
+
+   // c_painter.setPen(Qt::black); // Set text color
+   // font.setBold(true); // Bold font for %1/%2
+   // c_painter.setFont(font);
+   c_painter.drawText(580, 70, QString("%1 / %2")
+                      .arg(unNumRobotsInTarget)
+                      .arg(m_unNumRobots));
 }
 
 /****************************************/

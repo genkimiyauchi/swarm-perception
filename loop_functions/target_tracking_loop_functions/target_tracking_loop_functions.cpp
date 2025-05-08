@@ -165,8 +165,11 @@ void CTargetTrackingLoopFunctions::Init(TConfigurationNode& t_node) {
                 }
             }
 
+            m_unNumRobots += unRobots;
             ++teamID; // Increment team ID
         }
+
+        LOG << "[INFO] Number of robots: " << m_unNumRobots << std::endl;
     }
     catch(CARGoSException& ex) {
         THROW_ARGOSEXCEPTION_NESTED("Error parsing loop functions!", ex);
@@ -225,57 +228,40 @@ void CTargetTrackingLoopFunctions::PreStep() {
     LOG << "TIME: " << GetSpace().GetSimulationClock() << std::endl;
 
     /* Check if any robot is in the target area, and send the location if there is */
-    // bool bInTarget = false;
     UInt8 teamID; // TEMP: Assume only one team for now
 
+    m_unNumRobotsInTarget = 0;
+
     CSpace::TMapPerType& m_cEPucks = GetSpace().GetEntitiesByType("e-puck");
-    // for(CSpace::TMapPerType::iterator itEpuck = m_cEPucks.begin();
-    //     itEpuck != m_cEPucks.end();
-    //     ++itEpuck) {
+    for(CSpace::TMapPerType::iterator itEpuck = m_cEPucks.begin();
+        itEpuck != m_cEPucks.end();
+        ++itEpuck) {
 
-    //     CEPuckEntity& cEPuck = *any_cast<CEPuckEntity*>(itEpuck->second);
-    //     CRobot& cController = dynamic_cast<CRobot&>(cEPuck.GetControllableEntity().GetController());
-    //     CVector3 pos3d = cEPuck.GetEmbodiedEntity().GetOriginAnchor().Position;
-    //     CVector2 pos2d = CVector2(pos3d.GetX(), pos3d.GetY());
-    //     teamID = cController.GetTeamID();
-    //     CVector2 targetPos = m_vecTargets[teamID-1].first;
-    //     Real radius = m_vecTargets[teamID-1].second;
+        CEPuckEntity& cEPuck = *any_cast<CEPuckEntity*>(itEpuck->second);
+        CRobot& cController = dynamic_cast<CRobot&>(cEPuck.GetControllableEntity().GetController());
+        CVector3 pos3d = cEPuck.GetEmbodiedEntity().GetOriginAnchor().Position;
+        CVector2 pos2d = CVector2(pos3d.GetX(), pos3d.GetY());
+        teamID = cController.GetTeamID();
+        CVector2 targetPos = m_vecTargets[teamID-1].first;
+        Real radius = m_vecTargets[teamID-1].second;
 
-    //     /* Check if the robot is in the target area */
-    //     if((targetPos - pos2d).Length() < radius) {
-    //         bInTarget = true;
-    //         break;
-    //     }
-    // }
-
-    // if(bInTarget) {
-
-        /* Set target location to every robot in the team */
-        for(CSpace::TMapPerType::iterator itEpuck = m_cEPucks.begin();
-            itEpuck != m_cEPucks.end();
-            ++itEpuck) {
-
-            CEPuckEntity& cEPuck = *any_cast<CEPuckEntity*>(itEpuck->second);
-            CRobot& cController = dynamic_cast<CRobot&>(cEPuck.GetControllableEntity().GetController());
-
-            // if(cController.GetTeamID() == teamID) {
-                cController.SetTarget(m_vecTargets[cController.GetTeamID()-1].first, m_vecTargets[cController.GetTeamID()-1].second); // TEMP: Use team assigned target
-            // }
+        /* Check if the robot is in the target area */
+        if((targetPos - pos2d).Length() < radius) {
+            ++m_unNumRobotsInTarget;
         }
-    // }
+    }
 
-    // for(CSpace::TMapPerType::iterator itEpuck = m_cEPucks.begin();
-    //     itEpuck != m_cEPucks.end();
-    //     ++itEpuck) {
+    /* Set target location to every robot in the team */
+    for(CSpace::TMapPerType::iterator itEpuck = m_cEPucks.begin();
+        itEpuck != m_cEPucks.end();
+        ++itEpuck) {
 
-    //     CEPuckEntity& cEPuck = *any_cast<CEPuckEntity*>(itEpuck->second);
-    //     CRobot& cController = dynamic_cast<CRobot&>(cEPuck.GetControllableEntity().GetController());
-        
-    //     if(cController.HasFoundTarget()) {
-    //         /* Set target location */
-    //         cController.SetTarget(m_vecTargets[cController.GetTeamID()-1].first, m_vecTargets[cController.GetTeamID()-1].second); // TEMP: Use team assigned target
-    //     }
-    // }
+        CEPuckEntity& cEPuck = *any_cast<CEPuckEntity*>(itEpuck->second);
+        CRobot& cController = dynamic_cast<CRobot&>(cEPuck.GetControllableEntity().GetController());
+
+        cController.SetTarget(m_vecTargets[cController.GetTeamID()-1].first, m_vecTargets[cController.GetTeamID()-1].second); // TEMP: Use team assigned target
+    }
+    
 }
 
 /****************************************/

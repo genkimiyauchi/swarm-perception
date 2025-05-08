@@ -27,6 +27,14 @@ public:
 
     virtual void PostStep();
 
+    virtual size_t GetNumRobots() const {
+        return m_unNumRobots;
+    }
+
+    virtual size_t GetNumRobotsInTarget() const {
+        return m_unNumRobotsInTarget;
+    }
+
     virtual bool IsDrawRobotLabel() const {
         return m_bDrawRobotLabel;
     }
@@ -38,7 +46,12 @@ private:
     CFloorEntity* m_pcFloor;
     CRandom::CRNG* m_pcRNG;
 
-    std::vector<std::pair<CVector2, Real>> m_vecTargets;
+    /* Targets */
+    std::vector<std::pair<CVector2, Real>> m_vecTargets; // {position, radius}
+
+    /* Robots */
+    size_t m_unNumRobots;
+    size_t m_unNumRobotsInTarget;
 
     /* Frame Grabbing */
     bool m_bFrameGrabbing;

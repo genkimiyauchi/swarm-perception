@@ -17,14 +17,16 @@ public:
 
    void Draw(CEPuckEntity& c_entity);
 
+   void DrawOverlay(QPainter& c_painter);
+
 private:
 
    CTargetTrackingLoopFunctions *m_pcTargetTrackingLoopFunctions;
    
-   /**
-    * True when we want to print the hop count of each robot
-    */
+   /* True when we want to print the hop count of each robot */
    bool m_bDrawRobotLabel;
+
+   size_t m_unNumRobots;
 
 };
 
