@@ -39,7 +39,7 @@ void CTargetTrackingQTUserFunctions::DrawOverlay(QPainter& c_painter) {
    /* Text position */
    int textX = 410;
    int textX_offset = 370;
-   int textY = 52;
+   int textY = 72;
 
    /* Draw the total number of robots */
    c_painter.setPen(Qt::white); // Set text color

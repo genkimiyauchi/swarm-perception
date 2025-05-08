@@ -8,7 +8,7 @@
     <system threads="0" />
     <experiment length="40"
                 ticks_per_second="30"
-                random_seed="128" />
+                random_seed="125" />
   </framework>
 
   <!-- *************** -->
@@ -195,7 +195,8 @@
 
       <camera>
         <placements>
-          <placement index="0" position="0,-5,13" look_at="0,0,0" up="0,1,0" lens_focal_length="240" />
+          <!-- <placement index="0" position="0,-5,13" look_at="0,-4.6,12" up="0,1,0" lens_focal_length="240" /> -->
+          <placement index="0" position="0,-4.96262,13" look_at="0,-4.60364,12.0667" up="0,1,0" lens_focal_length="240" />
         </placements>
       </camera>
     </qt-opengl>

@@ -46,7 +46,7 @@ if __name__ == "__main__":
 
     # Hardcoded path and fps
     path = os.path.join(os.environ['HOME'], 'GIT/swarm-competence/frames/')
-    fps = 10
+    fps = 30
 
     # Parse command-line arguments
     robots = sys.argv[1]
