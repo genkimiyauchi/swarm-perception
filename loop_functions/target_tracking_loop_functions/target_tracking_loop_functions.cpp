@@ -10,9 +10,11 @@
 /****************************************/
 
 /* Constants */
-static const Real ARENA_SIZE_X = 2;
-static const Real ARENA_SIZE_Y = 2;
+static const Real ARENA_SIZE_X = 1.5;
+static const Real ARENA_SIZE_Y = 1.5;
 static const Real WALL_WIDTH = 0.05;
+
+static const std::string PHYSICS_ENGINE_NAME = "dyn2d";
 
 /****************************************/
 /****************************************/
@@ -32,6 +34,10 @@ void CTargetTrackingLoopFunctions::Init(TConfigurationNode& t_node) {
 
     /* Create a new RNG */
     m_pcRNG = CRandom::CreateRNG("argos");
+
+    /* Get simulation clock tick from CPhysicsEngine */
+    m_fSecondsPerStep = CSimulator::GetInstance().GetPhysicsEngine(PHYSICS_ENGINE_NAME).GetSimulationClockTick();
+    LOG << "Seconds per step: " << m_fSecondsPerStep << std::endl;
 
     try {
 
@@ -139,16 +145,17 @@ void CTargetTrackingLoopFunctions::Init(TConfigurationNode& t_node) {
                 /* Set team ID */
                 CRobot* cController = dynamic_cast<CRobot*>(&pcEP->GetControllableEntity().GetController());
                 cController->SetTeamID(teamID);
+                cController->SetSecondsPerStep(m_fSecondsPerStep);
 
                 bool bDone = false;
                 do {
                     /* Choose a random position and orientation */
                     ++unTrials;
                     cEPPos.Set(m_pcRNG->Uniform(CRange<Real>(-ARENA_SIZE_X/2 + WALL_WIDTH/2 + fRadius, 
-                                                            ARENA_SIZE_X/2 - WALL_WIDTH/2 - fRadius)),
-                            m_pcRNG->Uniform(CRange<Real>(-ARENA_SIZE_Y/2 + WALL_WIDTH/2 + fRadius, 
-                                                            ARENA_SIZE_Y/2 - WALL_WIDTH/2 - fRadius)),
-                            0.0f);
+                                                              ARENA_SIZE_X/2 - WALL_WIDTH/2 - fRadius)),
+                               m_pcRNG->Uniform(CRange<Real>(-ARENA_SIZE_Y/2 + WALL_WIDTH/2 + fRadius, 
+                                                              ARENA_SIZE_Y/2 - WALL_WIDTH/2 - fRadius)),
+                               0.0f);
                     cEPRot.FromAngleAxis(m_pcRNG->Uniform(CRadians::UNSIGNED_RANGE), CVector3::Z);
 
                     /* Check the position is not near the target area */

@@ -46,6 +46,9 @@ private:
     CFloorEntity* m_pcFloor;
     CRandom::CRNG* m_pcRNG;
 
+    /* Simulation clock */
+    Real m_fSecondsPerStep;
+
     /* Targets */
     std::vector<std::pair<CVector2, Real>> m_vecTargets; // {position, radius}
     size_t m_unTargetTimer;

@@ -6,9 +6,9 @@
   <!-- ************************* -->
   <framework>
     <system threads="0" />
-    <experiment length="60"
-                ticks_per_second="10"
-                random_seed="125" />
+    <experiment length="40"
+                ticks_per_second="30"
+                random_seed="128" />
   </framework>
 
   <!-- *************** -->
@@ -33,8 +33,8 @@
         <wheel_turning hard_turn_angle_threshold="90"
                   soft_turn_angle_threshold="70"
                   no_turn_angle_threshold="10"
-                  max_speed="15" />
-        <flocking target_distance_walk="16"
+                  max_speed="20" />
+        <flocking target_distance_walk="20"
                   target_distance_target="10"
                   gain="1000"
                   exponent="6" />
@@ -46,13 +46,13 @@
                   ki="0"
                   kd="0" 
                   thres_range="0.05" />
-        <!-- Parameters for motion                                                -->
-        <!--   type = {"direct", "angle_drift", "wheel_drift"}                    -->
-        <!--   random_walk_duration (timesteps) = "[0:inf],[0:inf]" (e.g. "5,10") -->
-        <!--   broadcast_duration (timesteps) = "[0:inf]" (e.g. "150")            -->
+        <!-- Parameters for motion                                                 -->
+        <!--   type = {"direct", "angle_drift", "wheel_drift"}                     -->
+        <!--   random_walk_duration (seconds) = "[0:inf],[0:inf]" (e.g. "0.1,0.6") -->
+        <!--   broadcast_duration (seconds) = "[0:inf]" (e.g. "7.5")               -->
         <motion type="direct"
-                random_walk_duration="1,6"
-                broadcast_duration="150" />
+                random_walk_duration="0.1,0.6"
+                broadcast_duration="7.5" />
       </params>
     </robot_controller>
 
@@ -73,7 +73,7 @@
     <draw robot_label="false"/>
 
     <!-- Randomly place a target in the arena -->
-    <target radius="0.3" />
+    <target radius="0.25" />
 
     <!-- Randomly place robots in the arena -->
     <!-- 'base_name' must to be two characters -->
@@ -81,9 +81,9 @@
       <robots controller="epc1"
               base_name="ep"
               base_num="1"
-              quantity="20"
+              quantity="10"
               max_trials="100" 
-              rab_range="0.4" />
+              rab_range="0.3" />
       <!-- <robots controller="epc1"
               base_name="eB"
               base_num="1"
@@ -103,17 +103,17 @@
            source="loop_functions"
            pixels_per_meter="300" />
 
-    <box id="wall_north" size="2,0.05,0.25" movable="false">
-      <body position="0,1,0" orientation="0,0,0" />
+    <box id="wall_north" size="1.5,0.05,0.25" movable="false">
+      <body position="0,0.75,0" orientation="0,0,0" />
     </box>
-    <box id="wall_south" size="2,0.05,0.25" movable="false">
-      <body position="0,-1,0" orientation="0,0,0" />
+    <box id="wall_south" size="1.5,0.05,0.25" movable="false">
+      <body position="0,-0.75,0" orientation="0,0,0" />
     </box>
-    <box id="wall_east" size="0.05,2,0.25" movable="false">
-      <body position="1,0,0" orientation="0,0,0" />
+    <box id="wall_east" size="0.05,1.5,0.25" movable="false">
+      <body position="0.75,0,0" orientation="0,0,0" />
     </box>
-    <box id="wall_west" size="0.05,2,0.25" movable="false">
-      <body position="-1,0,0" orientation="0,0,0" />
+    <box id="wall_west" size="0.05,1.5,0.25" movable="false">
+      <body position="-0.75,0,0" orientation="0,0,0" />
     </box>
 
     <!--
@@ -195,7 +195,7 @@
 
       <camera>
         <placements>
-          <placement index="0" position="0,0,13" look_at="0,0,0" up="0,1,0" lens_focal_length="167" />
+          <placement index="0" position="0,0,13" look_at="0,0,0" up="0,1,0" lens_focal_length="221" />
         </placements>
       </camera>
     </qt-opengl>

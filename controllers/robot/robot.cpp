@@ -183,7 +183,7 @@ void CRobot::Init(TConfigurationNode& t_node) {
         TConfigurationNode& cMotionNode = GetNode(t_node, "motion");
         // GetNodeAttribute(cMotionNode, "type", strMoveType);
         GetNodeAttribute(cMotionNode, "random_walk_duration", strRandomWalkDuration);
-        GetNodeAttribute(cMotionNode, "broadcast_duration", m_unBroadCastDuration);
+        GetNodeAttribute(cMotionNode, "broadcast_duration", m_fBroadCastDuration);
         // GetNodeAttributeOrDefault(cMotionNode, "angle_drift_range", strAngleDriftRange, std::string("45,45"));
         // GetNodeAttributeOrDefault(cMotionNode, "angle_drift_duration", strAngleDriftDuration, std::string("10,30"));
         // GetNodeAttributeOrDefault(cMotionNode, "wheel_drift_range", strWheelDriftRatio, std::string("0.5"));
@@ -209,10 +209,11 @@ void CRobot::Init(TConfigurationNode& t_node) {
         if(comma_pos == std::string::npos) {
             THROW_ARGOSEXCEPTION("Invalid random walk duration format: " << strRandomWalkDuration);
         }
-        m_nMinRandomWalkDuration = std::stoi(strRandomWalkDuration.substr(0, comma_pos));
-        m_nMaxRandomWalkDuration = std::stoi(strRandomWalkDuration.substr(comma_pos + 1));
-        if(m_nMinRandomWalkDuration > m_nMaxRandomWalkDuration) {
-            THROW_ARGOSEXCEPTION("Invalid random walk duration range: min > max (" << m_nMinRandomWalkDuration << " > " << m_nMaxRandomWalkDuration << ")");
+
+        m_fMinRandomWalkDuration = std::stof(strRandomWalkDuration.substr(0, comma_pos));
+        m_fMaxRandomWalkDuration = std::stof(strRandomWalkDuration.substr(comma_pos + 1));
+        if(m_fMinRandomWalkDuration > m_fMaxRandomWalkDuration) {
+            THROW_ARGOSEXCEPTION("Invalid random walk duration range: min > max (" << m_fMinRandomWalkDuration << " > " << m_fMaxRandomWalkDuration << ")");
         }
 
         // /* Parse angle drift range */
@@ -353,8 +354,11 @@ void CRobot::ControlStep() {
         if(m_bInTarget || bTargetReceived) {
             currentState = State::BROADCAST_WALK;
             size_t numberOfBlinks = 30; // TEMP: hard-coded value
-            m_unBlinkInterval = (size_t)(m_unBroadCastDuration / (numberOfBlinks * 2));
-            m_nBroadcastTimer = m_unBroadCastDuration;
+            m_nBroadcastTimer = (int)(m_fBroadCastDuration / m_fSecondsPerStep);
+            m_unBlinkInterval = (size_t)(m_nBroadcastTimer / (numberOfBlinks * 2));
+            // RLOG << "Broadcasting for " << m_fBroadCastDuration << " seconds" << std::endl;
+            // RLOG << "Timer: " << m_nBroadcastTimer << std::endl;
+            // RLOG << "Blink interval: " << m_unBlinkInterval << std::endl;
             m_nBlinkTimer = 0;
         }
     }
@@ -419,7 +423,7 @@ void CRobot::ControlStep() {
 
             /* Toggle color */
             if(m_cCurrentLEDColor == CColor::RED) {
-                m_cCurrentLEDColor = CColor::YELLOW;
+                m_cCurrentLEDColor = CColor::BLACK;
             } else {
                 m_cCurrentLEDColor = CColor::RED;
             }
@@ -496,7 +500,7 @@ void CRobot::ControlStep() {
     msg.ID = GetId();
     msg.teamID = m_unTeamID;
     msg.inTarget = m_bInTarget;
-    if(currentState == State::BROADCAST_WALK || currentState == State::BROADCAST_HOMING) {
+    if((currentState == State::BROADCAST_WALK || currentState == State::BROADCAST_HOMING) && m_nBroadcastTimer > 0) {
         msg.targetPosition = m_cTarget;
     }
 
@@ -768,8 +772,10 @@ CVector2 CRobot::RandomWalk() {
         if(fLengthLeft < 1 || fLengthRight < 1) {
     
             /* Choose a random duration */
-            m_nRandomWalkTimer = m_pcRNG->Uniform(CRange<UInt32>(m_nMinRandomWalkDuration, m_nMaxRandomWalkDuration));
-            // RLOG << "Random walk duration: " << m_unRandomWalkTimer << std::endl;
+            Real fDuration = m_pcRNG->Uniform(CRange<Real>(m_fMinRandomWalkDuration, m_fMaxRandomWalkDuration));
+            m_nRandomWalkTimer = (int)(fDuration / m_fSecondsPerStep);
+            // RLOG << "fDuration: " << fDuration << std::endl;
+            // RLOG << "Random walk duration: " << m_nRandomWalkTimer << std::endl;
     
             if(fLengthLeft > fLengthRight) {
                 /* Rotate left */

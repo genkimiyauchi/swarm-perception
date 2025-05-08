@@ -185,6 +185,11 @@ public:
     */
     virtual void Destroy() {}
 
+    /* Set simulation clock tick */
+    virtual void SetSecondsPerStep(Real f_seconds_per_step) {
+        m_fSecondsPerStep = f_seconds_per_step;
+    }
+
     /* Set team ID */
     virtual void SetTeamID(UInt8 un_team_id) {
         m_unTeamID = un_team_id;
@@ -282,6 +287,9 @@ private:
     /* Random number generator */
     CRandom::CRNG* m_pcRNG;
 
+    /* Simulation clock */
+    Real m_fSecondsPerStep;
+
     /* PID to control the heading angle */
     PID* m_pcPIDHeading;
 
@@ -304,12 +312,12 @@ private:
 
     /* ### Random walk: parameters ### */
     int m_nRandomWalkTimer;
-    int m_nMinRandomWalkDuration, m_nMaxRandomWalkDuration;
+    Real m_fMinRandomWalkDuration, m_fMaxRandomWalkDuration;
     CVector2 currentRotation;
 
     /* Broadcast timer */
     int m_nBroadcastTimer;
-    size_t m_unBroadCastDuration;
+    Real m_fBroadCastDuration;
     size_t m_unBlinkInterval;
     int m_nBlinkTimer;
     CColor m_cCurrentLEDColor;
