@@ -345,6 +345,10 @@ void CRobot::ControlStep() {
         if(!m_bInTarget) {
             /* Check if neighboring robots have found the target */
             for(const auto& msg : teamMsgs) {
+                // if(GetId() == "ep6") {
+                //     RLOG << "msg.targetPosition: " << msg.targetPosition << ", m_cTarget: " << m_cTarget << std::endl;
+                //     RLOG << "Equal? " << (msg.targetPosition == m_cTarget) << std::endl;
+                // }
                 if(msg.targetPosition == m_cTarget) { // Check if the received target matches to true target position
                     bTargetReceived = true;
                     RLOG << "Target received from " << msg.ID << std::endl;
@@ -503,7 +507,7 @@ void CRobot::ControlStep() {
     msg.ID = GetId();
     msg.teamID = m_unTeamID;
     msg.inTarget = m_bInTarget;
-    if((currentState == State::BROADCAST_WALK || currentState == State::BROADCAST_HOMING) && m_nBroadcastTimer > 0) {
+    if(currentState == State::BROADCAST_WALK || currentState == State::BROADCAST_HOMING) {
         msg.targetPosition = m_cTarget;
     }
 
@@ -745,7 +749,7 @@ CVector2 CRobot::RandomWalk() {
 
     for(const auto& msg : allMsgs) {
         if(msg.direction.Length() < m_sFlockingParams.TargetDistanceWalk) {
-            RLOG << "Avoiding robots" << std::endl;
+            // RLOG << "Avoiding robots" << std::endl;
             return GetRobotRepulsionVector(allMsgs);
         }
     }

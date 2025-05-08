@@ -8,7 +8,7 @@
     <system threads="0" />
     <experiment length="40"
                 ticks_per_second="30"
-                random_seed="125" />
+                random_seed="126" />
   </framework>
 
   <!-- *************** -->
@@ -26,16 +26,16 @@
       </actuators>
       <sensors>
         <proximity implementation="default" show_rays="false" />
-        <range_and_bearing implementation="medium" medium="rab" show_rays="false" />
+        <range_and_bearing implementation="medium" medium="rab" show_rays="true" />
         <positioning implementation="default" />
       </sensors>
       <params>
         <wheel_turning hard_turn_angle_threshold="90"
                   soft_turn_angle_threshold="70"
                   no_turn_angle_threshold="10"
-                  max_speed="10" />
+                  max_speed="5" />
         <flocking target_distance_walk="20"
-                  target_distance_target="10"
+                  target_distance_target="8"
                   gain="1000"
                   exponent="6" />
         <!-- <blocking target_distance="20"
@@ -70,7 +70,7 @@
             camera_index="0" />
 
     <!-- Things to draw in the qt-opengl visualization -->
-    <draw robot_label="false"/>
+    <draw robot_label="true"/>
 
     <!-- Randomly place a target in the arena -->
     <target radius="0.25" />
@@ -103,16 +103,16 @@
            source="loop_functions"
            pixels_per_meter="300" />
 
-    <box id="wall_north" size="1.5,0.05,0.25" movable="false">
+    <box id="wall_north" size="1.5,0.05,0.1" movable="false">
       <body position="0,0.75,0" orientation="0,0,0" />
     </box>
-    <box id="wall_south" size="1.5,0.05,0.25" movable="false">
+    <box id="wall_south" size="1.5,0.05,0.1" movable="false">
       <body position="0,-0.75,0" orientation="0,0,0" />
     </box>
-    <box id="wall_east" size="0.05,1.5,0.25" movable="false">
+    <box id="wall_east" size="0.05,1.5,0.1" movable="false">
       <body position="0.75,0,0" orientation="0,0,0" />
     </box>
-    <box id="wall_west" size="0.05,1.5,0.25" movable="false">
+    <box id="wall_west" size="0.05,1.5,0.1" movable="false">
       <body position="-0.75,0,0" orientation="0,0,0" />
     </box>
 
@@ -196,7 +196,7 @@
       <camera>
         <placements>
           <!-- <placement index="0" position="0,-5,13" look_at="0,-4.6,12" up="0,1,0" lens_focal_length="240" /> -->
-          <placement index="0" position="0,-4.96262,13" look_at="0,-4.60364,12.0667" up="0,1,0" lens_focal_length="240" />
+          <placement index="0" position="0,-1,1.7" look_at="0,-0.06,0" up="0,1,0" lens_focal_length="33" />
         </placements>
       </camera>
     </qt-opengl>

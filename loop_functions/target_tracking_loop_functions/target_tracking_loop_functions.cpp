@@ -243,7 +243,7 @@ CColor CTargetTrackingLoopFunctions::GetFloorColor(const CVector2& c_position_on
 
 void CTargetTrackingLoopFunctions::PreStep() {
 
-    LOG << "TIME: " << GetSpace().GetSimulationClock() << std::endl;
+    // LOG << "TIME: " << GetSpace().GetSimulationClock() << std::endl;
 
     /* Check if any robot is in the target area, and send the location if there is */
     UInt8 teamID; // TEMP: Assume only one team for now
