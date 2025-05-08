@@ -33,7 +33,7 @@
         <wheel_turning hard_turn_angle_threshold="90"
                   soft_turn_angle_threshold="70"
                   no_turn_angle_threshold="10"
-                  max_speed="20" />
+                  max_speed="10" />
         <flocking target_distance_walk="20"
                   target_distance_target="10"
                   gain="1000"
@@ -46,12 +46,12 @@
                   ki="0"
                   kd="0" 
                   thres_range="0.05" />
-        <!-- Parameters for motion                                                 -->
-        <!--   type = {"direct", "angle_drift", "wheel_drift"}                     -->
-        <!--   random_walk_duration (seconds) = "[0:inf],[0:inf]" (e.g. "0.1,0.6") -->
-        <!--   broadcast_duration (seconds) = "[0:inf]" (e.g. "7.5")               -->
+        <!-- Parameters for motion                                                    -->
+        <!--   type = {"direct", "angle_drift", "wheel_drift"}                        -->
+        <!--   random_walk_rotation_angle (degrees) = "[0:inf],[0:inf]" (e.g. "0,90") -->
+        <!--   broadcast_duration (seconds) = "[0:inf]" (e.g. "7.5")                  -->
         <motion type="direct"
-                random_walk_duration="0.1,0.6"
+                random_walk_rotation_angle="15,90"
                 broadcast_duration="7.5" />
       </params>
     </robot_controller>
@@ -83,7 +83,7 @@
               base_num="1"
               quantity="10"
               max_trials="100" 
-              rab_range="0.3" />
+              rab_range="0.35" />
       <!-- <robots controller="epc1"
               base_name="eB"
               base_num="1"
@@ -195,7 +195,7 @@
 
       <camera>
         <placements>
-          <placement index="0" position="0,0,13" look_at="0,0,0" up="0,1,0" lens_focal_length="221" />
+          <placement index="0" position="0,-5,13" look_at="0,0,0" up="0,1,0" lens_focal_length="240" />
         </placements>
       </camera>
     </qt-opengl>

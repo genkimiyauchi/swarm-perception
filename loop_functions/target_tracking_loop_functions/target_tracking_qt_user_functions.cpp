@@ -36,18 +36,23 @@ void CTargetTrackingQTUserFunctions::DrawOverlay(QPainter& c_painter) {
 
    size_t unNumRobotsInTarget = m_pcTargetTrackingLoopFunctions->GetNumRobotsInTarget();
 
+   /* Text position */
+   int textX = 410;
+   int textX_offset = 370;
+   int textY = 52;
+
    /* Draw the total number of robots */
-   c_painter.setPen(Qt::black); // Set text color
+   c_painter.setPen(Qt::white); // Set text color
    QFont font = c_painter.font();
    font.setPointSize(20); // Set font size
    font.setBold(true); // Default font style
    c_painter.setFont(font);
-   c_painter.drawText(210, 70, QString("Number of robots in target:"));
+   c_painter.drawText(textX, textY, QString("Number of robots in target:"));
 
-   // c_painter.setPen(Qt::black); // Set text color
+   // c_painter.setPen(Qt::white); // Set text color
    // font.setBold(true); // Bold font for %1/%2
    // c_painter.setFont(font);
-   c_painter.drawText(580, 70, QString("%1 / %2")
+   c_painter.drawText(textX + textX_offset, textY, QString("%1 / %2")
                       .arg(unNumRobotsInTarget)
                       .arg(m_unNumRobots));
 }

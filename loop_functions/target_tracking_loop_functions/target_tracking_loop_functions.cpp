@@ -218,7 +218,8 @@ void CTargetTrackingLoopFunctions::Destroy() {
     LOG << "[LOG] DESTROY called" << std::endl;
 
     int final_time = GetSpace().GetSimulationClock();
-    LOG << "[LOG] Final Timestep: " << final_time << std::endl;
+    Real final_time_seconds = final_time * m_fSecondsPerStep;
+    LOG << "[LOG] Final Timestep: " << final_time << " steps = " << final_time_seconds << " seconds" << std::endl;
 
     CSimulator::GetInstance().Terminate();
     
@@ -314,8 +315,11 @@ void CTargetTrackingLoopFunctions::PostStep() {
 
         LOG << "[LOG] All robots are in the target area! " << m_unTargetTimer << std::endl;
 
-        if(m_unTargetTimer >= 30) {
+        if(m_unTargetTimer >= (3/m_fSecondsPerStep)) {
             LOG << "[LOG] All robots are in the target area for 3 seconds!" << std::endl;
+            int final_time = GetSpace().GetSimulationClock();
+            Real final_time_seconds = final_time * m_fSecondsPerStep;
+            LOG << "[LOG] Final Timestep: " << final_time << " steps = " << final_time_seconds << " seconds" << std::endl;
             CSimulator::GetInstance().Terminate();
         }
 

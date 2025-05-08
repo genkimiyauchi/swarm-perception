@@ -312,7 +312,7 @@ private:
 
     /* ### Random walk: parameters ### */
     int m_nRandomWalkTimer;
-    Real m_fMinRandomWalkDuration, m_fMaxRandomWalkDuration;
+    Real m_fMinRandomWalkRotationAngle, m_fMaxRandomWalkRotationAngle;
     CVector2 currentRotation;
 
     /* Broadcast timer */

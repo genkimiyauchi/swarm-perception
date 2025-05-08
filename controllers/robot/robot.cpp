@@ -9,7 +9,10 @@
 
 /* Constants */
 
-static const Real BODY_RADIUS = 0.035f; // meters
+// in meters
+static const Real BODY_RADIUS = 0.035f;
+static const Real INTERWHEEL_DISTANCE = 0.053f; 
+static const Real HALF_INTERWHEEL_DISTANCE = INTERWHEEL_DISTANCE * 0.5f;
 
 static const std::vector<CRadians> PROX_ANGLE {
     CRadians::PI / 10.5884f,
@@ -178,11 +181,11 @@ void CRobot::Init(TConfigurationNode& t_node) {
         m_sFlockingParams.Init(GetNode(t_node, "flocking"));
         // m_sBlockingParams.Init(GetNode(t_node, "blocking"));
         /* Motion */
-        std::string strRandomWalkDuration;
+        std::string strRandomWalkRotationAngle;
         // std::string strMoveType, strAngleDriftRange, strAngleDriftDuration, strWheelDriftRatio, strWheelDriftDuration, strFlock;
         TConfigurationNode& cMotionNode = GetNode(t_node, "motion");
         // GetNodeAttribute(cMotionNode, "type", strMoveType);
-        GetNodeAttribute(cMotionNode, "random_walk_duration", strRandomWalkDuration);
+        GetNodeAttribute(cMotionNode, "random_walk_rotation_angle", strRandomWalkRotationAngle);
         GetNodeAttribute(cMotionNode, "broadcast_duration", m_fBroadCastDuration);
         // GetNodeAttributeOrDefault(cMotionNode, "angle_drift_range", strAngleDriftRange, std::string("45,45"));
         // GetNodeAttributeOrDefault(cMotionNode, "angle_drift_duration", strAngleDriftDuration, std::string("10,30"));
@@ -205,15 +208,15 @@ void CRobot::Init(TConfigurationNode& t_node) {
         // }
 
         /* Parse random walk rotation duration */
-        std::string::size_type comma_pos = strRandomWalkDuration.find(',');
+        std::string::size_type comma_pos = strRandomWalkRotationAngle.find(',');
         if(comma_pos == std::string::npos) {
-            THROW_ARGOSEXCEPTION("Invalid random walk duration format: " << strRandomWalkDuration);
+            THROW_ARGOSEXCEPTION("Invalid random walk duration format: " << strRandomWalkRotationAngle);
         }
 
-        m_fMinRandomWalkDuration = std::stof(strRandomWalkDuration.substr(0, comma_pos));
-        m_fMaxRandomWalkDuration = std::stof(strRandomWalkDuration.substr(comma_pos + 1));
-        if(m_fMinRandomWalkDuration > m_fMaxRandomWalkDuration) {
-            THROW_ARGOSEXCEPTION("Invalid random walk duration range: min > max (" << m_fMinRandomWalkDuration << " > " << m_fMaxRandomWalkDuration << ")");
+        m_fMinRandomWalkRotationAngle = std::stof(strRandomWalkRotationAngle.substr(0, comma_pos));
+        m_fMaxRandomWalkRotationAngle = std::stof(strRandomWalkRotationAngle.substr(comma_pos + 1));
+        if(m_fMinRandomWalkRotationAngle > m_fMaxRandomWalkRotationAngle) {
+            THROW_ARGOSEXCEPTION("Invalid random walk duration range: min > max (" << m_fMinRandomWalkRotationAngle << " > " << m_fMaxRandomWalkRotationAngle << ")");
         }
 
         // /* Parse angle drift range */
@@ -752,8 +755,8 @@ CVector2 CRobot::RandomWalk() {
 
     if(m_nRandomWalkTimer <= 0) {
         Real fDistanceLeft, fDistanceRight;
-        Real fLengthLeft = 1;
-        Real fLengthRight = 1;
+        Real fLengthLeft = -1;
+        Real fLengthRight = -1;
     
         size_t index = 0;
         if(fProxReads[index] > 0.0f) {
@@ -768,16 +771,28 @@ CVector2 CRobot::RandomWalk() {
             fLengthRight = (0.1 - fDistanceRight) / 0.1;
             // RLOG << "length(" << index << "): " << fLengthRight << std::endl;
         }
+
+        Real proxThres = 0.1; // 10% of the prox range, TEMP: hard-coded value
+        if(fLengthLeft > proxThres || fLengthRight > proxThres) {
     
-        if(fLengthLeft < 1 || fLengthRight < 1) {
-    
-            /* Choose a random duration */
-            Real fDuration = m_pcRNG->Uniform(CRange<Real>(m_fMinRandomWalkDuration, m_fMaxRandomWalkDuration));
+            /* Choose a random rotation duration */
+
+            /* Generate a random angle in degrees */
+            Real fRandomAngleDegrees = m_pcRNG->Uniform(CRange<Real>(m_fMinRandomWalkRotationAngle, m_fMaxRandomWalkRotationAngle));
+            /* Convert the angle to radians */
+            CRadians cRandomAngle = ToRadians(CDegrees(fRandomAngleDegrees));
+            /* Calculate the time it takes to rotate */
+            Real fArcLength = cRandomAngle.GetValue() * HALF_INTERWHEEL_DISTANCE;
+            Real fDuration = fArcLength / (m_sWheelTurningParams.MaxSpeed/100); // convert to from cm -> m
+            // RLOG << "fRandomAngleDegrees: " << fRandomAngleDegrees << std::endl;
+            // RLOG << "cRandomAngle: " << cRandomAngle.GetValue() << std::endl;
+            // RLOG << "fArcLength: " << fArcLength << std::endl;
+            // RLOG << "fDuration: " << fDuration << std::endl;
             m_nRandomWalkTimer = (int)(fDuration / m_fSecondsPerStep);
             // RLOG << "fDuration: " << fDuration << std::endl;
             // RLOG << "Random walk duration: " << m_nRandomWalkTimer << std::endl;
     
-            if(fLengthLeft > fLengthRight) {
+            if(fLengthLeft < fLengthRight) {
                 /* Rotate left */
                 // RLOG << "Rotate left" << std::endl;
                 currentRotation = CVector2(-m_sWheelTurningParams.MaxSpeed, m_sWheelTurningParams.MaxSpeed);
