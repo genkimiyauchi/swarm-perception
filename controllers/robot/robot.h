@@ -309,7 +309,7 @@ private:
 
     /* Broadcast timer */
     int m_nBroadcastTimer;
-    int m_nBroadCastDuration;
+    size_t m_unBroadCastDuration;
     size_t m_unBlinkInterval;
     int m_nBlinkTimer;
     CColor m_cCurrentLEDColor;

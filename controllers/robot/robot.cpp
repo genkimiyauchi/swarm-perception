@@ -183,6 +183,7 @@ void CRobot::Init(TConfigurationNode& t_node) {
         TConfigurationNode& cMotionNode = GetNode(t_node, "motion");
         // GetNodeAttribute(cMotionNode, "type", strMoveType);
         GetNodeAttribute(cMotionNode, "random_walk_duration", strRandomWalkDuration);
+        GetNodeAttribute(cMotionNode, "broadcast_duration", m_unBroadCastDuration);
         // GetNodeAttributeOrDefault(cMotionNode, "angle_drift_range", strAngleDriftRange, std::string("45,45"));
         // GetNodeAttributeOrDefault(cMotionNode, "angle_drift_duration", strAngleDriftDuration, std::string("10,30"));
         // GetNodeAttributeOrDefault(cMotionNode, "wheel_drift_range", strWheelDriftRatio, std::string("0.5"));
@@ -351,10 +352,9 @@ void CRobot::ControlStep() {
         /* Switch to BROADCAST_WALK if target found */
         if(m_bInTarget || bTargetReceived) {
             currentState = State::BROADCAST_WALK;
-            m_nBroadCastDuration = 150; // TEMP: hard-coded value (15 seconds)
             size_t numberOfBlinks = 30; // TEMP: hard-coded value
-            m_unBlinkInterval = (size_t)(m_nBroadCastDuration / (numberOfBlinks * 2));
-            m_nBroadcastTimer = m_nBroadCastDuration;
+            m_unBlinkInterval = (size_t)(m_unBroadCastDuration / (numberOfBlinks * 2));
+            m_nBroadcastTimer = m_unBroadCastDuration;
             m_nBlinkTimer = 0;
         }
     }
@@ -484,7 +484,7 @@ void CRobot::ControlStep() {
     // }
 
     /* Set Wheel Speed */
-    if(motionVector.Length() > 1.0f) {
+    if(motionVector.Length() > m_sWheelTurningParams.MaxSpeed/10) { // motion vector must be at least 10% of the max speed
         SetWheelSpeedsFromVector(motionVector);
     } 
     else {

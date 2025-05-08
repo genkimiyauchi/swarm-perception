@@ -151,9 +151,9 @@ void CTargetTrackingLoopFunctions::Init(TConfigurationNode& t_node) {
                             0.0f);
                     cEPRot.FromAngleAxis(m_pcRNG->Uniform(CRadians::UNSIGNED_RANGE), CVector3::Z);
 
-                    /* Check the position is not in the target area */
+                    /* Check the position is not near the target area */
                     CVector2 cEPPos2 = CVector2(cEPPos.GetX(), cEPPos.GetY());
-                    if(Distance(cEPPos2, cCenter) < fRadius) {
+                    if(Distance(cEPPos2, cCenter) < fRadius*1.5) { // 50% more than the radius
                         LOG << "[INFO] Robot " << cEPId.str() << " is in the target area, retrying..." << std::endl;
                         continue;
                     }

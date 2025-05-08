@@ -8,7 +8,7 @@
     <system threads="0" />
     <experiment length="60"
                 ticks_per_second="10"
-                random_seed="124" />
+                random_seed="125" />
   </framework>
 
   <!-- *************** -->
@@ -33,9 +33,9 @@
         <wheel_turning hard_turn_angle_threshold="90"
                   soft_turn_angle_threshold="70"
                   no_turn_angle_threshold="10"
-                  max_speed="10" />
+                  max_speed="15" />
         <flocking target_distance_walk="16"
-                  target_distance_target="8"
+                  target_distance_target="10"
                   gain="1000"
                   exponent="6" />
         <!-- <blocking target_distance="20"
@@ -46,11 +46,13 @@
                   ki="0"
                   kd="0" 
                   thres_range="0.05" />
-        <!-- Parameters for motion                                                  -->
-        <!--   type = {"direct", "angle_drift", "wheel_drift"}                      -->
-        <!--   random_walk_duration(seconds) = "[0:inf],[0:inf]" (e.g. "5,10")      -->
+        <!-- Parameters for motion                                                -->
+        <!--   type = {"direct", "angle_drift", "wheel_drift"}                    -->
+        <!--   random_walk_duration (timesteps) = "[0:inf],[0:inf]" (e.g. "5,10") -->
+        <!--   broadcast_duration (timesteps) = "[0:inf]" (e.g. "150")            -->
         <motion type="direct"
-                random_walk_duration="1,6" />
+                random_walk_duration="1,6"
+                broadcast_duration="150" />
       </params>
     </robot_controller>
 
@@ -71,7 +73,7 @@
     <draw robot_label="false"/>
 
     <!-- Randomly place a target in the arena -->
-    <target radius="0.25" />
+    <target radius="0.3" />
 
     <!-- Randomly place robots in the arena -->
     <!-- 'base_name' must to be two characters -->
@@ -79,7 +81,7 @@
       <robots controller="epc1"
               base_name="ep"
               base_num="1"
-              quantity="10"
+              quantity="20"
               max_trials="100" 
               rab_range="0.4" />
       <!-- <robots controller="epc1"
