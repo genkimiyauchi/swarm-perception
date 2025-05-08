@@ -26,13 +26,14 @@ CTargetTrackingLoopFunctions::CTargetTrackingLoopFunctions() :
 /****************************************/
 
 void CTargetTrackingLoopFunctions::Init(TConfigurationNode& t_node) {
-    try {
-        
-        /* Get a pointer to the floor entity */
-        m_pcFloor = &GetSpace().GetFloorEntity();
 
-        /* Create a new RNG */
-        m_pcRNG = CRandom::CreateRNG("argos");
+    /* Get a pointer to the floor entity */
+    m_pcFloor = &GetSpace().GetFloorEntity();
+
+    /* Create a new RNG */
+    m_pcRNG = CRandom::CreateRNG("argos");
+
+    try {
 
         /*
         * Parse the configuration file
@@ -175,6 +176,9 @@ void CTargetTrackingLoopFunctions::Init(TConfigurationNode& t_node) {
         THROW_ARGOSEXCEPTION_NESTED("Error parsing loop functions!", ex);
     }
 
+    /* Initialize variables */
+    m_unTargetTimer = 0;
+
     /* Update floor */
     m_pcFloor->SetChanged();
 
@@ -203,8 +207,14 @@ void CTargetTrackingLoopFunctions::Reset() {
 /****************************************/
 
 void CTargetTrackingLoopFunctions::Destroy() {
-    /* Close the file */
-    // m_cOutput.close();
+
+    LOG << "[LOG] DESTROY called" << std::endl;
+
+    int final_time = GetSpace().GetSimulationClock();
+    LOG << "[LOG] Final Timestep: " << final_time << std::endl;
+
+    CSimulator::GetInstance().Terminate();
+    
 }
 
 /****************************************/
@@ -261,7 +271,7 @@ void CTargetTrackingLoopFunctions::PreStep() {
 
         cController.SetTarget(m_vecTargets[cController.GetTeamID()-1].first, m_vecTargets[cController.GetTeamID()-1].second); // TEMP: Use team assigned target
     }
-    
+
 }
 
 /****************************************/
@@ -275,6 +285,34 @@ void CTargetTrackingLoopFunctions::PostStep() {
         CQTOpenGLWidget& widget = render.GetMainWindow().GetOpenGLWidget();
         widget.SetCamera(m_unCameraIndex);
         widget.SetGrabFrame(m_bFrameGrabbing);
+    }
+
+    /* Check the number of robots in state: IN_TARGET */
+    size_t unNumRobotsStateInTarget = 0;
+    CSpace::TMapPerType& m_cEPucks = GetSpace().GetEntitiesByType("e-puck");
+    for(CSpace::TMapPerType::iterator itEpuck = m_cEPucks.begin();
+        itEpuck != m_cEPucks.end();
+        ++itEpuck) {
+
+        CEPuckEntity& cEPuck = *any_cast<CEPuckEntity*>(itEpuck->second);
+        CRobot& cController = dynamic_cast<CRobot&>(cEPuck.GetControllableEntity().GetController());
+
+        if(cController.GetState() == "IN_TARGET") {
+            ++unNumRobotsStateInTarget;
+        }
+    }
+
+    /* Check termination condition */
+    if(m_unNumRobotsInTarget == m_unNumRobots && unNumRobotsStateInTarget == m_unNumRobots) {
+
+        LOG << "[LOG] All robots are in the target area! " << m_unTargetTimer << std::endl;
+
+        if(m_unTargetTimer >= 30) {
+            LOG << "[LOG] All robots are in the target area for 3 seconds!" << std::endl;
+            CSimulator::GetInstance().Terminate();
+        }
+
+        ++m_unTargetTimer;
     }
 }
 

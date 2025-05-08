@@ -195,6 +195,21 @@ public:
         return m_unTeamID;
     }
 
+    /* Get state */
+    virtual std::string GetState() const {
+        switch(currentState) {
+            case State::RANDOM_WALK:
+                return "RANDOM_WALK";
+            case State::BROADCAST_WALK:
+                return "BROADCAST_WALK";
+            case State::BROADCAST_HOMING:
+                return "BROADCAST_HOMING";
+            case State::IN_TARGET:
+                return "IN_TARGET";
+        }
+        return "";
+    }
+
     /* Get whether robot has found the target */
     virtual bool HasFoundTarget() const {
         return m_bTargetFound;

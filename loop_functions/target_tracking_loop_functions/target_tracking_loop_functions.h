@@ -48,6 +48,7 @@ private:
 
     /* Targets */
     std::vector<std::pair<CVector2, Real>> m_vecTargets; // {position, radius}
+    size_t m_unTargetTimer;
 
     /* Robots */
     size_t m_unNumRobots;
