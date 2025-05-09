@@ -27,6 +27,8 @@ public:
 
     virtual void PostStep();
 
+    virtual bool IsExperimentFinished();
+
     virtual size_t GetNumRobots() const {
         return m_unNumRobots;
     }
@@ -56,10 +58,6 @@ private:
     /* Robots */
     size_t m_unNumRobots;
     size_t m_unNumRobotsInTarget;
-
-    /* Frame Grabbing */
-    bool m_bFrameGrabbing;
-    UInt32 m_unCameraIndex;
 
     /* Draw configurations */
     bool m_bDrawRobotLabel;

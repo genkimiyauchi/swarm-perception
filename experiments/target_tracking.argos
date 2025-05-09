@@ -26,14 +26,14 @@
       </actuators>
       <sensors>
         <proximity implementation="default" show_rays="false" />
-        <range_and_bearing implementation="medium" medium="rab" show_rays="true" />
+        <range_and_bearing implementation="medium" medium="rab" show_rays="false" />
         <positioning implementation="default" />
       </sensors>
       <params>
         <wheel_turning hard_turn_angle_threshold="90"
                   soft_turn_angle_threshold="70"
                   no_turn_angle_threshold="10"
-                  max_speed="5" />
+                  max_speed="10.5" />
         <flocking target_distance_walk="20"
                   target_distance_target="8"
                   gain="1000"
@@ -65,12 +65,8 @@
   <loop_functions library="build/loop_functions/target_tracking_loop_functions/libtarget_tracking_loop_functions"
                   label="target_tracking_loop_functions">
 
-    <!-- Output path -->
-    <output frame_grabbing="false"
-            camera_index="0" />
-
     <!-- Things to draw in the qt-opengl visualization -->
-    <draw robot_label="true"/>
+    <draw robot_label="false"/>
 
     <!-- Randomly place a target in the arena -->
     <target radius="0.25" />
@@ -81,13 +77,13 @@
       <robots controller="epc1"
               base_name="ep"
               base_num="1"
-              quantity="10"
+              quantity="20"
               max_trials="100" 
               rab_range="0.35" />
       <!-- <robots controller="epc1"
               base_name="eB"
               base_num="1"
-              quantity="10" 
+              quantity="20" 
               max_trials="100" 
               rab_range="0.5" /> -->
     </teams>
@@ -128,7 +124,7 @@
     <!-- <distribute>
       <position method="uniform" min="-1,-1,0" max="1,1,0" />
       <orientation method="gaussian" mean="0,0,0" std_dev="360,0,0" />
-      <entity quantity="10" max_trials="100" base_num="1">
+      <entity quantity="20" max_trials="100" base_num="1">
         <e-puck id="ep" rab_data_size="8" rab_range="0.5">
           <controller config="epc1" />
         </e-puck>
@@ -141,7 +137,7 @@
     <!-- <distribute>
       <position method="uniform" min="-2,-2,0" max="2,2,0" />
       <orientation method="uniform" min="0,0,0" max="360,0,0" />
-      <entity quantity="15" max_trials="100">
+      <entity quantity="20" max_trials="100">
         <box id="b" size="0.1,0.5,0.5" movable="false" />
       </entity>
     </distribute> -->
@@ -154,7 +150,7 @@
     <!-- <distribute>
       <position method="uniform" min="-2,-2,0" max="2,2,0" />
       <orientation method="constant" values="0,0,0" />
-      <entity quantity="5" max_trials="100">
+      <entity quantity="20" max_trials="100">
         <cylinder id="c" height="0.5" radius="0.15" movable="false" />
       </entity>
     </distribute> -->
@@ -180,16 +176,16 @@
   <!-- * Visualization * -->
   <!-- ****************** -->
   <visualization>
-    <qt-opengl>
+    <qt-opengl autoplay="false">
 
       <user_functions library="build/loop_functions/target_tracking_loop_functions/libtarget_tracking_loop_functions"
                       label="target_tracking_qt_user_functions" />
 
-      <frame_grabbing directory="frames"
+      <frame_grabbing directory="frames/R20_S10.5_D20_T7.5"
                       base_name="frame_"
                       format="png"
                       quality="100"
-                      headless_grabbing="false"
+                      headless_grabbing="true"
                       headless_frame_size="1600x1200"
                       headless_frame_rate="1"/>
 

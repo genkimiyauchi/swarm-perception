@@ -45,12 +45,8 @@ void CTargetTrackingLoopFunctions::Init(TConfigurationNode& t_node) {
         * Parse the configuration file
         */
         config = t_node;
-        TConfigurationNode& tSettings = GetNode(config, "output");
 
-        /* Set the frame grabbing settings */
-        GetNodeAttributeOrDefault(tSettings, "frame_grabbing", m_bFrameGrabbing, false);
-        GetNodeAttributeOrDefault(tSettings, "camera_index", m_unCameraIndex, (UInt32)0);
-
+        /* Whether to draw robot labels */
         TConfigurationNode& tDraw = GetNode(config, "draw");
         GetNodeAttributeOrDefault(tDraw, "robot_label", m_bDrawRobotLabel, true);
 
@@ -287,13 +283,13 @@ void CTargetTrackingLoopFunctions::PreStep() {
 
 void CTargetTrackingLoopFunctions::PostStep() {
 
-    /* Grab frame */
-    if(m_bFrameGrabbing) {
-        CQTOpenGLRender& render = dynamic_cast<CQTOpenGLRender&>(GetSimulator().GetVisualization());
-        CQTOpenGLWidget& widget = render.GetMainWindow().GetOpenGLWidget();
-        widget.SetCamera(m_unCameraIndex);
-        widget.SetGrabFrame(m_bFrameGrabbing);
-    }
+
+}
+
+/****************************************/
+/****************************************/
+
+bool CTargetTrackingLoopFunctions::IsExperimentFinished() {
 
     /* Check the number of robots in state: IN_TARGET */
     size_t unNumRobotsStateInTarget = 0;
@@ -320,11 +316,13 @@ void CTargetTrackingLoopFunctions::PostStep() {
             int final_time = GetSpace().GetSimulationClock();
             Real final_time_seconds = final_time * m_fSecondsPerStep;
             LOG << "[LOG] Final Timestep: " << final_time << " steps = " << final_time_seconds << " seconds" << std::endl;
-            CSimulator::GetInstance().Terminate();
+            return true;
         }
 
         ++m_unTargetTimer;
     }
+
+    return false;
 }
 
 /****************************************/
