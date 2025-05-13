@@ -3,13 +3,16 @@
 # Path to the target_tracking.argos file
 ARGOS_FILE="/home/genki/GIT/swarm-competence/experiments/target_tracking.argos"
 
+# Single seed value
+SEED="226"
+
 # Lists of values for each parameter
 # QUANTITY_LIST=("5" "10" "20")
 # MAX_SPEED_LIST=("6.0" "7.5" "9.0" "10.5" "12.0" "13.5" "15.0")
 # TARGET_DISTANCE_WALK_LIST=("5" "10" "15" "20" "25" "30" "35")
 # BROADCAST_DURATION_LIST=("0.0" "2.5" "5.0" "7.5" "10.0" "12.5" "15.0")
 
-QUANTITY_LIST=("5" "20")
+QUANTITY_LIST=("5")
 MAX_SPEED_LIST=("10.5")
 TARGET_DISTANCE_WALK_LIST=("20")
 BROADCAST_DURATION_LIST=("7.5")
@@ -27,20 +30,23 @@ for QUANTITY in "${QUANTITY_LIST[@]}"; do
                 if [ ! -d "$FRAME_DIRECTORY" ]; then
                     echo "Frame directory '$FRAME_DIRECTORY' does not exist. Creating it..."
                     mkdir -p "$FRAME_DIRECTORY"
-                # else
-                #     # Check if the directory contains any files
-                #     if [ "$(ls -A "$FRAME_DIRECTORY")" ]; then
-                #         echo "Frame directory '$FRAME_DIRECTORY' is not empty. Do you want to overwrite its contents? (y/n)"
-                #         read -r response
-                #         if [[ "$response" != "y" ]]; then
-                #             echo "Skipping this simulation."
-                #             continue
-                #         fi
-                #     fi
+                else
+                    # Check if the directory contains any files
+                    if [ "$(ls -A "$FRAME_DIRECTORY")" ]; then
+                        echo "Frame directory '$FRAME_DIRECTORY' is not empty. Do you want to overwrite its contents? (y/n)"
+                        read -r response
+                        if [[ "$response" != "y" ]]; then
+                            echo "Skipping this simulation."
+                            continue
+                        fi
+                    fi
                 fi
 
-                # Update quantity
-                sed -i "s/quantity=\"[0-9]*\"/quantity=\"$QUANTITY\"/" "$ARGOS_FILE"
+                # Update random_seed
+                sed -i "s/random_seed=\"[0-9]*\"/random_seed=\"$SEED\"/" "$ARGOS_FILE"
+
+                # Update quantity in the <robots> tag only within the <teams> block
+                sed -i "/<teams>/,/<\/teams>/s/quantity=\"[0-9]*\"/quantity=\"$QUANTITY\"/" "$ARGOS_FILE"
 
                 # Update max_speed
                 sed -i "s/max_speed=\"[0-9.]*\"/max_speed=\"$MAX_SPEED\"/" "$ARGOS_FILE"
