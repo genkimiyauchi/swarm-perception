@@ -3,8 +3,11 @@
 # Path to the target_tracking.argos file
 ARGOS_FILE="/home/genki/GIT/swarm-competence/experiments/target_tracking.argos"
 
-# Single seed value
-SEED="226"
+# User-specified multiplier
+MULTIPLIER=1  # Replace this with the desired value or prompt the user to input it
+
+# Calculate the seed value
+SEED=$((63 * MULTIPLIER))
 
 # Lists of values for each parameter
 # QUANTITY_LIST=("5" "10" "20")
