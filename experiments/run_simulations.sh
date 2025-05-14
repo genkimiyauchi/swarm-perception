@@ -4,10 +4,10 @@
 ARGOS_FILE="/home/genki/GIT/swarm-competence/experiments/target_tracking.argos"
 
 # User-specified multiplier
-MULTIPLIER=1  # Replace this with the desired value or prompt the user to input it
+MULTIPLIER=2  # Replace this with the desired value or prompt the user to input it
 
 # Calculate the seed value
-SEED=$((63 * MULTIPLIER))
+SEED=$((126 * MULTIPLIER))
 
 # Lists of values for each parameter
 # QUANTITY_LIST=("5" "10" "20")
@@ -15,10 +15,10 @@ SEED=$((63 * MULTIPLIER))
 # TARGET_DISTANCE_WALK_LIST=("5" "10" "15" "20" "25" "30" "35")
 # BROADCAST_DURATION_LIST=("0.0" "2.5" "5.0" "7.5" "10.0" "12.5" "15.0")
 
-QUANTITY_LIST=("5")
+QUANTITY_LIST=("10")
 MAX_SPEED_LIST=("10.5")
 TARGET_DISTANCE_WALK_LIST=("20")
-BROADCAST_DURATION_LIST=("7.5")
+BROADCAST_DURATION_LIST=("2.5")
 
 # Loop through all combinations of parameters
 for QUANTITY in "${QUANTITY_LIST[@]}"; do

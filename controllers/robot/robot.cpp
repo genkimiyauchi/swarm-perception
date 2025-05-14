@@ -362,7 +362,8 @@ void CRobot::ControlStep() {
             currentState = State::BROADCAST_WALK;
             size_t numberOfBlinks = 30; // TEMP: hard-coded value
             m_nBroadcastTimer = (int)(m_fBroadCastDuration / m_fSecondsPerStep);
-            m_unBlinkInterval = (size_t)(m_nBroadcastTimer / (numberOfBlinks * 2));
+            // m_unBlinkInterval = (size_t)(m_nBroadcastTimer / (numberOfBlinks * 2));
+            m_unBlinkInterval = 5; // TEMP: hard-coded value
             // RLOG << "Broadcasting for " << m_fBroadCastDuration << " seconds" << std::endl;
             // RLOG << "Timer: " << m_nBroadcastTimer << std::endl;
             // RLOG << "Blink interval: " << m_unBlinkInterval << std::endl;
@@ -422,7 +423,7 @@ void CRobot::ControlStep() {
     if(currentState == State::RANDOM_WALK) {
         m_cCurrentLEDColor = CColor::BLUE;
     }
-    else if(currentState == State::BROADCAST_WALK || currentState == State::BROADCAST_HOMING) {
+    else if(currentState == State::BROADCAST_WALK) {
         
         if(m_nBlinkTimer <= 0) {
 
@@ -433,6 +434,21 @@ void CRobot::ControlStep() {
                 m_cCurrentLEDColor = CColor::BLACK;
             } else {
                 m_cCurrentLEDColor = CColor::RED;
+            }
+        } else {
+            --m_nBlinkTimer;
+        }
+    }
+    else if(currentState == State::BROADCAST_HOMING) {
+        if(m_nBlinkTimer <= 0) {
+
+            m_nBlinkTimer = m_unBlinkInterval; // Reset blink timer
+
+            /* Toggle color */
+            if(m_cCurrentLEDColor == CColor::GREEN) {
+                m_cCurrentLEDColor = CColor::BLACK;
+            } else {
+                m_cCurrentLEDColor = CColor::GREEN;
             }
         } else {
             --m_nBlinkTimer;
@@ -507,7 +523,10 @@ void CRobot::ControlStep() {
     msg.ID = GetId();
     msg.teamID = m_unTeamID;
     msg.inTarget = m_bInTarget;
-    if(currentState == State::BROADCAST_WALK || currentState == State::BROADCAST_HOMING) {
+    if(currentState == State::BROADCAST_WALK || 
+       currentState == State::BROADCAST_HOMING ||
+       currentState == State::IN_TARGET) {
+
         msg.targetPosition = m_cTarget;
     }
 
