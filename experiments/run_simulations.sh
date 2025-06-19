@@ -10,14 +10,14 @@ TRIAL_INDEX=0
 
 # Lists of values for each parameter
 # QUANTITY_LIST=("5" "10" "20")
-# MAX_SPEED_LIST=("6.0" "7.5" "9.0" "10.5" "12.0" "13.5" "15.0")
-# TARGET_DISTANCE_WALK_LIST=("5" "10" "15" "20" "25" "30" "35")
-# BROADCAST_DURATION_LIST=("0.0" "2.5" "5.0" "7.5" "10.0" "12.5" "15.0")
+# MAX_SPEED_LIST=("5.0" "7.5" "10.0" "12.5" "15.0")
+# TARGET_DISTANCE_WALK_LIST=("4" "12" "20" "28" "36")
+# BROADCAST_DURATION_LIST=("0" "4" "8" "12" "16")
 
-QUANTITY_LIST=("5" "10" "20")
-MAX_SPEED_LIST=("10.5")
-TARGET_DISTANCE_WALK_LIST=("20")
-BROADCAST_DURATION_LIST=("7.5")
+QUANTITY_LIST=("10")
+MAX_SPEED_LIST=("5.0" "7.5" "10.0" "12.5" "15.0")
+TARGET_DISTANCE_WALK_LIST=("4" "12" "20" "28" "36")
+BROADCAST_DURATION_LIST=("0" "4" "8" "12" "16")
 
 # Loop through all combinations of parameters
 for QUANTITY in "${QUANTITY_LIST[@]}"; do
