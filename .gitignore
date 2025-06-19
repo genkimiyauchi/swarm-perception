@@ -1,6 +1,7 @@
 build*/
 results*/
 frames*/
+videos*/
 .venv/
 venv/
 *__pycache__*
