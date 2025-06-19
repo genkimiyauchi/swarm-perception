@@ -65,22 +65,22 @@ def compress_video(video_path, dir_path, robots, speed, distance, time):
 
 if __name__ == "__main__":
     # Ensure the script is called with the correct number of arguments
-    if len(sys.argv) != 5:
-        print("Usage: python create_video.py <robots> <speed> <distance> <time>")
+    if len(sys.argv) != 6:
+        print("Usage: python create_video.py <image-dir-path> <robots> <speed> <distance> <time>")
         sys.exit(1)
 
     # Parse command-line arguments
-    robots = sys.argv[1]
-    speed = sys.argv[2]
-    distance = sys.argv[3]
-    time = sys.argv[4]
+    robots = sys.argv[2]
+    speed = sys.argv[3]
+    distance = sys.argv[4]
+    time = sys.argv[5]
 
     # Construct the path dynamically using the parameters
-    path = os.path.join(os.environ['HOME'], f'GIT/swarm-competence/frames/R{robots}_S{speed}_D{distance}_T{time}/')
+    path = os.path.join(sys.argv[1], f'R{robots}_S{speed}_D{distance}_T{time}/')
     fps = 30
 
     # Create the video
     video_path = create_video(path, fps, robots, speed, distance, time)
 
-    # Compress the video
-    compress_video(video_path, path, robots, speed, distance, time)
+    # # Compress the video
+    # compress_video(video_path, path, robots, speed, distance, time)

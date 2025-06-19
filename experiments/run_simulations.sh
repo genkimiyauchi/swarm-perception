@@ -1,8 +1,12 @@
 #!/bin/bash
 
 # Path to the target_tracking.argos file
-ARGOS_FILE="experiments/target_tracking.argos"
-TRIAL_IDS_FILE="experiments/trial_ids.txt"
+
+# Get the absolute path of where the script was executed
+BASE_DIR="$(pwd)"
+ARGOS_FILE="$BASE_DIR/experiments/target_tracking.argos"
+TRIAL_IDS_FILE="$BASE_DIR/experiments/trial_ids.txt"
+VIDEO_SCRIPT="$BASE_DIR/scripts/create_video.py"
 
 # Read all trial IDs (seeds) into an array
 mapfile -t TRIAL_IDS < "$TRIAL_IDS_FILE"
@@ -30,7 +34,7 @@ for QUANTITY in "${QUANTITY_LIST[@]}"; do
                 ((TRIAL_INDEX++))
 
                 # Construct the frame directory name dynamically
-                FRAME_DIRECTORY="frames/R${QUANTITY}_S${MAX_SPEED}_D${TARGET_DISTANCE_WALK}_T${BROADCAST_DURATION}"
+                FRAME_DIRECTORY="$BASE_DIR/frames/R${QUANTITY}_S${MAX_SPEED}_D${TARGET_DISTANCE_WALK}_T${BROADCAST_DURATION}"
 
                 # Ensure the frame directory exists
                 if [ ! -d "$FRAME_DIRECTORY" ]; then
@@ -69,6 +73,10 @@ for QUANTITY in "${QUANTITY_LIST[@]}"; do
                 # Run the simulation
                 echo "Running simulation with QUANTITY=$QUANTITY, MAX_SPEED=$MAX_SPEED, TARGET_DISTANCE_WALK=$TARGET_DISTANCE_WALK, BROADCAST_DURATION=$BROADCAST_DURATION"
                 argos3 -c "$ARGOS_FILE"
+
+                # Generate the video
+                echo "Generating video..."
+                python "$VIDEO_SCRIPT" "$BASE_DIR/frames" "$QUANTITY" "$MAX_SPEED" "$TARGET_DISTANCE_WALK" "$BROADCAST_DURATION"
 
             done
         done
