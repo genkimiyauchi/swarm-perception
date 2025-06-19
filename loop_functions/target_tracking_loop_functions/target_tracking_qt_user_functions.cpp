@@ -37,9 +37,9 @@ void CTargetTrackingQTUserFunctions::DrawOverlay(QPainter& c_painter) {
    size_t unNumRobotsInTarget = m_pcTargetTrackingLoopFunctions->GetNumRobotsInTarget();
 
    /* Text position */
-   int textX = 410;
-   int textX_offset = 370;
-   int textY = 60;
+   int textX = 310;//410;
+   int textX_offset = 460;//370;
+   int textY = 50;//60;
 
    /* Draw the total number of robots */
    c_painter.setPen(Qt::black); // Set text color

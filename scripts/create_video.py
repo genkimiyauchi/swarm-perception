@@ -6,7 +6,7 @@ import os.path
 import re  # regular expression
 import subprocess  # For running the ffmpeg command
 
-def create_video(dir_path, fps, robots, speed, distance, time):
+def create_video(dir_path, name, fps, robots, speed, distance, time):
     # Count number of files in directory
     img_num = 0
     frame_pattern = re.compile(r'^frame_\d{10}\.png$')  # Regex for frame_0000000001.png format
@@ -25,7 +25,8 @@ def create_video(dir_path, fps, robots, speed, distance, time):
     frameSize = (img.shape[1], img.shape[0])
 
     # Construct the output video file name
-    video_filename = f"R{robots}_S{speed}_D{distance}_T{time}.mp4"
+    # video_filename = f"R{robots}_S{speed}_D{distance}_T{time}.mp4"
+    video_filename = f"{name}.mp4"
     video_path = os.path.join(dir_path, video_filename)
 
     # Writer
@@ -65,22 +66,22 @@ def compress_video(video_path, dir_path, robots, speed, distance, time):
 
 if __name__ == "__main__":
     # Ensure the script is called with the correct number of arguments
-    if len(sys.argv) != 6:
-        print("Usage: python create_video.py <image-dir-path> <robots> <speed> <distance> <time>")
+    if len(sys.argv) != 7:
+        print("Usage: python create_video.py <image-dir-path> <video-name> <robots> <speed> <distance> <time>")
         sys.exit(1)
 
     # Parse command-line arguments
-    robots = sys.argv[2]
-    speed = sys.argv[3]
-    distance = sys.argv[4]
-    time = sys.argv[5]
+    robots = sys.argv[3]
+    speed = sys.argv[4]
+    distance = sys.argv[5]
+    time = sys.argv[6]
 
     # Construct the path dynamically using the parameters
     path = os.path.join(sys.argv[1], f'R{robots}_S{speed}_D{distance}_T{time}/')
     fps = 30
 
     # Create the video
-    video_path = create_video(path, fps, robots, speed, distance, time)
+    video_path = create_video(path, sys.argv[2], fps, robots, speed, distance, time)
 
     # # Compress the video
     # compress_video(video_path, path, robots, speed, distance, time)

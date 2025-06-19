@@ -176,7 +176,7 @@
   <!-- * Visualization * -->
   <!-- ****************** -->
   <visualization>
-    <qt-opengl autoplay="false">
+    <qt-opengl autoplay="true">
 
       <user_functions library="build/loop_functions/target_tracking_loop_functions/libtarget_tracking_loop_functions"
                       label="target_tracking_qt_user_functions" />
