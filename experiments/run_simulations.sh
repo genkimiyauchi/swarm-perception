@@ -1,13 +1,12 @@
 #!/bin/bash
 
 # Path to the target_tracking.argos file
-ARGOS_FILE="/home/genki/GIT/swarm-competence/experiments/target_tracking.argos"
+ARGOS_FILE="experiments/target_tracking.argos"
+TRIAL_IDS_FILE="experiments/trial_ids.txt"
 
-# User-specified multiplier
-MULTIPLIER=2  # Replace this with the desired value or prompt the user to input it
-
-# Calculate the seed value
-SEED=$((126 * MULTIPLIER))
+# Read all trial IDs (seeds) into an array
+mapfile -t TRIAL_IDS < "$TRIAL_IDS_FILE"
+TRIAL_INDEX=0
 
 # Lists of values for each parameter
 # QUANTITY_LIST=("5" "10" "20")
@@ -15,16 +14,20 @@ SEED=$((126 * MULTIPLIER))
 # TARGET_DISTANCE_WALK_LIST=("5" "10" "15" "20" "25" "30" "35")
 # BROADCAST_DURATION_LIST=("0.0" "2.5" "5.0" "7.5" "10.0" "12.5" "15.0")
 
-QUANTITY_LIST=("10")
+QUANTITY_LIST=("5" "10" "20")
 MAX_SPEED_LIST=("10.5")
 TARGET_DISTANCE_WALK_LIST=("20")
-BROADCAST_DURATION_LIST=("2.5")
+BROADCAST_DURATION_LIST=("7.5")
 
 # Loop through all combinations of parameters
 for QUANTITY in "${QUANTITY_LIST[@]}"; do
     for MAX_SPEED in "${MAX_SPEED_LIST[@]}"; do
         for TARGET_DISTANCE_WALK in "${TARGET_DISTANCE_WALK_LIST[@]}"; do
             for BROADCAST_DURATION in "${BROADCAST_DURATION_LIST[@]}"; do
+
+                # Get the seed from the trial_ids array
+                SEED="${TRIAL_IDS[$TRIAL_INDEX]}"
+                ((TRIAL_INDEX++))
 
                 # Construct the frame directory name dynamically
                 FRAME_DIRECTORY="frames/R${QUANTITY}_S${MAX_SPEED}_D${TARGET_DISTANCE_WALK}_T${BROADCAST_DURATION}"

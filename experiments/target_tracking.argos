@@ -6,9 +6,9 @@
   <!-- ************************* -->
   <framework>
     <system threads="0" />
-    <experiment length="40"
+    <experiment length="120"
                 ticks_per_second="30"
-                random_seed="126" />
+                random_seed="18" />
   </framework>
 
   <!-- *************** -->
@@ -77,13 +77,13 @@
       <robots controller="epc1"
               base_name="ep"
               base_num="1"
-              quantity="20"
+              quantity="10"
               max_trials="100" 
               rab_range="0.35" />
       <!-- <robots controller="epc1"
               base_name="eB"
               base_num="1"
-              quantity="20" 
+              quantity="10" 
               max_trials="100" 
               rab_range="0.5" /> -->
     </teams>
@@ -181,7 +181,7 @@
       <user_functions library="build/loop_functions/target_tracking_loop_functions/libtarget_tracking_loop_functions"
                       label="target_tracking_qt_user_functions" />
 
-      <frame_grabbing directory="frames/R20_S10.5_D20_T7.5"
+      <frame_grabbing directory="frames/R10_S10.5_D20_T7.5"
                       base_name="frame_"
                       format="png"
                       quality="100"
