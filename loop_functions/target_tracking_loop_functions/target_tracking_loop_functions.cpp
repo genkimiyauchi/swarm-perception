@@ -21,7 +21,9 @@ static const std::string PHYSICS_ENGINE_NAME = "dyn2d";
 
 CTargetTrackingLoopFunctions::CTargetTrackingLoopFunctions() :
     m_pcFloor(NULL),
-    m_pcRNG(NULL) {
+    m_pcRNG(NULL),
+    m_unNumRobots(0),
+    m_unNumRobotsInTarget(0) {
 }
 
 /****************************************/
@@ -64,7 +66,7 @@ void CTargetTrackingLoopFunctions::Init(TConfigurationNode& t_node) {
         Real fY = m_pcRNG->Uniform(CRange<Real>(-ARENA_SIZE_Y/2 + WALL_WIDTH/2 + fRadius,
                                                  ARENA_SIZE_Y/2 - WALL_WIDTH/2 - fRadius));
         
-                                                 /* Round to 3 decimal places */
+        /* Round to 3 decimal places */
         fX = std::round(fX * 1000.0) / 1000.0;
         fY = std::round(fY * 1000.0) / 1000.0;
         cCenter.Set(fX, fY);
@@ -154,14 +156,21 @@ void CTargetTrackingLoopFunctions::Init(TConfigurationNode& t_node) {
                                0.0f);
                     cEPRot.FromAngleAxis(m_pcRNG->Uniform(CRadians::UNSIGNED_RANGE), CVector3::Z);
 
-                    /* Check the position is not near the target area */
-                    CVector2 cEPPos2 = CVector2(cEPPos.GetX(), cEPPos.GetY());
-                    if(Distance(cEPPos2, cCenter) < fRadius*1.5) { // 50% more than the radius
-                        LOG << "[INFO] Robot " << cEPId.str() << " is in the target area, retrying..." << std::endl;
-                        continue;
-                    }
+                    // /* Check the position is not near the target area */
+                    // CVector2 cEPPos2 = CVector2(cEPPos.GetX(), cEPPos.GetY());
+                    // if(Distance(cEPPos2, cCenter) < fRadius*1.5) { // 50% more than the radius
+                    //     LOG << "[INFO] Robot " << cEPId.str() << " is in the target area, retrying..." << std::endl;
+                    //     continue;
+                    // }
 
                     bDone = MoveEntity(pcEP->GetEmbodiedEntity(), cEPPos, cEPRot);
+
+                    /* Save the parameters of the first robot for logging */
+                    if(i == 0) {
+                        m_fSpeed = cController->GetSpeed();
+                        m_fSeparation = cController->GetSeparation();
+                        m_fBroadcastDuration = cController->GetBroadcastDuration();
+                    }
 
                 } while(!bDone && unTrials <= unMaxTrials);
                 if(!bDone) {
@@ -181,6 +190,9 @@ void CTargetTrackingLoopFunctions::Init(TConfigurationNode& t_node) {
 
     /* Initialize variables */
     m_unTargetTimer = 0;
+
+    /* Logging */
+    m_strLogFilePath = "results.csv";
 
     /* Update floor */
     m_pcFloor->SetChanged();
@@ -217,6 +229,33 @@ void CTargetTrackingLoopFunctions::Destroy() {
     Real final_time_seconds = final_time * m_fSecondsPerStep;
     LOG << "[LOG] Final Timestep: " << final_time << " steps = " << final_time_seconds << " seconds" << std::endl;
     
+    /* Log experiment */
+    LOG << "[LOG] Logging experiment results to " << m_strLogFilePath << std::endl;
+
+    // Check if the heading is already present
+    std::ifstream infile(m_strLogFilePath);
+    bool has_heading = false;
+    std::string first_line;
+    if (std::getline(infile, first_line)) {
+        if (first_line.find("ID,TIME,SPEED,SEPARATION,BROADCAST,TARGET_X,TARGET_Y") != std::string::npos) {
+            has_heading = true;
+        }
+    }
+    infile.close();
+    
+    m_cOutput.open(m_strLogFilePath, std::ios_base::app);
+    if (!has_heading) {
+        m_cOutput << "ID,TIME,SPEED,SEPARATION,BROADCAST,TARGET_X,TARGET_Y\n";
+    }
+    m_cOutput << CSimulator::GetInstance().GetRandomSeed() << ","
+              << final_time_seconds << ","
+              << m_fSpeed << ","
+              << m_fSeparation << ","
+              << m_fBroadcastDuration << ","
+              << m_vecTargetsTemp[0].first.GetX() << ","
+              << m_vecTargetsTemp[0].first.GetY() << "\n";
+    m_cOutput.close();
+    LOG << "[LOG] Experiment results logged successfully." << std::endl;
 }
 
 /****************************************/

@@ -59,6 +59,9 @@ private:
     /* Robots */
     size_t m_unNumRobots;
     size_t m_unNumRobotsInTarget;
+    Real m_fSpeed;
+    Real m_fSeparation;
+    Real m_fBroadcastDuration;
 
     /* Draw configurations */
     bool m_bDrawRobotLabel;
@@ -66,6 +69,8 @@ private:
     std::string m_strOutput;
     std::ofstream m_cOutput;
 
+    /* Logging */
+    std::string m_strLogFilePath;
 };
 
 #endif

@@ -215,6 +215,21 @@ public:
         return "";
     }
 
+    /* Get speed */
+    virtual Real GetSpeed() const {
+        return m_sWheelTurningParams.MaxSpeed;
+    }
+
+    /* Get separation */
+    virtual Real GetSeparation() const {
+        return m_sFlockingParams.TargetDistanceWalk;
+    }
+
+    /* Get broadcast duration */
+    virtual Real GetBroadcastDuration() const {
+        return m_fBroadCastDuration;
+    }
+
     /* Get whether robot has found the target */
     virtual bool HasFoundTarget() const {
         return m_bTargetFound;

@@ -303,6 +303,8 @@ void CRobot::Init(TConfigurationNode& t_node) {
     m_bTargetFound = false;
     m_nRandomWalkTimer = 0;
     m_nBroadcastTimer = 0;
+
+    m_cTarget = CVector2(100.0f, 100.0f); // Set default target position to be outside the arena
 }
 
 /****************************************/
@@ -335,8 +337,10 @@ void CRobot::ControlStep() {
     CRadians cZAngle, cYAngle, cXAngle;
     m_pcPosSens->GetReading().Orientation.ToEulerAngles(cZAngle, cYAngle, cXAngle);
 
-    m_fDistToTarget = Distance(pos2d, m_cTarget);
-    m_bInTarget = m_fDistToTarget < m_fTargetRadius ? true : false;
+    if(m_cTarget != CVector2(100.0f, 100.0f)) {
+        m_fDistToTarget = Distance(pos2d, m_cTarget);
+        m_bInTarget = m_fDistToTarget < m_fTargetRadius ? true : false;
+    }
 
     /* Switch states */
     if(currentState == State::RANDOM_WALK) {
