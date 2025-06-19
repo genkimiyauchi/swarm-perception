@@ -440,19 +440,7 @@ void CRobot::ControlStep() {
         }
     }
     else if(currentState == State::BROADCAST_HOMING) {
-        if(m_nBlinkTimer <= 0) {
-
-            m_nBlinkTimer = m_unBlinkInterval; // Reset blink timer
-
-            /* Toggle color */
-            if(m_cCurrentLEDColor == CColor::GREEN) {
-                m_cCurrentLEDColor = CColor::BLACK;
-            } else {
-                m_cCurrentLEDColor = CColor::GREEN;
-            }
-        } else {
-            --m_nBlinkTimer;
-        }
+        m_cCurrentLEDColor = CColor::GREEN;
     }
     else if(currentState == State::IN_TARGET) {
         m_cCurrentLEDColor = CColor::GREEN;

@@ -52,6 +52,7 @@ private:
     Real m_fSecondsPerStep;
 
     /* Targets */
+    std::vector<std::pair<CVector2, Real>> m_vecTargetsTemp; // {position, radius}
     std::vector<std::pair<CVector2, Real>> m_vecTargets; // {position, radius}
     size_t m_unTargetTimer;
 
