@@ -25,6 +25,9 @@ static const std::vector<CRadians> PROX_ANGLE {
     CRadians::PI / 0.5247f
   };
 
+/* Message target position */
+const float OFFSET = 32.0f; // Offset for the target position in meters
+
 // /* Team colors */
 // std::unordered_map<UInt8, CColor> teamColor = {
 //     {1, CColor::RED},
@@ -304,7 +307,7 @@ void CRobot::Init(TConfigurationNode& t_node) {
     m_nRandomWalkTimer = 0;
     m_nBroadcastTimer = 0;
 
-    m_cTarget = CVector2(100.0f, 100.0f); // Set default target position to be outside the arena
+    m_cTarget = CVector2(OFFSET, OFFSET); // Set default target position to be outside the arena
 }
 
 /****************************************/
@@ -337,7 +340,7 @@ void CRobot::ControlStep() {
     CRadians cZAngle, cYAngle, cXAngle;
     m_pcPosSens->GetReading().Orientation.ToEulerAngles(cZAngle, cYAngle, cXAngle);
 
-    if(m_cTarget != CVector2(100.0f, 100.0f)) {
+    if(m_cTarget != CVector2(OFFSET, OFFSET)) {
         m_fDistToTarget = Distance(pos2d, m_cTarget);
         m_bInTarget = m_fDistToTarget < m_fTargetRadius ? true : false;
     }
@@ -350,10 +353,12 @@ void CRobot::ControlStep() {
             /* Check if neighboring robots have found the target */
             for(const auto& msg : teamMsgs) {
                 // if(GetId() == "ep6") {
-                //     RLOG << "msg.targetPosition: " << msg.targetPosition << ", m_cTarget: " << m_cTarget << std::endl;
-                //     RLOG << "Equal? " << (msg.targetPosition == m_cTarget) << std::endl;
+                    // RLOG << "msg.targetPosition: " << msg.targetPosition << ", m_cTarget: " << m_cTarget << std::endl;
+                    // RLOG << "OFFSET: " << CVector2(OFFSET, OFFSET) << ", m_cTarget: " << m_cTarget << std::endl;
+                    // RLOG << "Equal? " << (msg.targetPosition == m_cTarget) << std::endl;
+                    // RLOG << "distance: " << Distance(msg.targetPosition, m_cTarget) << std::endl;
                 // }
-                if(msg.targetPosition == m_cTarget) { // Check if the received target matches to true target position
+                if(msg.targetPosition != CVector2(OFFSET, OFFSET)) { // Check if a target position is set
                     bTargetReceived = true;
                     RLOG << "Target received from " << msg.ID << std::endl;
                     break;

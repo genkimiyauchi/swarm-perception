@@ -63,13 +63,17 @@ class Message {
 
     public:
 
+        /* Constants */
+        constexpr static float OFFSET = 32.0f;
+        constexpr static float SCALE = 1000.0f;
+
         /* Core */
         CVector2 direction = CVector2();
         std::string ID;
         UInt8 teamID;
         bool inTarget;
 
-        CVector2 targetPosition = CVector2();
+        CVector2 targetPosition = CVector2(OFFSET, OFFSET); // default value for target position when not set. Can take values from -OFFSET to OFFSET
 
 };
 

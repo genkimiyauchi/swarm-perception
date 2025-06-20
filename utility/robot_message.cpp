@@ -27,12 +27,12 @@ Message::Message(CCI_RangeAndBearingSensor::SPacket packet) {
     UInt8 msbY = packet.Data[index++];
 
     int unpackedX = (msbX << 8) | lsbX;
-    Real recoveredX = (unpackedX / 1000.0f) - 3.0f; // Assuming the coordinate is in the range of -3.0 to 3.0
-    recoveredX = std::round(recoveredX * 1000.0) / 1000.0;
+    Real recoveredX = (unpackedX / SCALE) - OFFSET; // Assuming the coordinate is in the range of -OFFSET to OFFSET
+    recoveredX = std::round(recoveredX * SCALE) / SCALE;
 
     int unpackedY = (msbY << 8) | lsbY;
-    Real recoveredY = (unpackedY / 1000.0f) - 3.0f;
-    recoveredY = std::round(recoveredY * 1000.0) / 1000.0;
+    Real recoveredY = (unpackedY / SCALE) - OFFSET;
+    recoveredY = std::round(recoveredY * SCALE) / SCALE;
 
     targetPosition = CVector2(recoveredX, recoveredY);
 }
@@ -60,8 +60,8 @@ CByteArray Message::GetCByteArray() {
     arr[index++] = inTarget ? 1 : 0;
 
     /* Target Position */
-    int scaledX = static_cast<int>((targetPosition.GetX() + 3.0f) * 1000.0f);
-    int scaledY = static_cast<int>((targetPosition.GetY() + 3.0f) * 1000.0f);
+    int scaledX = static_cast<int>((targetPosition.GetX() + OFFSET) * SCALE);
+    int scaledY = static_cast<int>((targetPosition.GetY() + OFFSET) * SCALE);
 
     UInt8 lsbX = scaledX & 0xFF; // least significant byte
     UInt8 msbX = (scaledX >> 8) & 0xFF; // most significant byte
