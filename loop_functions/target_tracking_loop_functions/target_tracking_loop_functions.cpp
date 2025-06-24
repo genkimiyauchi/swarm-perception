@@ -144,6 +144,7 @@ void CTargetTrackingLoopFunctions::Init(TConfigurationNode& t_node) {
                 CRobot* cController = dynamic_cast<CRobot*>(&pcEP->GetControllableEntity().GetController());
                 cController->SetTeamID(teamID);
                 cController->SetSecondsPerStep(m_fSecondsPerStep);
+                cController->SetRABRange(fRABRange);
 
                 bool bDone = false;
                 do {

@@ -220,6 +220,16 @@ public:
         return m_sWheelTurningParams.MaxSpeed;
     }
 
+    /* Set (inform) RAB range */
+    virtual void SetRABRange(Real f_rab_range) {
+        m_fRABRange = f_rab_range;
+    }
+
+    /* Get RAB range */
+    virtual Real GetRABRange() const {
+        return m_fRABRange;
+    }
+
     /* Get separation */
     virtual Real GetSeparation() const {
         return m_sFlockingParams.TargetDistanceWalk;
@@ -304,6 +314,9 @@ private:
 
     /* Simulation clock */
     Real m_fSecondsPerStep;
+
+    /* RAB range */
+    Real m_fRABRange;
 
     /* PID to control the heading angle */
     PID* m_pcPIDHeading;
