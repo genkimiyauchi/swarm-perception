@@ -8,7 +8,7 @@
     <system threads="0" />
     <experiment length="120"
                 ticks_per_second="30"
-                random_seed="18" />
+                random_seed="1013" />
   </framework>
 
   <!-- *************** -->
@@ -33,7 +33,7 @@
         <wheel_turning hard_turn_angle_threshold="90"
                   soft_turn_angle_threshold="70"
                   no_turn_angle_threshold="10"
-                  max_speed="10.5" />
+                  max_speed="10.0" />
         <flocking target_distance_walk="20"
                   target_distance_target="8"
                   gain="1000"
@@ -52,7 +52,7 @@
         <!--   broadcast_duration (seconds) = "[0:inf]" (e.g. "7.5")                  -->
         <motion type="direct"
                 random_walk_rotation_angle="15,90"
-                broadcast_duration="7.5" />
+                broadcast_duration="8" />
       </params>
     </robot_controller>
 
@@ -66,7 +66,7 @@
                   label="target_tracking_loop_functions">
 
     <!-- Things to draw in the qt-opengl visualization -->
-    <draw robot_label="false"/>
+    <draw robot_label="true"/>
 
     <!-- Randomly place a target in the arena -->
     <target radius="0.25" />
@@ -77,13 +77,13 @@
       <robots controller="epc1"
               base_name="ep"
               base_num="1"
-              quantity="10"
+              quantity="4"
               max_trials="100" 
               rab_range="0.35" />
       <!-- <robots controller="epc1"
               base_name="eB"
               base_num="1"
-              quantity="10" 
+              quantity="4" 
               max_trials="100" 
               rab_range="0.5" /> -->
     </teams>
@@ -181,7 +181,7 @@
       <user_functions library="build/loop_functions/target_tracking_loop_functions/libtarget_tracking_loop_functions"
                       label="target_tracking_qt_user_functions" />
 
-      <frame_grabbing directory="frames/R10_S10.5_D20_T7.5"
+      <frame_grabbing directory="/home/genki/GIT/swarm-competence/R4_S10.0_D20_T8"
                       base_name="frame_"
                       format="png"
                       quality="100"

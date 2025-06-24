@@ -24,8 +24,38 @@ void CTargetTrackingQTUserFunctions::Draw(CEPuckEntity& c_entity) {
    CRobot& cController = dynamic_cast<CRobot&>(c_entity.GetControllableEntity().GetController());
 
    if(m_bDrawRobotLabel) {
-      std::string id = c_entity.GetId().c_str();
-      DrawText(CVector3(0.0, 0.0, 0.2), id);
+      // std::string label = c_entity.GetId().c_str();
+
+      std::string state = cController.GetState();
+      std::string label;
+      CColor color = CColor::BLACK;
+      if(state == "RANDOM_WALK") {
+         label = "Searching";
+         color = CColor::BLUE;
+      }
+      else if(state == "BROADCAST_WALK") {
+         label = "Sharing target";
+         color = CColor::RED;
+      }
+      else if(state == "BROADCAST_HOMING") {
+         label = "Moving to target";
+         color = CColor::GREEN;
+      }
+      else if(state == "IN_TARGET") {
+         label = "Moving to target";
+         color = CColor::GREEN;
+      }
+      else {
+         label = "Unknown";
+      }
+
+      DrawText(CVector3(0.0, 0.0, 0.2), label, color);
+
+      /* Draw RAB range */
+      if(state == "BROADCAST_WALK" || state == "BROADCAST_HOMING" || state == "IN_TARGET") {
+         Real fRABRange = cController.GetRABRange();
+         DrawCircle(CVector3(0.0, 0.0, 0.001), CQuaternion(), fRABRange, color, false);
+      }
    }
 }
 

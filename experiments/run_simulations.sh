@@ -18,10 +18,10 @@ TRIAL_INDEX=0
 # TARGET_DISTANCE_WALK_LIST=("4" "12" "20" "28" "36")
 # BROADCAST_DURATION_LIST=("0" "4" "8" "12" "16")
 
-QUANTITY_LIST=("10")
-MAX_SPEED_LIST=("5.0" "7.5" "10.0" "12.5" "15.0")
-TARGET_DISTANCE_WALK_LIST=("4" "12" "20" "28" "36")
-BROADCAST_DURATION_LIST=("0" "4" "8" "12" "16")
+QUANTITY_LIST=("4")
+MAX_SPEED_LIST=("10.0")
+TARGET_DISTANCE_WALK_LIST=("20")
+BROADCAST_DURATION_LIST=("8")
 
 # Log start time
 START_TIME=$(date '+%Y-%m-%d %H:%M:%S')
@@ -37,6 +37,7 @@ for QUANTITY in "${QUANTITY_LIST[@]}"; do
                 # Get the seed from the trial_ids array
                 SEED="${TRIAL_IDS[$TRIAL_INDEX]}"
                 ((TRIAL_INDEX++))
+                SEED="1013"
 
                 # Make string with seed with four digits
                 SEED_STR=$(printf "%04d" "$SEED")
@@ -80,6 +81,7 @@ for QUANTITY in "${QUANTITY_LIST[@]}"; do
 
                 # Run the simulation
                 echo "Running simulation with SEED=$SEED_STR, QUANTITY=$QUANTITY, MAX_SPEED=$MAX_SPEED, TARGET_DISTANCE_WALK=$TARGET_DISTANCE_WALK, BROADCAST_DURATION=$BROADCAST_DURATION"
+                # argos3 -c "$ARGOS_FILE"
                 xvfb-run -s "-screen 0 1600x1200x24" argos3 -c "$ARGOS_FILE"
 
                 # Generate the video
