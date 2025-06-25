@@ -8,7 +8,7 @@
     <system threads="0" />
     <experiment length="120"
                 ticks_per_second="30"
-                random_seed="1013" />
+                random_seed="1025" />
   </framework>
 
   <!-- *************** -->
@@ -52,7 +52,7 @@
         <!--   broadcast_duration (seconds) = "[0:inf]" (e.g. "7.5")                  -->
         <motion type="direct"
                 random_walk_rotation_angle="15,90"
-                broadcast_duration="8" />
+                broadcast_duration="10" />
       </params>
     </robot_controller>
 
@@ -181,7 +181,7 @@
       <user_functions library="build/loop_functions/target_tracking_loop_functions/libtarget_tracking_loop_functions"
                       label="target_tracking_qt_user_functions" />
 
-      <frame_grabbing directory="/home/genki/GIT/swarm-competence/R4_S10.0_D20_T8"
+      <frame_grabbing directory="/home/genki/GIT/swarm-competence/R4_S10.0_D20_T10"
                       base_name="frame_"
                       format="png"
                       quality="100"

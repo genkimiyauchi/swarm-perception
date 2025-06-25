@@ -21,7 +21,7 @@ TRIAL_INDEX=0
 QUANTITY_LIST=("4")
 MAX_SPEED_LIST=("10.0")
 TARGET_DISTANCE_WALK_LIST=("20")
-BROADCAST_DURATION_LIST=("8")
+BROADCAST_DURATION_LIST=("10")
 
 # Log start time
 START_TIME=$(date '+%Y-%m-%d %H:%M:%S')
@@ -37,7 +37,7 @@ for QUANTITY in "${QUANTITY_LIST[@]}"; do
                 # Get the seed from the trial_ids array
                 SEED="${TRIAL_IDS[$TRIAL_INDEX]}"
                 ((TRIAL_INDEX++))
-                SEED="1013"
+                SEED="1025"
 
                 # Make string with seed with four digits
                 SEED_STR=$(printf "%04d" "$SEED")

@@ -49,13 +49,17 @@ void CTargetTrackingQTUserFunctions::Draw(CEPuckEntity& c_entity) {
          label = "Unknown";
       }
 
-      DrawText(CVector3(0.0, 0.0, 0.2), label, color);
+      /* Font size */
+      QFont font = QFont();
+      font.setPointSize(20);
+      font.setBold(true);
+      DrawText(CVector3(0.0, 0.0, 0.2), label, color, font);
 
-      /* Draw RAB range */
-      if(state == "BROADCAST_WALK" || state == "BROADCAST_HOMING" || state == "IN_TARGET") {
-         Real fRABRange = cController.GetRABRange();
-         DrawCircle(CVector3(0.0, 0.0, 0.001), CQuaternion(), fRABRange, color, false);
-      }
+      // /* Draw RAB range */
+      // if(state == "BROADCAST_WALK" || state == "BROADCAST_HOMING" || state == "IN_TARGET") {
+      //    Real fRABRange = cController.GetRABRange();
+      //    DrawCircle(CVector3(0.0, 0.0, 0.001), CQuaternion(), fRABRange, color, false);
+      // }
    }
 }
 
