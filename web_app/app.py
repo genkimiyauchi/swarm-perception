@@ -32,11 +32,6 @@ simulation_link = "{}:8000".format(ip_addr)
 proc_simulation = None
 proc_webclient  = None
 
-# Simulation mode
-mode = None
-# Trial order (1: no excchange -> exchange, 2: exchange -> no exchange)
-order = None
-
 app = Flask(__name__)
 
 # Based on https://testdriven.io/blog/flask-sessions/
@@ -74,7 +69,7 @@ def startpage():
 @app.route("/experimentpage", methods=["GET"])
 def experimentpage():
     if 'username' in session:
-        return render_template("experiment_page.html", mode=mode, session=session, host_ip=ip_addr)
+        return render_template("experiment_page.html", session=session, host_ip=ip_addr)
     else:
         return redirect(url_for('startpage'))
 
@@ -157,42 +152,4 @@ def connect_to_server():
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Generate experiment files for ARGoS simulations.')
-
-    parser.add_argument('-m', '--mode', type=str,
-                        choices=['indirect', 'direct', 'debug'],
-                        help='The communication mode to use in the simulation (choose "indirect" for default capability).',
-                        default='indirect')
-
-    parser.add_argument('-o', '--order', type=int,
-                        choices=range(1, 3),
-                        help='The order in which the tasks will be presented.',
-                        default=1)
-    
-    args = parser.parse_args()
-    if args.mode == 'indirect':
-        mode = 'ind'
-    elif args.mode == 'direct':
-        mode = 'dir'
-    else:
-        mode = args.mode
-        
-    order = args.order
-
-    print('------------------')
-    if mode == 'ind':
-        print('Mode\t: indirect')
-    elif mode == 'dir':
-        print('Mode\t: direct')
-    else:
-        print('Mode\t: unrecognized')
-
-    if order == 1:
-        print('Order\t: [0,1]')
-    elif order == 2:
-        print('Order\t: [1,0]')
-    else:
-        print('Order\t: unrecognized')
-    print('------------------')
-
     app.run(debug=False, host='0.0.0.0')
