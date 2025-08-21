@@ -133,7 +133,8 @@ CRobot::CRobot() :
     m_pcLEDs(NULL),
     m_pcPosSens(NULL),
     m_pcRNG(NULL),
-    m_pcPIDHeading(NULL) {}
+    m_pcPIDHeading(NULL),
+    m_bSelected(false) {}
 
 /****************************************/
 /****************************************/
@@ -401,31 +402,35 @@ void CRobot::ControlStep() {
 
     /* Set motion vector */
     CVector2 motionVector;
-    if(currentState == State::RANDOM_WALK || currentState == State::BROADCAST_WALK) {
-        /* Random walk */
-        motionVector = RandomWalk();
-    }
-    else if(currentState == State::BROADCAST_HOMING || currentState == State::IN_TARGET) {
-        /* Move towards target */
-
-        CVector2 targetForce = GetAttractionVector();
-
-        if(currentState == State::IN_TARGET) {
-            /* Reduce attraction from the target center as it gets closer to it */
-            targetForce *= m_fDistToTarget / m_fTargetRadius;
+    if(m_bSelected) {
+        // skip
+    } else {
+        if(currentState == State::RANDOM_WALK || currentState == State::BROADCAST_WALK) {
+            /* Random walk */
+            motionVector = RandomWalk();
         }
+        else if(currentState == State::BROADCAST_HOMING || currentState == State::IN_TARGET) {
+            /* Move towards target */
 
-        /* Flocking or Repulsion force */
-        std::vector<Message> allMsgs;
-        allMsgs.insert(allMsgs.end(), teamMsgs.begin(), teamMsgs.end());
-        allMsgs.insert(allMsgs.end(), otherMsgs.begin(), otherMsgs.end());
-        // CVector2 flockingForce = GetFlockingVector(allMsgs);
-        CVector2 repulsionForce = GetRobotRepulsionVector(allMsgs);
+            CVector2 targetForce = GetAttractionVector();
 
-        // CVector2 obstacleForce = GetObstacleRepulsionVector();
+            if(currentState == State::IN_TARGET) {
+                /* Reduce attraction from the target center as it gets closer to it */
+                targetForce *= m_fDistToTarget / m_fTargetRadius;
+            }
 
-        /* Sum of forces */
-        motionVector = targetForce + repulsionForce;// + obstacleForce * 10;
+            /* Flocking or Repulsion force */
+            std::vector<Message> allMsgs;
+            allMsgs.insert(allMsgs.end(), teamMsgs.begin(), teamMsgs.end());
+            allMsgs.insert(allMsgs.end(), otherMsgs.begin(), otherMsgs.end());
+            // CVector2 flockingForce = GetFlockingVector(allMsgs);
+            CVector2 repulsionForce = GetRobotRepulsionVector(allMsgs);
+
+            // CVector2 obstacleForce = GetObstacleRepulsionVector();
+
+            /* Sum of forces */
+            motionVector = targetForce + repulsionForce;// + obstacleForce * 10;
+        }
     }
 
     /* Set LED color according to its state */
@@ -508,7 +513,11 @@ void CRobot::ControlStep() {
     // }
 
     /* Set Wheel Speed */
-    if(motionVector.Length() > m_sWheelTurningParams.MaxSpeed/10) { // motion vector must be at least 10% of the max speed
+    if(m_bSelected) {
+        /* Follow the control vector */
+        SetWheelSpeedsFromVectorEightDirections(m_cControl);
+    }
+    else if(motionVector.Length() > m_sWheelTurningParams.MaxSpeed/10) { // motion vector must be at least 10% of the max speed
         SetWheelSpeedsFromVector(motionVector);
     } 
     else {
@@ -925,6 +934,59 @@ void CRobot::SetWheelSpeedsFromVectorHoming(const CVector2& c_heading) {
     /* Clamp the speed so that it's not greater than MaxSpeed */
     fLeftWheelSpeed = Min<Real>(fLeftWheelSpeed, m_sWheelTurningParams.MaxSpeed);
     fRightWheelSpeed = Min<Real>(fRightWheelSpeed, m_sWheelTurningParams.MaxSpeed);
+
+    /* Finally, set the wheel speeds */
+    m_pcWheels->SetLinearVelocity(fLeftWheelSpeed, fRightWheelSpeed);
+}
+
+/****************************************/
+/****************************************/
+
+void CRobot::SetWheelSpeedsFromVectorEightDirections(const CVector2& c_heading) {
+    /* Get the heading angle */
+    CRadians cHeadingAngle = c_heading.Angle().SignedNormalize();
+    /* Get the length of the heading vector */
+    Real fHeadingLength = c_heading.Length();
+    /* Clamp the speed so that it's not greater than MaxSpeed */
+    Real fBaseAngularWheelSpeed = Min<Real>(fHeadingLength, m_sWheelTurningParams.MaxSpeed);
+
+    /* Wheel speeds based on current turning state */
+    Real fLeftWheelSpeed = 0;
+    Real fRightWheelSpeed = 0;
+
+    if(c_heading.GetX() > 0) {
+        if(c_heading.GetY() > 0) {
+            fLeftWheelSpeed  = fBaseAngularWheelSpeed / 2;
+            fRightWheelSpeed = fBaseAngularWheelSpeed;
+        } else if(c_heading.GetY() < 0) {
+            fLeftWheelSpeed  = fBaseAngularWheelSpeed;
+            fRightWheelSpeed = fBaseAngularWheelSpeed / 2;
+        } else {
+            fLeftWheelSpeed  = fBaseAngularWheelSpeed;
+            fRightWheelSpeed = fBaseAngularWheelSpeed;
+        }
+    } else if(c_heading.GetX() < 0) {
+        if(c_heading.GetY() > 0) {
+            fLeftWheelSpeed  = -fBaseAngularWheelSpeed / 2;
+            fRightWheelSpeed = -fBaseAngularWheelSpeed;
+        } else if(c_heading.GetY() < 0) {
+            fLeftWheelSpeed  = -fBaseAngularWheelSpeed;
+            fRightWheelSpeed = -fBaseAngularWheelSpeed / 2;
+        } else {
+            fLeftWheelSpeed  = -fBaseAngularWheelSpeed;
+            fRightWheelSpeed = -fBaseAngularWheelSpeed;
+        }
+    } else if(c_heading.GetX() == 0) {
+        if(c_heading.GetY() > 0) {
+            fLeftWheelSpeed  = -fBaseAngularWheelSpeed;
+            fRightWheelSpeed = fBaseAngularWheelSpeed;
+        } else if(c_heading.GetY() < 0) {
+            fLeftWheelSpeed  = fBaseAngularWheelSpeed;
+            fRightWheelSpeed = -fBaseAngularWheelSpeed;
+        }
+    }
+
+    RLOG << "fLeftWheelSpeed: " << fLeftWheelSpeed << ", fRightWheelSpeed: " << fRightWheelSpeed << std::endl;
 
     /* Finally, set the wheel speeds */
     m_pcWheels->SetLinearVelocity(fLeftWheelSpeed, fRightWheelSpeed);

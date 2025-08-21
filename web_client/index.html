@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARGoS-Webviz client</title>
+    <meta name="description" content="A webclient for ARGoS-Webviz">
+    <meta name="author" content="Prajankya sonar">
+    <style>
+        #preloader {
+            position: fixed;
+            z-index: 999999;
+            top: 0px;
+            bottom: 0px;
+            left: 0px;
+            right: 0px;
+            background-color: #002132;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* justify-content: center; */
+            text-shadow: 0px 1px 1px #4d4d4d;
+            color: #222;
+        }
+
+        #preloader h1 {
+            font-size: 1.7em;
+        }
+
+        #preloader img {
+            max-height: calc(80vh - 120px);
+        }
+
+        .loader {
+            border: 6px solid #f3f3f3;
+            /* Light grey */
+            border-top: 6px solid #3498db;
+            /* Blue */
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body id="experiment">
+    <div id="preloader">
+        <img src="images/banner_dark.png" alt="">
+        <div class="loader"></div>
+    </div>
+
+    <div id="layout">
+    </div>
+
+    <!-- Modal content to show when disconnected -->
+    <div id="disconnectedModal" hidden>
+        <div class="w2ui-centered">
+            Plese verify the server is running at
+            <br>
+            {experiment.sockets_api}
+            <br><br>
+            And then refresh this page
+        </div>
+    </div>
+
+    <!-- Modal content to show when help clicked -->
+    <div id="HelpModal" hidden>
+        <div class="HelpModalBody">
+            <h3>Keyboard Shortcuts</h3>
+            <table>
+                <tr>
+                    <th>Shortcut</th>
+                    <th>Function</th>
+                </tr>
+                <tr>
+                    <td>
+                        <em>Up arrow</em>
+                    </td>
+                    <td>
+                        Move the robot forward
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <em>Down arrow</em>
+                    </td>
+                    <td>
+                        Move the robot backward
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <em>Left arrow</em>
+                    </td>
+                    <td>
+                        Rotate the robot left
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <em>Right arrow</em>
+                    </td>
+                    <td>
+                        Rotate the robot right
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <!-- Variables declaration -->
+    <script>
+        /* Server IP and port */
+        var server = window.location.hostname + ":3000";
+        /* Currently it takes the same server from where these files are hosted */
+    </script>
+
+
+    <!-- Stylesheet dependencies -->
+    <link rel="stylesheet" href="/css/w2ui-1.5.rc1.min.css">
+    <link rel="stylesheet" href="/css/jquery.contextMenu.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+
+    <!-- Javascript dependencies -->
+    <!-- <script src="https://unpkg.com/three@0.132.2/build/three.js"></script>
+    <script src="https://unpkg.com/three-mesh-ui@6.4.3/build/three-mesh-ui.js"></script> -->
+    <script src="/js/libs/loadJS.js"></script>
+    <script src="/js/entities/loadEntities.js"></script>
+    <script src="/js/main.js"></script>
+</body>
+
+</html>

@@ -185,6 +185,33 @@ public:
     */
     virtual void Destroy() {}
 
+    /*
+    * Sets the selected flag on this robot.
+    * When selected, a robot follows the control vector.
+    */
+    virtual void Select() {
+        m_bSelected = true;
+    }
+
+    /*
+    * Unsets the selected flag on this robot.
+    */
+    virtual void Deselect() {
+        m_bSelected = false;
+    }
+
+    std::string GetUsername() {
+        return m_strUsername;
+    }
+
+    void SetUsername(std::string username) {
+        m_strUsername = username;
+    }
+
+    void SetControlVector(const CVector2& c_control) {
+        m_cControl = c_control;
+    }
+
     /* Set simulation clock tick */
     virtual void SetSecondsPerStep(Real f_seconds_per_step) {
         m_fSecondsPerStep = f_seconds_per_step;
@@ -268,6 +295,7 @@ protected:
     */
     void SetWheelSpeedsFromVector(const CVector2& c_heading);
     void SetWheelSpeedsFromVectorHoming(const CVector2& c_heading);
+    void SetWheelSpeedsFromVectorEightDirections(const CVector2& c_heading);
 
     /*
     * Calculates the vector to the next target.
@@ -311,6 +339,15 @@ private:
 
     /* Random number generator */
     CRandom::CRNG* m_pcRNG;
+
+    /* Flag to know whether this robot is selected */
+    bool m_bSelected;
+
+    /* Operator username */
+    std::string m_strUsername;
+
+    /* The control vector */
+    CVector2 m_cControl;
 
     /* Simulation clock */
     Real m_fSecondsPerStep;

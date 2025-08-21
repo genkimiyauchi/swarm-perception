@@ -1,0 +1,324 @@
+@font-face {
+    font-family: 'webviz font';
+    src: url('../fonts/webviz-font.eot');
+    src: url('../fonts/webviz-font.eot?#iefix') format('embedded-opentype'), /**/
+    url('../fonts/webviz-font.woff') format('woff'), /**/
+    url('../fonts/webviz-font.ttf') format('truetype'), /**/
+    url('../fonts/webviz-font.svg#webviz-font') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+[class*='icon-']:before {
+    display: inline-block;
+    font-family: 'webviz font';
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale
+}
+
+#layout {
+    margin-top: 4px;
+    margin-left: 4px;
+    width: calc(100vw - 8px);
+    height: calc(100vh - 8px);
+    background-color: #f2f2f2;
+}
+
+html, head, body {
+    background-color: #f2f2f2;
+    padding: 0;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+pre {
+    font-family: monospace;
+    margin: 4px 0px;
+}
+
+.w2ui-panel-content {
+    border: 1px solid #dfdfdf;
+}
+
+#layout_app_layout_panel_main .w2ui-panel-content {
+    overflow: hidden!important;
+    border: 0px;
+}
+
+.b {
+    font-weight: bold;
+}
+
+.clusterize-scroll {
+    overflow: auto
+}
+
+.clusterize-extra-row {
+    margin-top: 0!important;
+    margin-bottom: 0!important
+}
+
+.clusterize-extra-row.clusterize-keep-parity {
+    display: none
+}
+
+.clusterize-content {
+    outline: 0;
+    counter-reset: clusterize-counter
+}
+
+.clusterize-no-data td {
+    text-align: center
+}
+
+.toolbar-flex-container {
+    display: -ms-flexbox!important;
+    display: -webkit-flex!important;
+    display: flex!important;
+    -webkit-flex-direction: row;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    -webkit-flex-wrap: nowrap;
+    -ms-flex-wrap: nowrap;
+    flex-wrap: nowrap;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    -webkit-align-content: stretch;
+    -ms-flex-line-pack: stretch;
+    align-content: stretch;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+
+.toolbar-flex-container>* {
+    -webkit-order: 0;
+    -ms-flex-order: 0;
+    order: 0;
+    -webkit-flex: 0 1 auto;
+    -ms-flex: 0 1 auto;
+    flex: 0 1 auto;
+    -webkit-align-self: auto;
+    -ms-flex-item-align: auto;
+    align-self: auto;
+}
+
+.toolbar-flex-container>div.toolbar-spacer {
+    -webkit-order: 0;
+    -ms-flex-order: 0;
+    order: 0;
+    -webkit-flex: 1 1 auto;
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
+    -webkit-align-self: auto;
+    -ms-flex-item-align: auto;
+    align-self: auto;
+}
+
+.toolbar_counter {
+    font-family: monospace;
+    margin-left: 12px;
+    margin-right: 4px;
+    padding: 8px 2px;
+    border: 1px solid #777;
+    font-size: 16px;
+    min-width: 50px;
+    text-align: end;
+    font-weight: lighter;
+}
+
+.toolbar_divider {
+    margin-left: 4px;
+    margin-right: 4px;
+    border-left: 1px double #999;
+    height: 30px;
+    font-size: 16px;
+}
+
+.toolbar_status {
+    font-family: monospace;
+    margin-left: 4px;
+    margin-right: 8px;
+}
+
+.HelpModalBody {
+    padding: 0px 10px;
+    font-size: 14px;
+}
+
+.HelpModalBody table {
+    width: 100%;
+}
+
+.HelpModalBody table, .HelpModalBody th, .HelpModalBody td {
+    border: 1px solid black;
+}
+
+.HelpModalBody th, .HelpModalBody td {
+    padding: 6px 10px;
+}
+
+.HelpModalBody td em {
+    background: #777;
+    padding: 2px 6px;
+    color: #fff;
+    border-radius: 2px;
+}
+
+.label {
+    color: #FFF;
+    font-family: sans-serif;
+    padding: 2px;
+    background: rgba( 0, 0, 0, .6);
+}
+
+.button {
+    cursor: pointer;
+    margin: 8px;
+}
+
+.button::before {
+    cursor: pointer;
+    font-size: 24px;
+    padding: 4px;
+    width: 1em;
+    color: #444;
+}
+
+.button:disabled, .button.disabled, .button.disabled:hover, .button.disabled:focus {
+    cursor: not-allowed;
+    color: #777;
+    text-shadow: none;
+}
+
+.button:hover, .button:focus {
+    text-shadow: 1px 1px 5px rgba(127, 127, 127, 0.5);
+    color: #000;
+}
+
+.button:active:before, .button.active:before {
+    color: #5cb85c;
+}
+
+#username_label {
+    margin-right: 10px;
+}
+
+#mode_selected, #leader_selected {
+    margin-left: 10px;
+}
+
+#request_input {
+    margin-left: 12px;
+}
+
+#send_input {
+    margin-left: 12px;
+}
+
+#button_mode_select, #button_connect {
+    background-color: #edca5f;
+    border: none;
+    border-radius: 8px;
+    color: black;
+    padding: 10px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 10px;
+    cursor: pointer;
+    width: 130px;
+}
+
+#button_task {
+    background-color: #b9b9b9;
+    border: none;
+    border-radius: 8px;
+    color: black;
+    padding: 10px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 10px;
+    cursor: pointer;
+    width: 130px;
+}
+
+#button_request {
+    background-color: #edca5f;
+    border: none;
+    border-radius: 8px;
+    color: black;
+    padding: 10px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 10px;
+    cursor: pointer;
+    width: 100px;
+}
+
+#button_send {
+    background-color: #edca5f;
+    border: none;
+    border-radius: 8px;
+    color: black;
+    padding: 10px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 10px;
+    cursor: pointer;
+    width: 100px;
+}
+
+#connection-status {
+    color: black;
+    text-align: center;
+    width: 140px;
+}
+
+.icon-pause:before {
+    content: '\0041';
+}
+
+.icon-ff:before {
+    content: '\0042';
+}
+
+.icon-play:before {
+    content: '\0043';
+}
+
+.icon-step:before {
+    content: '\0044';
+}
+
+.icon-stop:before {
+    content: '\0045';
+}
+
+.icon-settings:before {
+    content: '\0046';
+}
+
+.icon-reset:before {
+    content: '\0047';
+}
+
+.icon-help:before {
+    content: '\004c';
+}
+
+.icon-select-leader:before {
+    content: '\004e';
+}

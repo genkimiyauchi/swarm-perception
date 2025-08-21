@@ -1,5 +1,7 @@
 link_directories(${CMAKE_BINARY_DIR}/controllers/robot)
-set(target_tracking_loop_functions_SOURCES target_tracking_loop_functions.cpp)
+set(target_tracking_loop_functions_SOURCES 
+  target_tracking_loop_functions.cpp
+  target_tracking_webviz_user_functions.cpp)
 
 if(ARGOS_QTOPENGL_FOUND)
   include_directories(${ARGOS_QTOPENGL_INCLUDE_DIRS})
