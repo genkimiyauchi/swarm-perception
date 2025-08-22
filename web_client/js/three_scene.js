@@ -1551,7 +1551,7 @@ function animate() {
   updateButtons();
   updateCommands();
   controls.update();
-  cameraUpdate();
+  // cameraUpdate();
   render();
   // update_minimap();
 }
@@ -1973,15 +1973,15 @@ function render() {
     // console.log(window.experiment.data);
   }
 
-  if(window.connected) {
-    renderer.render(scene, cameraRobot);
-    menuRenderer.render(scene, cameraRobot);
-  } else if (window.targetChanged) {
-    console.log('waiting to connect...');
-  } else if ( window.mode == Mode.DEBUG || window.mode == Mode.NOGUI ) {
+  // if(window.connected) {
+  //   renderer.render(scene, cameraRobot);
+  //   menuRenderer.render(scene, cameraRobot);
+  // } else if (window.targetChanged) {
+  //   console.log('waiting to connect...');
+  // } else if ( window.mode == Mode.DEBUG || window.mode == Mode.NOGUI ) {
     renderer.render(scene, camera);
     menuRenderer.render(scene, camera);
-  }
+  // }
 
   renderer.clearDepth();
 
