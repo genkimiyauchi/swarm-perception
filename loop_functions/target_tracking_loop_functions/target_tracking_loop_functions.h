@@ -59,6 +59,8 @@ private:
     /* Robots */
     size_t m_unNumRobots;
     size_t m_unNumRobotsInTarget;
+    size_t m_unMaxNumRobotsInTarget;
+    std::vector<Real> m_vecRobotArrivalTime;
     Real m_fSpeed;
     Real m_fSeparation;
     Real m_fBroadcastDuration;

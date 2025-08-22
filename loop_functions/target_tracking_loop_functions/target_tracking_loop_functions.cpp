@@ -23,7 +23,8 @@ CTargetTrackingLoopFunctions::CTargetTrackingLoopFunctions() :
     m_pcFloor(NULL),
     m_pcRNG(NULL),
     m_unNumRobots(0),
-    m_unNumRobotsInTarget(0) {
+    m_unNumRobotsInTarget(0),
+    m_unMaxNumRobotsInTarget(0) {
 }
 
 /****************************************/
@@ -246,16 +247,27 @@ void CTargetTrackingLoopFunctions::Destroy() {
     
     m_cOutput.open(m_strLogFilePath, std::ios_base::app);
     if (!has_heading) {
-        m_cOutput << "ID,TIME,SPEED,SEPARATION,BROADCAST,TARGET_X,TARGET_Y\n";
+        m_cOutput << "ID,TIME,SPEED,SEPARATION,BROADCAST,TARGET_X,TARGET_Y";
+        for (size_t i = 0; i < m_vecRobotArrivalTime.size(); ++i) {
+            m_cOutput << ",ARRIVAL_" << (i + 1);
+        }
+        m_cOutput << "\n";
     }
+
     m_cOutput << CSimulator::GetInstance().GetRandomSeed() << ","
               << final_time_seconds << ","
               << m_fSpeed << ","
               << m_fSeparation << ","
               << m_fBroadcastDuration << ","
               << m_vecTargetsTemp[0].first.GetX() << ","
-              << m_vecTargetsTemp[0].first.GetY() << "\n";
+              << m_vecTargetsTemp[0].first.GetY();
+    for(const auto& arrival_time : m_vecRobotArrivalTime) {
+        m_cOutput << "," << arrival_time;
+    }
+    m_cOutput << "\n";
+    
     m_cOutput.close();
+
     LOG << "[LOG] Experiment results logged successfully." << std::endl;
 }
 
@@ -354,6 +366,13 @@ bool CTargetTrackingLoopFunctions::IsExperimentFinished() {
         if(cController.GetState() == "IN_TARGET") {
             ++unNumRobotsStateInTarget;
         }
+    }
+
+    /* Store timestep when Nth robot arrived at the target */
+    size_t unNumRobotsCompleted = std::min(unNumRobotsStateInTarget, m_unNumRobotsInTarget);
+    while(unNumRobotsCompleted > m_vecRobotArrivalTime.size()) {
+        /* Convert to seconds */
+        m_vecRobotArrivalTime.push_back(GetSpace().GetSimulationClock() * m_fSecondsPerStep);
     }
 
     /* Check termination condition */
