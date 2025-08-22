@@ -134,7 +134,7 @@ function initSceneWithScale(_scale) {
   // camera = new THREE.PerspectiveCamera(45, window.threejs_panel.width() / window.threejs_panel.height(), 0.01, scale * 2500);
   camera = new THREE.PerspectiveCamera( 60, window.threejs_panel.width() / window.threejs_panel.height(), 0.1, 1000 );
 
-  camera.position.set(0, -scale * 3, scale * 5);
+  camera.position.set(0, -scale * 1, scale * 2);
 
   camera.layers.enable(0); // enabled by default
   camera.layers.enable(1); // All selectable objects
