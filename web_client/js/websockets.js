@@ -134,9 +134,22 @@
           }
         }
 
-        /* Store the number of robots working on each task */
-        if(data.user_data.tasks) {
-          window.robot_per_task = data.user_data.tasks;
+        /* Store robot ids only if changed */
+        if (data.user_data.robot_ids) {
+          // sort data.user_data.robot_ids by the number after "ep"
+          const sortedRobotIDs = data.user_data.robot_ids.slice().sort((a, b) => {
+            const getNum = id => {
+              const match = id.match(/ep(\d+)/);
+              return match ? parseInt(match[1], 10) : 0;
+            };
+            return getNum(a) - getNum(b);
+          });
+
+          if (!window.robotIDs || JSON.stringify(window.robotIDs) !== JSON.stringify(sortedRobotIDs)) {
+            // console.log("Robot IDs: ", sortedRobotIDs);
+            window.robotIDs = sortedRobotIDs;
+            window.updateRobotDropdown();
+          }
         }
 
         let e_status = document.getElementById('connection-status');

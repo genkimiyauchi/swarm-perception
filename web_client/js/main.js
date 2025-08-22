@@ -180,14 +180,29 @@ var onAllFilesLoaded = function () {
         "<button type='button'>Confirm</button>"
       );
 
-      /* List of leaders */
-      let dropListLeader = "".concat(
-        "<select>"
-        + "<option value='Select robot'>Select robot</option>"
-        + "<option value='ep1'>ep1</option>"
-        + "<option value='ep2'>ep2</option>"
-        + "</select>"
-      );
+      /* List of robots */
+
+      let dropListRobots = "<select id='robot_selected'><option value=''>Select robot</option>";
+
+      function updateRobotDropdown() {
+        let dropListRobots = "<select id='robot_selected'><option value=''>Select robot</option>";
+        window.robotIDs.forEach(function(id) {
+          dropListRobots += `<option value='${id}'>${id}</option>`;
+        });
+        dropListRobots += "</select>";
+
+        // Replace the old dropdown or insert if not present
+        let $old = $('#robot_selected');
+        if ($old.length) {
+          $old.replaceWith(dropListRobots);
+        } else {
+          // If not present, append to toolbar (adjust selector as needed)
+          $("#layout_toolbar_layout_panel_top>div.w2ui-panel-content").append(dropListRobots);
+        }
+      }
+
+      // Expose the function globally so it can be called from websocket.js
+      window.updateRobotDropdown = updateRobotDropdown;
 
       let confirmButtonTag = "".concat(
         "<button type='button'>Confirm</button>"
@@ -389,44 +404,24 @@ var onAllFilesLoaded = function () {
           })
         )
 
-        /* Leader selection */
+        /* Robot selection */
         .append($("<div/>")
           .addClass('toolbar_divider')
         )
 
-        .append($(dropListLeader)
-          .attr('id', 'leader_selected')
+        .append($(dropListRobots)
+          .attr('id', 'robot_selected')
           .attr("title", "Select robot")
           .prop("title", "Select robot")//for IE
         )
-        // .append($("<div/>")
-        //   .addClass('button')
-        //   .addClass('icon-select-leader')
-        //   .attr('id', 'leader_select_button')
-        //   .attr("title", "Connect to leader")
-        //   .prop("title", "Connect to leader")//for IE
-        //   .click(function () {
-        //     let e = document.getElementById("leader_selected");
-        //     let target = e.options[e.selectedIndex].text;
-
-        //     window.wsp.sendPacked({ command: 'select_robot', robot: target });
-
-        //     console.log("sent " + target);
-        //   })
-        // )
-        /* Leader selection status */
-        // .append($("<div/>")
-        //   .addClass("toolbar_status")
-        //   .html("{experiment.status}")
-        // )
 
         .append($(confirmButtonTag)
           .attr('id','button_connect')
           .click(function () {
             // let e_name = document.getElementById('username_label');
             // window.username = e_name.value;
-            let e_leader = document.getElementById('leader_selected');
-            window.target = e_leader.options[e_leader.selectedIndex].text;
+            let e_robot = document.getElementById('robot_selected');
+            window.target = e_robot.options[e_robot.selectedIndex].text;
             window.targetChanged = true;
 
             if(window.target == 'Select robot') {
@@ -624,7 +619,7 @@ var onAllFilesLoaded = function () {
                     'mode_divider',
                     'mode_selected',
                     'button_mode_select',
-                    'leader_selected',
+                    'robot_selected',
                     'button_connect'
                   ];
 

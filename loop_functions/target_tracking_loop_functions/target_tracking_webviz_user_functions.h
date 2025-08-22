@@ -4,7 +4,6 @@
 #include <argos3/core/simulator/loop_functions.h>
 #include <argos3/core/simulator/simulator.h>
 #include <argos3/plugins/robots/e-puck/simulator/epuck_entity.h>
-// #include <argos3/plugins/robots/e-puck_leader/simulator/epuckleader_entity.h>
 #include <argos3/plugins/simulator/visualizations/webviz/webviz_user_functions.h>
 
 #include <utility/robot_message.h>
@@ -27,10 +26,8 @@ class CTargetTrackingWebvizUserFunctions : public CWebvizUserFunctions {
         virtual void HandleCommandFromClient(const std::string& str_ip, nlohmann::json c_json_command);
 
         virtual const nlohmann::json sendUserData();
-
-        virtual const nlohmann::json sendLeaderData(CEPuckEntity& robot);
         
-        virtual const nlohmann::json sendWorkerData(CEPuckEntity& robot);
+        virtual const nlohmann::json sendRobotData(CEPuckEntity& robot);
 
         virtual void ClientConnected(std::string str_id);
 

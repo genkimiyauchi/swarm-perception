@@ -22,11 +22,8 @@ CTargetTrackingWebvizUserFunctions::CTargetTrackingWebvizUserFunctions() {
     //     m_cOutput.close();
     // }
 
-    // RegisterWebvizUserFunction<CTargetTrackingWebvizUserFunctions, CEPuckLeaderEntity>(
-    //     &CTargetTrackingWebvizUserFunctions::sendLeaderData);
-
     RegisterWebvizUserFunction<CTargetTrackingWebvizUserFunctions, CEPuckEntity>(
-        &CTargetTrackingWebvizUserFunctions::sendWorkerData);
+        &CTargetTrackingWebvizUserFunctions::sendRobotData);
 }
 
 /****************************************/
@@ -218,7 +215,7 @@ void CTargetTrackingWebvizUserFunctions::HandleCommandFromClient(const std::stri
         // else 
         if(c_data["command"] == "select_robot") {
 
-            std::cout << "Select received (begin)" << std::endl;
+            // std::cout << "Select received (begin)" << std::endl;
 
             // for(const auto& [key, value] : m_pcClientRobotConnections) {
             //     std::cout << "robot: " << key << " - " << value.username << ", " << value.id << std::endl;
@@ -334,16 +331,12 @@ const nlohmann::json CTargetTrackingWebvizUserFunctions::sendUserData() {
         }
     }
 
-    // /* Send the number of robots working on each task */
-    // std::unordered_map<std::string, UInt32> robotPerTask = m_pcExperimentLoopFunctions->GetRobotPerTask();
-
-    // for(const auto& [key, value] : robotPerTask) {
-    //     outJson["tasks"][key] = value;
-    //     // std::cout << "[LOG] " << key << ", " << value << std::endl;
-    // }
-
-    // /* Send current points obtained */
-    // outJson["points"] = (int)m_pcExperimentLoopFunctions->GetCurrentPoints();
+    /* Send robot IDs */
+    CSpace::TMapPerType& m_cEPucks = m_pcExperimentLoopFunctions->GetSpace().GetEntitiesByType("e-puck");
+    for(const auto& [key, value] : m_cEPucks) {
+        outJson["robot_ids"].push_back(key);
+        // LOG << "[LOG] Robot ID: " << key << std::endl;
+    }
 
     return outJson;
 }
@@ -351,43 +344,10 @@ const nlohmann::json CTargetTrackingWebvizUserFunctions::sendUserData() {
 /****************************************/
 /****************************************/
 
-const nlohmann::json CTargetTrackingWebvizUserFunctions::sendLeaderData(CEPuckEntity& robot) {
+const nlohmann::json CTargetTrackingWebvizUserFunctions::sendRobotData(CEPuckEntity& robot) {
     nlohmann::json outJson;
 
     CRobot& cController = dynamic_cast<CRobot&>(robot.GetControllableEntity().GetController());
-
-    /* Username of operator controlling the leader */
-    outJson["username"] = cController.GetUsername();
-
-    // /* Number of followers */
-    // outJson["num_followers"] = cController.GetFollowerCount();
-
-    // /* Name of current task */
-    // outJson["taskname"] = cController.GetTaskId();
-
-    // /* Minimum number of robots needed for the current task */
-    // outJson["num_task_require"] = cController.GetMinimumCount();
-
-    // /* Task completion rate */
-    // outJson["num_task_demand"] = cController.GetTaskDemand();
-    // outJson["num_init_task_demand"] = cController.GetInitTaskDemand();
-
-    // /* Number of follower in the other team */
-    // outJson["num_other_followers"] = cController.GetOtherFollowerCount();
-
-    // /* Minimum number of robots needed for the other team's task */
-    // outJson["num_other_task_require"] = cController.GetOtherMinimumCount();
-
-    return outJson;
-}
-
-/****************************************/
-/****************************************/
-
-const nlohmann::json CTargetTrackingWebvizUserFunctions::sendWorkerData(CEPuckEntity& robot) {
-    nlohmann::json outJson;
-
-    // CWorker& cController = dynamic_cast<CWorker&>(robot.GetControllableEntity().GetController());
     
     // /* Robot's current state */
     // switch(cController.GetRobotState()) {
@@ -404,6 +364,8 @@ const nlohmann::json CTargetTrackingWebvizUserFunctions::sendWorkerData(CEPuckEn
     //         std::cerr << "[ERROR] Worker robot should not be a leader!" << std::endl;
     //         break;
     // }
+
+    // LOG << "ID: " << cController.GetId();
 
     return outJson;
 }

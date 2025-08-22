@@ -1789,7 +1789,7 @@ function render() {
       }
     }
 
-    /* Uodate points obtained */
+    /* Update points obtained */
     window.pointsText.set({
       content: "Score: " + window.pointsObtained
     });
@@ -1803,11 +1803,7 @@ function render() {
 
         let taskname = ''; // TO REMOVE: sceneEntities[window.target].entity.user_data.taskname;
 
-        var num_robot_in_my_task;
-        if(taskname !== '') {
-          num_robot_in_my_task = window.robot_per_task[taskname];
-          console.log("Task ID: " + taskname + ", Robots in task: " + num_robot_in_my_task);
-        }
+        var num_robot_in_my_task = 0;
         
         let num_task_require = 0; // sceneEntities[window.target].entity.user_data.num_task_require;
         let num_task_demand = 0; // sceneEntities[window.target].entity.user_data.num_task_demand;

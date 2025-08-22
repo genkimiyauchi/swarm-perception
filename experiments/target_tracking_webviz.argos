@@ -77,7 +77,7 @@
       <robots controller="epc1"
               base_name="ep"
               base_num="1"
-              quantity="4"
+              quantity="10"
               max_trials="100" 
               rab_range="0.35" />
     </teams>
