@@ -6,3 +6,4 @@ videos*/
 venv/
 *__pycache__*
 .vscode/
+*.csv
