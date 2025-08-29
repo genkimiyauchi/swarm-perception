@@ -574,6 +574,8 @@ function initSceneWithScale(_scale) {
   // otherUserFollowerCountContainer.add(otherUserRequiredCount);
   // otherUserRequiredCount.add(window.numOtherTaskRequire);
 
+  /* Target Discovery */
+
   window.targetStatusText = new ThreeMeshUI.Text({
     content: "Find the target",
     fontSize: 24,
@@ -593,6 +595,100 @@ function initSceneWithScale(_scale) {
   targetStatusContainer.add(window.targetStatusText);
   mainContainer.add(targetStatusContainer);
   
+  /* Share target location / Move to target */
+  const shareTargetContainer = new ThreeMeshUI.Block({
+    padding: 0.025,
+    height: 60,
+    width: 220,
+    fontFamily: '/fonts/Roboto-msdf.json',
+    fontTexture: '/fonts/Roboto-msdf.png',
+    fontColor: new THREE.Color(0xffffff),
+    fontSupersampling: true,
+    contentDirection: "row",
+    backgroundOpacity: 0, // <-- Make background fully transparent
+    borderRadius: 0,      // <-- Remove border radius
+    borderWidth: 0,       // <-- Remove border
+    borderOpacity: 0,     // <-- Remove border
+  });
+
+  // Position in the top-right corner (similar logic as sendContainer)
+  shareTargetContainer.position.set(
+    window.threejs_panel.width() / 2 - 120, // width/2 - half container width
+    window.threejs_panel.height() / 2 - 40, // height/2 - half container height
+    0
+  );
+
+  const shareTargetButton = new ThreeMeshUI.Block({
+    width: 160,
+    height: 40,
+    margin: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    fontSize: 20,
+    borderRadius: 15,
+    borderOpacity: 1,
+    backgroundOpacity: 1,
+    isUI: true
+  });
+  shareTargetButton.add(
+    new ThreeMeshUI.Text({
+      content: "Share Target",
+      fontSize: 22,
+      fontColor: new THREE.Color(0xffffff),
+    })
+  );
+
+  // Use the same color states as the request button
+  shareTargetButton.setupState({
+    state: "idle",
+    attributes: {
+      offset: 0.035,
+      backgroundColor: new THREE.Color(0x999900),
+      backgroundOpacity: 0.8,
+      fontColor: new THREE.Color(0xffffff)
+    },
+  });
+  shareTargetButton.setupState({
+    state: "hovered",
+    attributes: {
+      offset: 0.035,
+      backgroundColor: new THREE.Color(0xcccc33),
+      backgroundOpacity: 1,
+      fontColor: new THREE.Color(0xffffff)
+    },
+  });
+  shareTargetButton.setupState({
+    state: "disabled",
+    attributes: {
+      offset: 0.035,
+      backgroundColor: new THREE.Color(0x333333),
+      backgroundOpacity: 0.5,
+      fontColor: new THREE.Color(0xaaaaaa)
+    },
+  });
+  shareTargetButton.setupState({
+    state: "selected",
+    attributes: {
+      offset: 0.035,
+      backgroundColor: new THREE.Color(0xcccc33),
+      backgroundOpacity: 1,
+      fontColor: new THREE.Color(0xffffff)
+    },
+    onSet: () => {
+      console.log("Share target location");
+      window.shareTargetFlag = true;
+      // window.requestCommand['number'] = window.robotCount;
+    }
+  });
+  shareTargetButton.setState('idle');
+
+  // Add the button to its container
+  shareTargetContainer.add(shareTargetButton);
+
+  // Add the container to the orthogonal scene
+  sceneOrtho.add(shareTargetContainer);
+  objsToTest.push(shareTargetButton);
+
   // /*
   // *  Task Container
   // */
@@ -1615,22 +1711,18 @@ function updateButtons() {
 
 	if ( intersect && intersect.object.isUI ) {
 
-    // Check if a leader is selected
-    if(window.target != "") {
+    // console.log(intersect.object);
 
-      // console.log(intersect.object);
+    if ( selectState ) {
 
-      if ( selectState ) {
+      // Component.setState internally call component.set with the options you defined in component.setupState
+      intersect.object.setState( 'selected' );
 
-        // Component.setState internally call component.set with the options you defined in component.setupState
-        intersect.object.setState( 'selected' );
-  
-      } else {
-  
-        // Component.setState internally call component.set with the options you defined in component.setupState
-        intersect.object.setState( 'hovered' );
-  
-      };
+    } else {
+
+      // Component.setState internally call component.set with the options you defined in component.setupState
+      intersect.object.setState( 'hovered' );
+
     };
 	};
 
@@ -1699,29 +1791,29 @@ function updateCommands() {
     window.taskFlag = false;
   }
 
-  /* Check for a new request command */
-  if( window.requestFlag ) {
-    commands.push(window.requestCommand);
-    window.requestFlag = false;
-    console.log(packet);
+  // /* Check for a new request command */
+  // if( window.requestFlag ) {
+  //   commands.push(window.requestCommand);
+  //   window.requestFlag = false;
+  //   console.log(packet);
 
-    window.robotCount = 0;
-    window.robotCountLabel.set({
-      content: window.robotCount.toString(),
-    });
-  }
+  //   window.robotCount = 0;
+  //   window.robotCountLabel.set({
+  //     content: window.robotCount.toString(),
+  //   });
+  // }
 
-  /* Check for a new send command */
-  if( window.sendFlag ) {
-    commands.push(window.sendCommand);
-    window.sendFlag = false;
-    console.log(packet);
+  // /* Check for a new send command */
+  // if( window.sendFlag ) {
+  //   commands.push(window.sendCommand);
+  //   window.sendFlag = false;
+  //   console.log(packet);
 
-    window.robotCount = 0;
-    window.robotCountLabel.set({
-      content: window.robotCount.toString(),
-    });
-  }
+  //   window.robotCount = 0;
+  //   window.robotCountLabel.set({
+  //     content: window.robotCount.toString(),
+  //   });
+  // }
 
   var move_direction = '';
 
