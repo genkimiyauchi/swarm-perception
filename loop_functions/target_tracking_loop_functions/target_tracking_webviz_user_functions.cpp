@@ -64,7 +64,7 @@ void CTargetTrackingWebvizUserFunctions::HandleCommandFromClient(const std::stri
 
             std::string direction = c_data["direction"];
 
-            LOG << "direction:" << direction << std::endl;
+            // LOG << "direction:" << direction << std::endl;
 
             /* Get robot controller */
             CSpace::TMapPerType& m_cEPucks = m_pcExperimentLoopFunctions->GetSpace().GetEntitiesByType("e-puck");
@@ -343,9 +343,23 @@ const nlohmann::json CTargetTrackingWebvizUserFunctions::sendUserData() {
 
     /* Send robot IDs */
     CSpace::TMapPerType& m_cEPucks = m_pcExperimentLoopFunctions->GetSpace().GetEntitiesByType("e-puck");
+
+    bool targetFound = false;
+
     for(const auto& [key, value] : m_cEPucks) {
         outJson["robot_ids"].push_back(key);
         // LOG << "[LOG] Robot ID: " << key << std::endl;
+
+        CEPuckEntity& cEPuck = *any_cast<CEPuckEntity*>(value);
+        CRobot& cController = dynamic_cast<CRobot&>(cEPuck.GetControllableEntity().GetController());
+
+        if(cController.HasFoundTarget()) {
+            outJson["target_found"].push_back(key);
+        }
+
+        if(cController.HasReceivedTarget()) {
+            outJson["target_received"].push_back(key);
+        }
     }
 
     return outJson;

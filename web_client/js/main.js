@@ -32,7 +32,7 @@ var onAllFilesLoaded = function () {
   window.sendCommand = { command: 'send', number: 0 };
 
   /* Initial mode */
-  window.mode = Mode.DEBUG;
+  window.mode = Mode.EXPERIMENT;
 
   /* Generate uuid */
   window.client_id = generateRandomUUID();
@@ -42,6 +42,9 @@ var onAllFilesLoaded = function () {
   window.target = ''; // Init robot selection to nothing
   window.targetChanged = false;
   window.connected = false; // Connected to a robot
+  
+  window.target_found = false;
+  window.target_received = false;
 
   window.logLatestTime = 0; // The latest time a log message was received
 
@@ -534,10 +537,46 @@ var onAllFilesLoaded = function () {
           default:
             console.log('Unrecognized mode passed in url: ' + urlParams.get('m'));
         }
+
+        console.log("Mode: " + window.mode);
+
+        /* Modify toolbar according to the current mode */
+        if(window.mode == Mode.EXPERIMENT) {
+
+          /* Id of the components to hide */
+          let ids = [
+                      'control_divider',
+                      'step_button',
+                      'pause_button',
+                      'ff_button',
+                      'ff_steps_input',
+                      'reset_button',
+                      // 'name_divider', 
+                      // 'name_label', 
+                      // 'username_label',
+                      // 'mode_divider',
+                      // 'mode_selected',
+                      // 'button_mode_select',
+                      'robot_selected'
+                    ];
+
+          /* Hide toolbar components */
+          for(const id of ids) {
+            var x = document.getElementById(id);
+            if(x) {
+              x.style.display = 'none';
+            }
+          }
+
+          /* Hide error log */
+          for(panel of w2ui['log_layout'].panels) {
+            if(panel.title == 'LogErr') {
+              panel.hidden = true;
+            }
+          }
+        }
       }, 0);
         
-      console.log("Mode: " + window.mode);
-
       // switch(urlParams.get('rs')) {
       //   case '0':
       //     window.request_send_visible = false;
@@ -584,42 +623,6 @@ var onAllFilesLoaded = function () {
       }
 
       console.log("Username: " + window.username);
-
-      /* Modify toolbar according to the current mode */
-      if(window.mode == Mode.EXPERIMENT) {
-
-        /* Id of the components to hide */
-        let ids = [
-                    'control_divider',
-                    'step_button',
-                    'pause_button',
-                    'ff_button',
-                    'ff_steps_input',
-                    'reset_button',
-                    // 'name_divider', 
-                    // 'name_label', 
-                    // 'username_label',
-                    // 'mode_divider',
-                    // 'mode_selected',
-                    // 'button_mode_select',
-                    'robot_selected'
-                  ];
-
-        /* Hide toolbar components */
-        for(const id of ids) {
-          var x = document.getElementById(id);
-          if(x) {
-            x.style.display = 'none';
-          }
-        }
-
-        /* Hide error log */
-        for(panel of w2ui['log_layout'].panels) {
-          if(panel.title == 'LogErr') {
-            panel.hidden = true;
-          }
-        }
-      }
 
       window.experiment = {}
 

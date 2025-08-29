@@ -272,6 +272,11 @@ public:
         return m_bTargetFound;
     }
 
+    /* Get whether robot received about target location */
+    virtual bool HasReceivedTarget() const {
+        return m_bTargetReceived;
+    }
+
     /* Set target to move towards */
     virtual void SetTarget(const CVector2& c_target, const Real& f_radius) {
         m_cTarget = c_target;
@@ -373,6 +378,7 @@ private:
     Real m_fTargetRadius;
     Real m_fDistToTarget;
     bool m_bTargetFound;
+    bool m_bTargetReceived;
     bool m_bInTarget;
 
     /* ### Random walk: parameters ### */

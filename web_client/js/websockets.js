@@ -161,6 +161,14 @@
           e_status.textContent = 'Connected to '.concat(robot_id);
           e_status.style.color = '#4CAF50';
 
+          if (data.user_data.target_found && data.user_data.target_found.includes(robot_id)) {
+            window.target_found = true;
+          }
+
+          if (data.user_data.target_received && data.user_data.target_received.includes(robot_id)) {
+            window.target_received = true;
+          }
+
           /* Change appearance depending on last signal sent */
           // if(window.taskCommand['signal'] == 'stop') {
             

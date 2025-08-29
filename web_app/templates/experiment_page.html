@@ -26,7 +26,7 @@
           // Connect to simulation
           $(function() {
             $('a#connect').on('click', function(e) {
-              var link = 'http://{{host_ip}}:8000?m=exp&rs=1&l=1';
+              var link = 'http://{{host_ip}}:8000?m=exp';
               // if user has an id, send the id to the simulation
               if("{{session.username}}" !== "None") {
                 link += "&id={{session.username}}"

@@ -1780,8 +1780,16 @@ function render() {
     }
 
     /* Call update of each entity */
+    // window.experiment.data.entities.map((entity) => {
+    //   sceneEntities[entity.id].update(entity, scale);
+    // });
+
     window.experiment.data.entities.map((entity) => {
-      sceneEntities[entity.id].update(entity, scale);
+      if (entity.type == "floor" && window.mode == Mode.EXPERIMENT && !window.target_found) {
+        // console.log("FLOOR: " + window.target_found)
+      } else {
+        sceneEntities[entity.id].update(entity, scale);
+      }
     });
 
     /* Update all bounding boxes */

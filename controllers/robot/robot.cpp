@@ -305,6 +305,7 @@ void CRobot::Init(TConfigurationNode& t_node) {
     /* Initialize variables */
     m_bInTarget = false;
     m_bTargetFound = false;
+    m_bTargetReceived = false;
     m_nRandomWalkTimer = 0;
     m_nBroadcastTimer = 0;
 
@@ -349,7 +350,7 @@ void CRobot::ControlStep() {
     /* Switch states */
     if(currentState == State::RANDOM_WALK) {
         
-        bool bTargetReceived = false;
+        m_bTargetReceived = false;
         if(!m_bInTarget) {
             /* Check if neighboring robots have found the target */
             for(const auto& msg : teamMsgs) {
@@ -360,7 +361,7 @@ void CRobot::ControlStep() {
                     // RLOG << "distance: " << Distance(msg.targetPosition, m_cTarget) << std::endl;
                 // }
                 if(msg.targetPosition != CVector2(OFFSET, OFFSET)) { // Check if a target position is set
-                    bTargetReceived = true;
+                    m_bTargetReceived = true;
                     RLOG << "Target received from " << msg.ID << std::endl;
                     break;
                 }
@@ -368,7 +369,7 @@ void CRobot::ControlStep() {
         }
         
         /* Switch to BROADCAST_WALK if target found */
-        if(m_bInTarget || bTargetReceived) {
+        if(m_bInTarget || m_bTargetReceived) {
             currentState = State::BROADCAST_WALK;
             size_t numberOfBlinks = 30; // TEMP: hard-coded value
             m_nBroadcastTimer = (int)(m_fBroadCastDuration / m_fSecondsPerStep);
@@ -378,6 +379,8 @@ void CRobot::ControlStep() {
             // RLOG << "Timer: " << m_nBroadcastTimer << std::endl;
             // RLOG << "Blink interval: " << m_unBlinkInterval << std::endl;
             m_nBlinkTimer = 0;
+
+            m_bTargetFound = true;
         }
     }
     else if(currentState == State::BROADCAST_WALK) {
