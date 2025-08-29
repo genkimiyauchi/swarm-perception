@@ -295,8 +295,8 @@
             $("#layout_app_layout_panel_top .button").removeClass("disabled")
           }
           setTimeout(() => { // due to some racing issues
-            window.log_clusterize.clear()
-            window.logerr_clusterize.clear()
+            if (window.log_clusterize) window.log_clusterize.clear();
+            if (window.logerr_clusterize) window.logerr_clusterize.clear();
           }, 10);
         }
 

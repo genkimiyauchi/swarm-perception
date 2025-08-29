@@ -156,17 +156,27 @@ function initSceneWithScale(_scale) {
 
   // Controls
   // Possible types: OrbitControls, MapControls
+
   controls = new THREE.OrbitControls(camera, renderer.domElement);
 
   controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
-
   controls.dampingFactor = 0.05;
   controls.maxPolarAngle = Math.PI / 2;
   controls.screenSpacePanning = false;
-
   controls.minDistance = scale / 3;
   controls.maxDistance = scale * 2 * Math.max(window.experiment.data.arena.size.y,
     window.experiment.data.arena.size.x);
+
+  // Enable/disable controls based on mode
+  function updateCameraControlsByMode() {
+    if (controls && typeof controls.enabled !== 'undefined') {
+      controls.enabled = (window.mode === Mode.DEBUG);
+    }
+  }
+  // Call once after controls are created
+  updateCameraControlsByMode();
+  // Expose for global use (e.g., after mode changes)
+  window.updateCameraControlsByMode = updateCameraControlsByMode;
 
   var floor_found = false;
   window.experiment.data.entities.map(function (entity) {
@@ -677,7 +687,6 @@ function initSceneWithScale(_scale) {
     onSet: () => {
       console.log("Share target location");
       window.shareTargetFlag = true;
-      window.shareTargetCommand['signal'] = 'true';
     }
   });
   shareTargetButton.setState('idle');
@@ -1793,7 +1802,12 @@ function updateCommands() {
 
   /* Check for a share target command */
   if( window.shareTargetFlag ) {
-    commands.push(window.shareTargetCommand);
+    if(window.connected) {
+      window.shareTargetCommand['signal'] = 'true';
+      commands.push(window.shareTargetCommand);
+    } else {
+      console.log('Not connected to a robot');
+    }
     window.shareTargetFlag = false;
   }
 
