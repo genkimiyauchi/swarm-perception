@@ -217,7 +217,7 @@ function initSceneWithScale(_scale) {
     backgroundOpacity: 0,
     alignItems: 'start',
   });
-  mainContainer.position.set( -window.threejs_panel.width() / 2 + 165, window.threejs_panel.height() / 2 - 110, 0 );
+  mainContainer.position.set( 0, window.threejs_panel.height() / 2 - 40, 0 );
   sceneOrtho.add(mainContainer);
 
   // /* User Block */
@@ -574,268 +574,287 @@ function initSceneWithScale(_scale) {
   // otherUserFollowerCountContainer.add(otherUserRequiredCount);
   // otherUserRequiredCount.add(window.numOtherTaskRequire);
 
-  /*
-  *  Task Container
-  */
-  
-  const taskContainer = new ThreeMeshUI.Block({
-    // ref: 'container',
-    padding: 0.025,
-    fontFamily: '/fonts/Roboto-msdf.json',
-    fontTexture: '/fonts/Roboto-msdf.png',
-    fontColor: new THREE.Color(0xffffff),
-    fontSupersampling: true,
-    backgroundOpacity: 0.2,
-    borderRadius: 20,
-    borderOpacity: 0,
-    alignItems: 'center',
-  });
-  taskContainer.position.set( 20, window.threejs_panel.height() / 2 - 80, 0 );
-  sceneOrtho.add(taskContainer);
-
-  /* Current points obtained*/
-  const pointsContainer = new ThreeMeshUI.Block({
-    padding: 0.025,
-    margin: 10,
-    height: 30,
-    width: 150,
-    justifyContent: 'center',
-    textAlign: 'left',
-    backgroundOpacity: 0,
-    borderWidth: 1,
-    // borderOpacity: 1,
-  });
-  taskContainer.add(pointsContainer);
-
-  window.pointsText = new ThreeMeshUI.Text({
-    fontColor: new THREE.Color(0xffff00),
+  window.targetStatusText = new ThreeMeshUI.Text({
+    content: "Find the target",
     fontSize: 24,
-    content: "Score: 0",
+    fontColor: new THREE.Color(0xffffff),
   });
-  pointsContainer.add(window.pointsText);
 
-  /* Task Status Container */
-  const taskStatusContainer = new ThreeMeshUI.Block({
-    padding: 0.025,
-    // height: 100,
-    // width: 230,
-    contentDirection: 'row',
-    justifyContent: 'center',
-    textAlign: 'left',
-    backgroundOpacity: 0,
-    borderWidth: 1,
-    // borderOpacity: 1,
-    alignItems: 'end',
-  });
-  taskContainer.add(taskStatusContainer);
-
-  /* Number of robots in task */
-
-  const inTaskContainer = new ThreeMeshUI.Block({
-    padding: 0.025,
-    // height: 60,
-    // width: 100,
-    contentDirection: 'column',
-    justifyContent: 'center',
-    backgroundOpacity: 0,
-    borderWidth: 1,
-    // borderOpacity: 1,
-  });
-  taskStatusContainer.add(inTaskContainer);
-
-  const inTaskLabelContainer = new ThreeMeshUI.Block({
-    padding: 0.025,
-    height: 20,
-    width: 100,
-    contentDirection: 'column',
-    justifyContent: 'end',
-    textAlign: 'center',
-    backgroundOpacity: 0,
-    borderWidth: 1,
-    // borderOpacity: 1,
-  });
-  inTaskContainer.add(inTaskLabelContainer);
-
-  const inTaskLabel = new ThreeMeshUI.Text({
-    content: 'In Task',
-    fontSize: 20,
-  });
-  inTaskLabelContainer.add(inTaskLabel);
-
-  const inTaskNumLabelContainer = new ThreeMeshUI.Block({
-    padding: 0.025,
-    height: 50,
-    width: 100,
-    contentDirection: 'column',
-    justifyContent: 'center',
-    textAlign: 'center',
-    backgroundOpacity: 0,
-    borderWidth: 1,
-    // borderOpacity: 1,
-  });
-  inTaskContainer.add(inTaskNumLabelContainer);
-
-  window.inTaskNum = new ThreeMeshUI.Text({
-    content: '-',
-    fontSize: 36,
-  });
-  inTaskNumLabelContainer.add(window.inTaskNum);
-
-  /* Slash label */
-
-  const slashContainer = new ThreeMeshUI.Block({
-    padding: 0.025,
-    height: 50,
-    width: 20,
-    contentDirection: 'column',
-    justifyContent: 'center',
-    backgroundOpacity: 0,
-    borderWidth: 1,
-    // borderOpacity: 1,
-  });
-  taskStatusContainer.add(slashContainer);
-  slashContainer.add(new ThreeMeshUI.Text({
-    fontSize: 40,
-    content: '/',
-  }));
-
-  /* Number of robots required */
-
-  const requiredContainer = new ThreeMeshUI.Block({
-    padding: 0.025,
-    // height: 60,
-    // width: 100,
-    contentDirection: 'column',
-    justifyContent: 'center',
-    backgroundOpacity: 0,
-    borderWidth: 1,
-    // borderOpacity: 1,
-  });
-  taskStatusContainer.add(requiredContainer);
-
-  const requiredLabelContainer = new ThreeMeshUI.Block({
-    padding: 0.025,
-    height: 20,
-    width: 100,
-    contentDirection: 'column',
-    justifyContent: 'center',
-    textAlign: 'center',
-    backgroundOpacity: 0,
-    borderWidth: 1,
-    // borderOpacity: 1,
-  });
-  requiredContainer.add(requiredLabelContainer);
-
-  const requiredLabel = new ThreeMeshUI.Text({
-    content: 'Required',
-    fontSize: 20,
-  });
-  requiredLabelContainer.add(requiredLabel);
-
-  const requiredNumLabelContainer = new ThreeMeshUI.Block({
-    padding: 0.025,
-    height: 50,
-    width: 100,
-    contentDirection: 'column',
-    justifyContent: 'center',
-    textAlign: 'center',
-    backgroundOpacity: 0,
-    borderWidth: 1,
-    // borderOpacity: 1,
-  });
-  requiredContainer.add(requiredNumLabelContainer);
-
-  window.requiredNum = new ThreeMeshUI.Text({
-    content: '-',
-    fontSize: 36,
-  });
-  requiredNumLabelContainer.add(window.requiredNum);
-
-  /* Progress Bar Block */
-
-  const progressContainer = new ThreeMeshUI.Block({
-    padding: 0.025,
-    // height: 100,
-    // width: 230,
-    contentDirection: 'row',
-    justifyContent: 'center',
-    textAlign: 'left',
-    backgroundOpacity: 0,
-    borderWidth: 1,
-    // borderOpacity: 0,
-    alignItems: 'start',
-  });
-  taskContainer.add(progressContainer);
-
-  /* Progress Bar background */
-  window.progressBarWidth = 150;
-      
-  const progressBarContainer = new ThreeMeshUI.Block({
-    width: window.progressBarWidth,
-    height: 20,
-    margin: 2,
-    contentDirection: 'row',
+  const targetStatusContainer = new ThreeMeshUI.Block({
+    width: 300,
+    height: 36,
+    margin: 5,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundOpacity: 0,
-    // borderWidth: 1,
-  });
-  progressContainer.add(progressBarContainer);
-
-  const progressBar = new ThreeMeshUI.Block({
-		width: window.progressBarWidth,
-		height: 15,
-    margin: 0,
-		padding: 0,
-		justifyContent: 'center',
-		alignItems: 'start',
-    backgroundColor: new THREE.Color( 0.4, 0.4, 0.4 ),
-    backgroundOpacity: 1,
-    borderWidth: 2,
-    borderOpacity: 1,
+    backgroundOpacity: 0.3,
     borderRadius: 10,
-	});
-  progressBarContainer.add(progressBar);
-
-  /* Progress bar foreground */
-  window.progress = new ThreeMeshUI.Block({
-    width: 0.001,
-    height: 15,
-    margin: 0,
-    padding: 0,
-    backgroundColor: new THREE.Color( 0, 0.85, 0 ),
-    backgroundOpacity: 0,
-    borderOpacity: 0,
-  });
-  progressBar.add(window.progress);
-
-      /* User Progress Percent Block */
-
-  const progressPercentContainer = new ThreeMeshUI.Block({
-    width: 50,
-    height: 20,
-    margin: 2,
-    justifyContent: 'center',
-    alignItems: 'end',
-    textAlign: 'right',
-    backgroundOpacity: 0,
-    fontSize: 20,
-  });
-  progressContainer.add(progressPercentContainer);
-  // progressBarContainer.add(requiredContainer);
-
-  window.numProgress = new ThreeMeshUI.Text({
-    content: "-",
   });
 
-  progressPercentContainer.add(
+  targetStatusContainer.add(window.targetStatusText);
+  mainContainer.add(targetStatusContainer);
+  
+  // /*
+  // *  Task Container
+  // */
+  
+  // const taskContainer = new ThreeMeshUI.Block({
+  //   // ref: 'container',
+  //   padding: 0.025,
+  //   fontFamily: '/fonts/Roboto-msdf.json',
+  //   fontTexture: '/fonts/Roboto-msdf.png',
+  //   fontColor: new THREE.Color(0xffffff),
+  //   fontSupersampling: true,
+  //   backgroundOpacity: 0.2,
+  //   borderRadius: 20,
+  //   borderOpacity: 0,
+  //   alignItems: 'center',
+  // });
+  // taskContainer.position.set( 20, window.threejs_panel.height() / 2 - 80, 0 );
+  // sceneOrtho.add(taskContainer);
 
-    window.numProgress,
+  // /* Current points obtained*/
+  // const pointsContainer = new ThreeMeshUI.Block({
+  //   padding: 0.025,
+  //   margin: 10,
+  //   height: 30,
+  //   width: 150,
+  //   justifyContent: 'center',
+  //   textAlign: 'left',
+  //   backgroundOpacity: 0,
+  //   borderWidth: 1,
+  //   // borderOpacity: 1,
+  // });
+  // taskContainer.add(pointsContainer);
 
-		new ThreeMeshUI.Text({
-      content: " %",
-		}),
-  );
+  // window.pointsText = new ThreeMeshUI.Text({
+  //   fontColor: new THREE.Color(0xffff00),
+  //   fontSize: 24,
+  //   content: "Score: 0",
+  // });
+  // pointsContainer.add(window.pointsText);
+
+  // /* Task Status Container */
+  // const taskStatusContainer = new ThreeMeshUI.Block({
+  //   padding: 0.025,
+  //   // height: 100,
+  //   // width: 230,
+  //   contentDirection: 'row',
+  //   justifyContent: 'center',
+  //   textAlign: 'left',
+  //   backgroundOpacity: 0,
+  //   borderWidth: 1,
+  //   // borderOpacity: 1,
+  //   alignItems: 'end',
+  // });
+  // taskContainer.add(taskStatusContainer);
+
+  // /* Number of robots in task */
+
+  // const inTaskContainer = new ThreeMeshUI.Block({
+  //   padding: 0.025,
+  //   // height: 60,
+  //   // width: 100,
+  //   contentDirection: 'column',
+  //   justifyContent: 'center',
+  //   backgroundOpacity: 0,
+  //   borderWidth: 1,
+  //   // borderOpacity: 1,
+  // });
+  // taskStatusContainer.add(inTaskContainer);
+
+  // const inTaskLabelContainer = new ThreeMeshUI.Block({
+  //   padding: 0.025,
+  //   height: 20,
+  //   width: 100,
+  //   contentDirection: 'column',
+  //   justifyContent: 'end',
+  //   textAlign: 'center',
+  //   backgroundOpacity: 0,
+  //   borderWidth: 1,
+  //   // borderOpacity: 1,
+  // });
+  // inTaskContainer.add(inTaskLabelContainer);
+
+  // const inTaskLabel = new ThreeMeshUI.Text({
+  //   content: 'In Task',
+  //   fontSize: 20,
+  // });
+  // inTaskLabelContainer.add(inTaskLabel);
+
+  // const inTaskNumLabelContainer = new ThreeMeshUI.Block({
+  //   padding: 0.025,
+  //   height: 50,
+  //   width: 100,
+  //   contentDirection: 'column',
+  //   justifyContent: 'center',
+  //   textAlign: 'center',
+  //   backgroundOpacity: 0,
+  //   borderWidth: 1,
+  //   // borderOpacity: 1,
+  // });
+  // inTaskContainer.add(inTaskNumLabelContainer);
+
+  // window.inTaskNum = new ThreeMeshUI.Text({
+  //   content: '-',
+  //   fontSize: 36,
+  // });
+  // inTaskNumLabelContainer.add(window.inTaskNum);
+
+  // /* Slash label */
+
+  // const slashContainer = new ThreeMeshUI.Block({
+  //   padding: 0.025,
+  //   height: 50,
+  //   width: 20,
+  //   contentDirection: 'column',
+  //   justifyContent: 'center',
+  //   backgroundOpacity: 0,
+  //   borderWidth: 1,
+  //   // borderOpacity: 1,
+  // });
+  // taskStatusContainer.add(slashContainer);
+  // slashContainer.add(new ThreeMeshUI.Text({
+  //   fontSize: 40,
+  //   content: '/',
+  // }));
+
+  // /* Number of robots required */
+
+  // const requiredContainer = new ThreeMeshUI.Block({
+  //   padding: 0.025,
+  //   // height: 60,
+  //   // width: 100,
+  //   contentDirection: 'column',
+  //   justifyContent: 'center',
+  //   backgroundOpacity: 0,
+  //   borderWidth: 1,
+  //   // borderOpacity: 1,
+  // });
+  // taskStatusContainer.add(requiredContainer);
+
+  // const requiredLabelContainer = new ThreeMeshUI.Block({
+  //   padding: 0.025,
+  //   height: 20,
+  //   width: 100,
+  //   contentDirection: 'column',
+  //   justifyContent: 'center',
+  //   textAlign: 'center',
+  //   backgroundOpacity: 0,
+  //   borderWidth: 1,
+  //   // borderOpacity: 1,
+  // });
+  // requiredContainer.add(requiredLabelContainer);
+
+  // const requiredLabel = new ThreeMeshUI.Text({
+  //   content: 'Required',
+  //   fontSize: 20,
+  // });
+  // requiredLabelContainer.add(requiredLabel);
+
+  // const requiredNumLabelContainer = new ThreeMeshUI.Block({
+  //   padding: 0.025,
+  //   height: 50,
+  //   width: 100,
+  //   contentDirection: 'column',
+  //   justifyContent: 'center',
+  //   textAlign: 'center',
+  //   backgroundOpacity: 0,
+  //   borderWidth: 1,
+  //   // borderOpacity: 1,
+  // });
+  // requiredContainer.add(requiredNumLabelContainer);
+
+  // window.requiredNum = new ThreeMeshUI.Text({
+  //   content: '-',
+  //   fontSize: 36,
+  // });
+  // requiredNumLabelContainer.add(window.requiredNum);
+
+  // /* Progress Bar Block */
+
+  // const progressContainer = new ThreeMeshUI.Block({
+  //   padding: 0.025,
+  //   // height: 100,
+  //   // width: 230,
+  //   contentDirection: 'row',
+  //   justifyContent: 'center',
+  //   textAlign: 'left',
+  //   backgroundOpacity: 0,
+  //   borderWidth: 1,
+  //   // borderOpacity: 0,
+  //   alignItems: 'start',
+  // });
+  // taskContainer.add(progressContainer);
+
+  // /* Progress Bar background */
+  // window.progressBarWidth = 150;
+      
+  // const progressBarContainer = new ThreeMeshUI.Block({
+  //   width: window.progressBarWidth,
+  //   height: 20,
+  //   margin: 2,
+  //   contentDirection: 'row',
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  //   backgroundOpacity: 0,
+  //   // borderWidth: 1,
+  // });
+  // progressContainer.add(progressBarContainer);
+
+  // const progressBar = new ThreeMeshUI.Block({
+	// 	width: window.progressBarWidth,
+	// 	height: 15,
+  //   margin: 0,
+	// 	padding: 0,
+	// 	justifyContent: 'center',
+	// 	alignItems: 'start',
+  //   backgroundColor: new THREE.Color( 0.4, 0.4, 0.4 ),
+  //   backgroundOpacity: 1,
+  //   borderWidth: 2,
+  //   borderOpacity: 1,
+  //   borderRadius: 10,
+	// });
+  // progressBarContainer.add(progressBar);
+
+  // /* Progress bar foreground */
+  // window.progress = new ThreeMeshUI.Block({
+  //   width: 0.001,
+  //   height: 15,
+  //   margin: 0,
+  //   padding: 0,
+  //   backgroundColor: new THREE.Color( 0, 0.85, 0 ),
+  //   backgroundOpacity: 0,
+  //   borderOpacity: 0,
+  // });
+  // progressBar.add(window.progress);
+
+  //     /* User Progress Percent Block */
+
+  // const progressPercentContainer = new ThreeMeshUI.Block({
+  //   width: 50,
+  //   height: 20,
+  //   margin: 2,
+  //   justifyContent: 'center',
+  //   alignItems: 'end',
+  //   textAlign: 'right',
+  //   backgroundOpacity: 0,
+  //   fontSize: 20,
+  // });
+  // progressContainer.add(progressPercentContainer);
+  // // progressBarContainer.add(requiredContainer);
+
+  // window.numProgress = new ThreeMeshUI.Text({
+  //   content: "-",
+  // });
+
+  // progressPercentContainer.add(
+
+  //   window.numProgress,
+
+	// 	new ThreeMeshUI.Text({
+  //     content: " %",
+	// 	}),
+  // );
 
   // /* 
   // *  Send Robot Block 
@@ -1799,10 +1818,24 @@ function render() {
       }
     }
 
-    /* Update points obtained */
-    window.pointsText.set({
-      content: "Score: " + window.pointsObtained
-    });
+    /* Update target discovery */ 
+    if (window.target_found && !window.target_received) {
+      window.targetStatusText.set({
+        content: `You found the target`,
+        fontColor: new THREE.Color(0xff0000)
+      });
+    }
+    else if (window.target_found && window.target_received) {
+      window.targetStatusText.set({
+        content: `A robot shared you the target`,
+        fontColor: new THREE.Color(0x00ff00)
+      });
+    }
+
+    // /* Update points obtained */
+    // window.pointsText.set({
+    //   content: "Score: " + window.pointsObtained
+    // });
 
     /* Update HUD values */
     if(window.target != '') {
