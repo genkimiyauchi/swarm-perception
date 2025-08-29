@@ -1797,136 +1797,136 @@ function render() {
     /* Update HUD values */
     if(window.target != '') {
 
-      if(sceneEntities.hasOwnProperty(window.target)) {
+    //   if(sceneEntities.hasOwnProperty(window.target)) {
 
-        let num_followers = 0; // TO REMOVE: sceneEntities[window.target].entity.user_data.num_followers;
+    //     let num_followers = 0; // TO REMOVE: sceneEntities[window.target].entity.user_data.num_followers;
 
-        let taskname = ''; // TO REMOVE: sceneEntities[window.target].entity.user_data.taskname;
+    //     let taskname = ''; // TO REMOVE: sceneEntities[window.target].entity.user_data.taskname;
 
-        var num_robot_in_my_task = 0;
+    //     var num_robot_in_my_task = 0;
         
-        let num_task_require = 0; // sceneEntities[window.target].entity.user_data.num_task_require;
-        let num_task_demand = 0; // sceneEntities[window.target].entity.user_data.num_task_demand;
-        let num_init_task_demand = 0; // sceneEntities[window.target].entity.user_data.num_init_task_demand;
+    //     let num_task_require = 0; // sceneEntities[window.target].entity.user_data.num_task_require;
+    //     let num_task_demand = 0; // sceneEntities[window.target].entity.user_data.num_task_demand;
+    //     let num_init_task_demand = 0; // sceneEntities[window.target].entity.user_data.num_init_task_demand;
 
-        let num_other_followers = 0; // sceneEntities[window.target].entity.user_data.num_other_followers;
-        let num_other_task_require = 0; // sceneEntities[window.target].entity.user_data.num_other_task_require;
+    //     let num_other_followers = 0; // sceneEntities[window.target].entity.user_data.num_other_followers;
+    //     let num_other_task_require = 0; // sceneEntities[window.target].entity.user_data.num_other_task_require;
 
-        window.numFollowers.set({
-          content: num_followers.toString(),
-        });
+    //     window.numFollowers.set({
+    //       content: num_followers.toString(),
+    //     });
 
-        if(typeof num_robot_in_my_task !== 'undefined') {
-          var font_color;
-          if(num_robot_in_my_task < num_task_require) {
-            font_color = new THREE.Color(0xffff00);
-          } else {
-            font_color = new THREE.Color(0x00ff00);
-          }
-          window.inTaskNum.set({
-            content: num_robot_in_my_task.toString(),
-            fontColor: font_color,
-          });
-        } else {
-          window.inTaskNum.set({
-            content: '-',
-            fontColor: new THREE.Color(0xffffff),
-          });
-        }
+    //     if(typeof num_robot_in_my_task !== 'undefined') {
+    //       var font_color;
+    //       if(num_robot_in_my_task < num_task_require) {
+    //         font_color = new THREE.Color(0xffff00);
+    //       } else {
+    //         font_color = new THREE.Color(0x00ff00);
+    //       }
+    //       window.inTaskNum.set({
+    //         content: num_robot_in_my_task.toString(),
+    //         fontColor: font_color,
+    //       });
+    //     } else {
+    //       window.inTaskNum.set({
+    //         content: '-',
+    //         fontColor: new THREE.Color(0xffffff),
+    //       });
+    //     }
 
-        if(num_task_require == 0) {
-          window.requiredNum.set({
-            content: '-',
-          });
-        } else {
-          window.requiredNum.set({
-            content: num_task_require.toString(),
-          });
-        }
+    //     if(num_task_require == 0) {
+    //       window.requiredNum.set({
+    //         content: '-',
+    //       });
+    //     } else {
+    //       window.requiredNum.set({
+    //         content: num_task_require.toString(),
+    //       });
+    //     }
 
-        if(num_init_task_demand == 0) {
-          window.numProgress.set({
-            content: "-",
-          });
+    //     if(num_init_task_demand == 0) {
+    //       window.numProgress.set({
+    //         content: "-",
+    //       });
 
-          window.progress.set({
-            width: 0.001,
-            backgroundOpacity: 0,
-            backgroundColor: new THREE.Color( 0, 0.85, 0 ),
-          });
-        } else {
-          let num_progress = 1 - num_task_demand / num_init_task_demand;
+    //       window.progress.set({
+    //         width: 0.001,
+    //         backgroundOpacity: 0,
+    //         backgroundColor: new THREE.Color( 0, 0.85, 0 ),
+    //       });
+    //     } else {
+    //       let num_progress = 1 - num_task_demand / num_init_task_demand;
 
-          window.numProgress.set({
-            content: Math.floor(num_progress.toString() * 100).toString(),
-          });
+    //       window.numProgress.set({
+    //         content: Math.floor(num_progress.toString() * 100).toString(),
+    //       });
 
-          if(num_progress != 0) {
-            window.progress.set({
-              width: num_progress * window.progressBarWidth,
-              backgroundOpacity: 1,
-            });
+    //       if(num_progress != 0) {
+    //         window.progress.set({
+    //           width: num_progress * window.progressBarWidth,
+    //           backgroundOpacity: 1,
+    //         });
 
-            if(Math.floor(num_progress.toString() * 100) == 100) {
-              window.progress.set({
-                backgroundColor: new THREE.Color( 0, 1, 0 ),
-              });
-            }
-          }
-        }
+    //         if(Math.floor(num_progress.toString() * 100) == 100) {
+    //           window.progress.set({
+    //             backgroundColor: new THREE.Color( 0, 1, 0 ),
+    //           });
+    //         }
+    //       }
+    //     }
 
-        if(num_other_followers < 0) {
-          window.numOtherFollowers.set({
-            content: "-",
-          });
-        } else {
-          window.numOtherFollowers.set({
-            content: num_other_followers.toString(),
-          });
-        }
+    //     if(num_other_followers < 0) {
+    //       window.numOtherFollowers.set({
+    //         content: "-",
+    //       });
+    //     } else {
+    //       window.numOtherFollowers.set({
+    //         content: num_other_followers.toString(),
+    //       });
+    //     }
 
-        if(num_other_task_require == 0) {
-          window.numOtherTaskRequire.set({
-            content: "-",
-          });
-        } else {
-          window.numOtherTaskRequire.set({
-            content: num_other_task_require.toString(),
-          });
-        }
-      }
-    } else {
+    //     if(num_other_task_require == 0) {
+    //       window.numOtherTaskRequire.set({
+    //         content: "-",
+    //       });
+    //     } else {
+    //       window.numOtherTaskRequire.set({
+    //         content: num_other_task_require.toString(),
+    //       });
+    //     }
+    //   }
+    // } else {
 
-      /* Clear values */
-      window.numFollowers.set({
-        content: "-",
-      });
+    //   /* Clear values */
+    //   window.numFollowers.set({
+    //     content: "-",
+    //   });
 
-      window.requiredNum.set({
-        content: "-",
-      });
+    //   window.requiredNum.set({
+    //     content: "-",
+    //   });
 
-      window.numOtherFollowers.set({
-        content: "-",
-      });
+    //   window.numOtherFollowers.set({
+    //     content: "-",
+    //   });
 
-      window.numOtherTaskRequire.set({
-        content: "-",
-      });
+    //   window.numOtherTaskRequire.set({
+    //     content: "-",
+    //   });
 
-      window.numProgress.set({
-        content: "-",
-      });
+    //   window.numProgress.set({
+    //     content: "-",
+    //   });
 
-      window.progress.set({
-        width: 0.001,
-        backgroundOpacity: 0,
-      });
+    //   window.progress.set({
+    //     width: 0.001,
+    //     backgroundOpacity: 0,
+    //   });
 
-      window.robotCount = 0;
-      window.robotCountLabel.set({
-        content: window.robotCount.toString(),
-      });
+    //   window.robotCount = 0;
+    //   window.robotCountLabel.set({
+    //     content: window.robotCount.toString(),
+    //   });
     }
 
     // /* Update icon */
