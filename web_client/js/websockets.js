@@ -152,66 +152,40 @@
           }
         }
 
-        let e_status = document.getElementById('connection-status');
+        // let e_status = document.getElementById('connection-status');
 
-        if(connectionExists) {
+        const setStatusDisconnected = (retries = 10, delay = 100) => {
+          const e_status = document.getElementById('connection-status');
+          if (e_status) {
+            if(connectionExists) {
 
-          window.connected = true;
-          // Change color and text of status
-          e_status.textContent = 'Connected to '.concat(robot_id);
-          e_status.style.color = '#4CAF50';
+              window.connected = true;
+              // Change color and text of status
+              e_status.textContent = 'Connected to '.concat(robot_id);
+              e_status.style.color = '#4CAF50';
 
-          if (data.user_data.target_found && data.user_data.target_found.includes(robot_id)) {
-            window.target_found = true;
+              if (data.user_data.target_found && data.user_data.target_found.includes(robot_id)) {
+                window.target_found = true;
+              }
+
+              if (data.user_data.target_received && data.user_data.target_received.includes(robot_id)) {
+                window.target_received = true;
+              }
+
+            } else {
+
+              window.connected = false;
+              // Change color and text of status
+              e_status.textContent = 'Disconnected';
+              e_status.style.color = '#000000';
+
+            }
+          } else if (retries > 0) {
+            setTimeout(() => setStatusDisconnected(retries - 1, delay), delay);
           }
+        };
 
-          if (data.user_data.target_received && data.user_data.target_received.includes(robot_id)) {
-            window.target_received = true;
-          }
-
-          /* Change appearance depending on last signal sent */
-          // if(window.taskCommand['signal'] == 'stop') {
-            
-          //   if(window.target != '') {
-
-          //     window.signalButtonText.set({
-          //       content: "START",
-          //     });
-
-          //     window.signalIndicator.set({
-          //       backgroundColor: new THREE.Color( 0xff0000 ),
-          //     });
-          //   }
-
-          // } else if(window.taskCommand['signal'] == 'start') {
-
-          //   window.signalButtonText.set({
-          //     content: "STOP",
-          //   });
-
-          //   window.signalIndicator.set({
-          //     backgroundColor: new THREE.Color( 0x00ff00 ),
-          //   });
-          // }
-        } else {
-
-          window.connected = false;
-          // Change color and text of status
-          e_status.textContent = 'Disconnected';
-          e_status.style.color = '#000000';
-
-          // if (window.isInitialized) {
-
-          //   window.signalButtonText.set({
-          //     content: "-",
-          //   });
-
-          //   window.signalIndicator.set({
-          //     backgroundColor: new THREE.Color( 0.4, 0.4, 0.4 ),
-          //   });
-
-          // }
-        }
+        setStatusDisconnected();
 
         /* Current points obtained */
         window.pointsObtained = data.user_data.points;

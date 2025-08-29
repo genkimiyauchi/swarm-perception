@@ -30,6 +30,8 @@ var onAllFilesLoaded = function () {
   window.requestCommand = { command: 'request', number: 0 };
   window.sendFlag = false;
   window.sendCommand = { command: 'send', number: 0 };
+  window.shareTargetFlag = false;
+  window.shareTargetCommand = { command: 'share_target', signal: 'false' };
 
   /* Initial mode */
   window.mode = Mode.EXPERIMENT;
@@ -155,20 +157,40 @@ var onAllFilesLoaded = function () {
         .addClass("clusterize-scroll")
 
       /* Initialize Log objects */
-      // After setting the id and class
-      setTimeout(function() {
-        window.log_clusterize = new Clusterize({
-          show_no_data_row: false,
-          scrollId: "scrollAreaLog",
-          contentId: 'contentAreaLog'
-        });
+      function tryInitClusterizeLog(retries = 20, delay = 100) {
+        const scrollElemLog = document.getElementById('scrollAreaLog');
+        const contentElemLog = document.getElementById('contentAreaLog');
+        const scrollElemErr = document.getElementById('scrollAreaLogErr');
+        const contentElemErr = document.getElementById('contentAreaLogErr');
 
-        window.logerr_clusterize = new Clusterize({
-          show_no_data_row: false,
-          scrollId: "scrollAreaLogErr",
-          contentId: 'contentAreaLogErr'
-        });
-      }, 0);
+        let allReady = true;
+
+        if (scrollElemLog && contentElemLog && !window.log_clusterize) {
+          window.log_clusterize = new Clusterize({
+            show_no_data_row: false,
+            scrollId: "scrollAreaLog",
+            contentId: 'contentAreaLog'
+          });
+        } else if (!scrollElemLog || !contentElemLog) {
+          allReady = false;
+        }
+
+        if (scrollElemErr && contentElemErr && !window.logerr_clusterize) {
+          window.logerr_clusterize = new Clusterize({
+            show_no_data_row: false,
+            scrollId: "scrollAreaLogErr",
+            contentId: 'contentAreaLogErr'
+          });
+        } else if (!scrollElemErr || !contentElemErr) {
+          allReady = false;
+        }
+
+        if (!allReady && retries > 0) {
+          setTimeout(() => tryInitClusterizeLog(retries - 1, delay), delay);
+        }
+      }
+
+      setTimeout(() => tryInitClusterizeLog(), 0);
 
       /* List of available modes */
       let dropListMode = "".concat(
@@ -525,17 +547,20 @@ var onAllFilesLoaded = function () {
       const urlParams = new URLSearchParams(queryString);
 
       setTimeout(function() {
-        switch(urlParams.get('m')) {
-          case 'debug':
-            window.mode = Mode.DEBUG;
-            document.getElementById('mode_selected').selectedIndex = 1;
-            break;
-          case 'exp':
-            window.mode = Mode.EXPERIMENT;
-            document.getElementById('mode_selected').selectedIndex = 0;
-            break;
-          default:
-            console.log('Unrecognized mode passed in url: ' + urlParams.get('m'));
+        const selectElem = document.getElementById('mode_selected');
+        if (selectElem) {
+          switch(urlParams.get('m')) {
+            case 'debug':
+              window.mode = Mode.DEBUG;
+              document.getElementById('mode_selected').selectedIndex = 1;
+              break;
+            case 'exp':
+              window.mode = Mode.EXPERIMENT;
+              document.getElementById('mode_selected').selectedIndex = 0;
+              break;
+            default:
+              console.log('Unrecognized mode passed in url: ' + urlParams.get('m'));
+          }
         }
 
         console.log("Mode: " + window.mode);

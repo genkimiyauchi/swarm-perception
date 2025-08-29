@@ -677,7 +677,7 @@ function initSceneWithScale(_scale) {
     onSet: () => {
       console.log("Share target location");
       window.shareTargetFlag = true;
-      // window.requestCommand['number'] = window.robotCount;
+      window.shareTargetCommand['signal'] = 'true';
     }
   });
   shareTargetButton.setState('idle');
@@ -1789,6 +1789,12 @@ function updateCommands() {
   if( window.taskFlag ) {
     commands.push(window.taskCommand);
     window.taskFlag = false;
+  }
+
+  /* Check for a share target command */
+  if( window.shareTargetFlag ) {
+    commands.push(window.shareTargetCommand);
+    window.shareTargetFlag = false;
   }
 
   // /* Check for a new request command */

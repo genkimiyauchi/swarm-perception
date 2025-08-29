@@ -283,6 +283,11 @@ public:
         m_fTargetRadius = f_radius;
     }
 
+    /* Set to share target */
+    virtual void SetShareTarget(bool signal) {
+        m_bShareTarget = signal;
+    }
+
 protected:
 
     /*
@@ -392,6 +397,7 @@ private:
     size_t m_unBlinkInterval;
     int m_nBlinkTimer;
     CColor m_cCurrentLEDColor;
+    bool m_bShareTarget;
 
     // /* ### ANGLE_DRIFT: parameters ### */
     // /* Angle drift range */

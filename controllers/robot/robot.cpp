@@ -442,18 +442,43 @@ void CRobot::ControlStep() {
     }
     else if(currentState == State::BROADCAST_WALK) {
         
-        if(m_nBlinkTimer <= 0) {
+        if(m_bSelected) {
 
-            m_nBlinkTimer = m_unBlinkInterval; // Reset blink timer
+            /* Controlled by a user */
 
-            /* Toggle color */
-            if(m_cCurrentLEDColor == CColor::RED) {
-                m_cCurrentLEDColor = CColor::BLACK;
-            } else {
-                m_cCurrentLEDColor = CColor::RED;
+            if(m_bShareTarget) {
+                if(m_nBlinkTimer <= 0) {
+
+                    m_nBlinkTimer = m_unBlinkInterval; // Reset blink timer
+
+                    /* Toggle color */
+                    if(m_cCurrentLEDColor == CColor::RED) {
+                        m_cCurrentLEDColor = CColor::BLACK;
+                    } else {
+                        m_cCurrentLEDColor = CColor::RED;
+                    }
+                } else {
+                    --m_nBlinkTimer;
+                }
             }
+
         } else {
-            --m_nBlinkTimer;
+
+            /* Not controlled by a user */
+
+            if(m_nBlinkTimer <= 0) {
+
+                m_nBlinkTimer = m_unBlinkInterval; // Reset blink timer
+
+                /* Toggle color */
+                if(m_cCurrentLEDColor == CColor::RED) {
+                    m_cCurrentLEDColor = CColor::BLACK;
+                } else {
+                    m_cCurrentLEDColor = CColor::RED;
+                }
+            } else {
+                --m_nBlinkTimer;
+            }
         }
     }
     else if(currentState == State::BROADCAST_HOMING) {
@@ -536,7 +561,16 @@ void CRobot::ControlStep() {
        currentState == State::BROADCAST_HOMING ||
        currentState == State::IN_TARGET) {
 
-        msg.targetPosition = m_cTarget;
+        if(m_bSelected) {
+
+            /* Controlled by a user */
+
+            if(m_bShareTarget) {
+                msg.targetPosition = m_cTarget;
+            }
+        } else {
+            msg.targetPosition = m_cTarget;
+        }
     }
 
     cbyte_msg = msg.GetCByteArray();
