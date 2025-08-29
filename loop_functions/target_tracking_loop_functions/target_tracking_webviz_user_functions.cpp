@@ -83,19 +83,29 @@ void CTargetTrackingWebvizUserFunctions::HandleCommandFromClient(const std::stri
                     /* Left/right direction factor (local robot Y axis) */
                     SInt32 LRDirection = 0;
                     /* Calculate direction factor */
-                    for(std::string::size_type i = 0; i < direction.size(); i++) {
-                        if(direction[i] == 'U') ++FBDirection;
-                        if(direction[i] == 'D') --FBDirection;
-                        if(FBDirection < 0) {
-                            /* Invert LR direction when moving backwards */
-                            if(direction[i] == 'L') --LRDirection;
-                            if(direction[i] == 'R') ++LRDirection;
-                        } else {
-                            if(direction[i] == 'L') ++LRDirection;
-                            if(direction[i] == 'R') --LRDirection;
-                        }
+                    // for(std::string::size_type i = 0; i < direction.size(); i++) {
+                    //     if(direction[i] == 'U') ++FBDirection;
+                    //     if(direction[i] == 'D') --FBDirection;
+                    //     if(FBDirection < 0) {
+                    //         /* Invert LR direction when moving backwards */
+                    //         if(direction[i] == 'L') --LRDirection;
+                    //         if(direction[i] == 'R') ++LRDirection;
+                    //     } else {
+                    //         if(direction[i] == 'L') ++LRDirection;
+                    //         if(direction[i] == 'R') --LRDirection;
+                    //     }
+                    // }
+                    char newDirection = direction[0];
+
+                    if(newDirection != m_cLastDirection && !direction.empty()) {
+                        m_cLastDirection = newDirection;
                     }
-                    
+
+                    if(m_cLastDirection == 'U') ++FBDirection;
+                    // if(m_cLastDirection == 'D') --FBDirection;
+                    if(m_cLastDirection == 'L') ++LRDirection;
+                    if(m_cLastDirection == 'R') --LRDirection;
+
                     /* Calculate direction */
                     CVector2 cDir =
                         DIRECTION_VECTOR_FACTOR *

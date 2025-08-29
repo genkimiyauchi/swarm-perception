@@ -54,12 +54,13 @@ class CTargetTrackingWebvizUserFunctions : public CWebvizUserFunctions {
          */
         std::map<std::string, ClientData> m_pcClientRobotConnections;
 
-        /*
-         * Map storing each client's last move command.
-         * Key is the user ID. Value is the direction.
-         */
-        std::map<std::string, std::string> m_pcLastClientMoveCommands;
+        // /*
+        //  * Map storing each client's last move command.
+        //  * Key is the user ID. Value is the direction.
+        //  */
+        // std::map<std::string, std::string> m_pcLastClientMoveCommands;
 
+        char m_cLastDirection = 'U'; // default to move forward
         bool m_bLogging;
         std::string m_strCommandFilePath;
         std::ofstream m_cOutput;
