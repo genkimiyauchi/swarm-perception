@@ -133,12 +133,12 @@ class Epuck {
         entity.orientation.z,
         entity.orientation.w));
 
-      if (entity.leds) {
-        /* Update LED colors */
-        this.mesh.children[3].material.color.setHex(entity.leds[0]);
-      }
-
       if(window.mode == Mode.DEBUG) {
+
+        if (entity.leds) {
+          /* Update LED colors */
+          this.mesh.children[3].material.color.setHex(entity.leds[0]);
+        }
 
         // /* Show connections for connectors only */
         // if(entity.user_data.state == 'C') {
