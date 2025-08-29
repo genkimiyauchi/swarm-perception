@@ -579,9 +579,9 @@ var onAllFilesLoaded = function () {
                       // 'name_divider', 
                       // 'name_label', 
                       // 'username_label',
-                      // 'mode_divider',
-                      // 'mode_selected',
-                      // 'button_mode_select',
+                      'mode_divider',
+                      'mode_selected',
+                      'button_mode_select',
                       'robot_selected'
                     ];
 
