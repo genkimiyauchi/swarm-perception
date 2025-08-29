@@ -12,10 +12,8 @@
 
 /* List of modes that the web client can take. Each mode changes what UI is displayed. */
 const Mode = Object.freeze({
-  DEBUG: 'debug',
-  NOGUI: 'nogui',
-  INDIRECT: 'indirect',
-  DIRECT: 'direct'
+  EXPERIMENT: 'experiment',
+  DEBUG: 'debug'
 })
 
 /* Define function to run after all files are loaded */
@@ -154,25 +152,26 @@ var onAllFilesLoaded = function () {
         .addClass("clusterize-scroll")
 
       /* Initialize Log objects */
-      window.log_clusterize = new Clusterize({
-        show_no_data_row: false,
-        scrollId: "scrollAreaLog",
-        contentId: 'contentAreaLog'
-      });
+      // After setting the id and class
+      setTimeout(function() {
+        window.log_clusterize = new Clusterize({
+          show_no_data_row: false,
+          scrollId: "scrollAreaLog",
+          contentId: 'contentAreaLog'
+        });
 
-      window.logerr_clusterize = new Clusterize({
-        show_no_data_row: false,
-        scrollId: "scrollAreaLogErr",
-        contentId: 'contentAreaLogErr'
-      });
+        window.logerr_clusterize = new Clusterize({
+          show_no_data_row: false,
+          scrollId: "scrollAreaLogErr",
+          contentId: 'contentAreaLogErr'
+        });
+      }, 0);
 
       /* List of available modes */
       let dropListMode = "".concat(
         "<select>"
-        + "<option value='Debug'>Debug</option>"
-        + "<option value='NoGUI'>NoGUI</option>"
-        + "<option value='Indirect'>Indirect</option>"
-        + "<option value='Direct'>Direct</option>"
+        + "<option value='exp'>Experiment</option>"
+        + "<option value='debug'>Debug</option>"
         + "</select>"
       );
 
@@ -296,18 +295,18 @@ var onAllFilesLoaded = function () {
         //     // window.wsp.send('step')
         //   })
         // )
-        .append($("<div/>")
-          .addClass('button')
-          .addClass('icon-reset')
-          .attr('id', 'reset_button')
-          .attr("title", "Reset experiment")
-          .prop("title", "Reset experiment")//for IE
-          .click(function () {
-            window.wsp.sendPacked({ command: 'pause' })
-            window.wsp.sendPacked({ command: 'reset' })
-            location.reload(); // Reload web client
-          })
-        )
+        // .append($("<div/>")
+        //   .addClass('button')
+        //   .addClass('icon-reset')
+        //   .attr('id', 'reset_button')
+        //   .attr("title", "Reset experiment")
+        //   .prop("title", "Reset experiment")//for IE
+        //   .click(function () {
+        //     window.wsp.sendPacked({ command: 'pause' })
+        //     window.wsp.sendPacked({ command: 'reset' })
+        //     location.reload(); // Reload web client
+        //   })
+        // )
         // /* Divider */
         // .append($("<div/>")
         //   .addClass('toolbar_divider')
@@ -380,20 +379,10 @@ var onAllFilesLoaded = function () {
                 window.mode = Mode.DEBUG;
                 mode_param = window.mode;
                 break;
-              case 'NoGUI':
-                console.log('Load ' + Mode.NOGUI);
-                window.mode = Mode.NOGUI;
-                mode_param = window.mode;
-                break;
-              case 'Indirect':
-                console.log('Load ' + Mode.INDIRECT);
-                window.mode = Mode.INDIRECT;
-                mode_param = 'ind';
-                break;
-              case 'Direct':
-                console.log('Load ' + Mode.DIRECT);
-                window.mode = Mode.DIRECT;
-                mode_param = 'dir';
+              case 'Experiment':
+                console.log('Load ' + Mode.EXPERIMENT);
+                window.mode = Mode.EXPERIMENT;
+                mode_param = 'exp';
                 break;
               default:
                 console.log('Unrecognised mode selected');
@@ -532,26 +521,20 @@ var onAllFilesLoaded = function () {
       const queryString = window.location.search;
       const urlParams = new URLSearchParams(queryString);
 
-      switch(urlParams.get('m')) {
-        case 'debug':
-          window.mode = Mode.DEBUG;
-          document.getElementById('mode_selected').selectedIndex = '0';
-          break;
-        case 'nogui':
-          window.mode = Mode.NOGUI;
-          document.getElementById('mode_selected').selectedIndex = '1';
-          break;
-        // case 'ind':
-        //   window.mode = Mode.INDIRECT;
-        //   document.getElementById('mode_selected').selectedIndex = '2';
-        //   break;
-        // case 'dir':
-        //   window.mode = Mode.DIRECT;
-        //   document.getElementById('mode_selected').selectedIndex = '3';
-        //   break;
-        default:
-          console.log('Unrecognized mode passed in url: ' + urlParams.get('m'));
-      }
+      setTimeout(function() {
+        switch(urlParams.get('m')) {
+          case 'debug':
+            window.mode = Mode.DEBUG;
+            document.getElementById('mode_selected').selectedIndex = 1;
+            break;
+          case 'exp':
+            window.mode = Mode.EXPERIMENT;
+            document.getElementById('mode_selected').selectedIndex = 0;
+            break;
+          default:
+            console.log('Unrecognized mode passed in url: ' + urlParams.get('m'));
+        }
+      }, 0);
         
       console.log("Mode: " + window.mode);
 
@@ -603,7 +586,7 @@ var onAllFilesLoaded = function () {
       console.log("Username: " + window.username);
 
       /* Modify toolbar according to the current mode */
-      if(window.mode == Mode.INDIRECT || window.mode == Mode.DIRECT) {
+      if(window.mode == Mode.EXPERIMENT) {
 
         /* Id of the components to hide */
         let ids = [
@@ -613,20 +596,21 @@ var onAllFilesLoaded = function () {
                     'ff_button',
                     'ff_steps_input',
                     'reset_button',
-                    'name_divider', 
-                    'name_label', 
-                    'username_label',
-                    'mode_divider',
-                    'mode_selected',
-                    'button_mode_select',
-                    'robot_selected',
-                    'button_connect'
+                    // 'name_divider', 
+                    // 'name_label', 
+                    // 'username_label',
+                    // 'mode_divider',
+                    // 'mode_selected',
+                    // 'button_mode_select',
+                    'robot_selected'
                   ];
 
         /* Hide toolbar components */
         for(const id of ids) {
           var x = document.getElementById(id);
-          x.style.display = 'none';
+          if(x) {
+            x.style.display = 'none';
+          }
         }
 
         /* Hide error log */

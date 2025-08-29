@@ -1259,8 +1259,10 @@ function onThreejsPanelResize() {
   var _width = window.threejs_panel.width();
   var _height = window.threejs_panel.height();
 
-  camera.aspect = _width / _height
-  camera.updateProjectionMatrix();
+  if(camera) {
+    camera.aspect = _width / _height;
+    camera.updateProjectionMatrix();
+  }
 
   renderer.setSize(_width, _height);
   menuRenderer.setSize(_width, _height);
