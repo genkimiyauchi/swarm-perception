@@ -35,6 +35,19 @@
               return false;
             });
           });
+
+          // Connect to simulation
+          $(function() {
+            $('a#connect-debug').on('click', function(e) {
+              var link = 'http://{{host_ip}}:8000?m=debug';
+              // if user has an id, send the id to the simulation
+              if("{{session.username}}" !== "None") {
+                link += "&id={{session.username}}"
+              }
+              window.open(link, '_blank');
+              return false;
+            });
+          });
   </script>
   <body class="text-center">
     <!-- Bootstrap Bundle with Popper -->
@@ -58,6 +71,16 @@
         <form>
           <a class="btn btn-link" href="#" id="connect" target="_blank">Connect to Simulation</a>
         </form>
+
+        <!-- Toggle list section using details/summary -->
+        <details class="mt-3">
+          <summary style="cursor:pointer;">More Options</summary>
+          <ul class="list-group list-group-flush mt-2">
+            <li class="list-group-item bg-light">
+              <a href="#" id="connect-debug">Connect to Simulation (Debug mode)</a>
+            </li>
+          </ul>
+        </details>
       </div>
 
       <div class="row p-4">
