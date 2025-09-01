@@ -288,6 +288,11 @@ public:
         m_bShareTarget = signal;
     }
 
+    /* Set move to target */
+    virtual void SetMoveToTarget(bool signal) {
+        m_bMoveToTarget = signal;
+    }
+
 protected:
 
     /*
@@ -398,6 +403,7 @@ private:
     int m_nBlinkTimer;
     CColor m_cCurrentLEDColor;
     bool m_bShareTarget;
+    bool m_bMoveToTarget;
 
     // /* ### ANGLE_DRIFT: parameters ### */
     // /* Angle drift range */

@@ -388,7 +388,9 @@ void CRobot::ControlStep() {
         /* Broadcast message while walking randomly for a certain duration */
         --m_nBroadcastTimer;
 
-        if(m_nBroadcastTimer <= 0) {
+        if(!m_bSelected && m_nBroadcastTimer <= 0) {
+            currentState = State::BROADCAST_HOMING;
+        } else if(m_bSelected && m_bMoveToTarget) {
             currentState = State::BROADCAST_HOMING;
         }
     }
@@ -405,7 +407,7 @@ void CRobot::ControlStep() {
 
     /* Set motion vector */
     CVector2 motionVector;
-    if(m_bSelected) {
+    if(m_bSelected && !m_bMoveToTarget) {
         // skip
     } else {
         if(currentState == State::RANDOM_WALK || currentState == State::BROADCAST_WALK) {
@@ -541,7 +543,7 @@ void CRobot::ControlStep() {
     // }
 
     /* Set Wheel Speed */
-    if(m_bSelected) {
+    if(m_bSelected && !m_bMoveToTarget) {
         /* Follow the control vector */
         SetWheelSpeedsFromVectorEightDirections(m_cControl);
     }

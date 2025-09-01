@@ -608,13 +608,13 @@ function initSceneWithScale(_scale) {
   /* Share target location / Move to target */
   const shareTargetContainer = new ThreeMeshUI.Block({
     padding: 0.025,
-    height: 60,
+    height: 50,
     width: 220,
     fontFamily: '/fonts/Roboto-msdf.json',
     fontTexture: '/fonts/Roboto-msdf.png',
     fontColor: new THREE.Color(0xffffff),
     fontSupersampling: true,
-    contentDirection: "row",
+    contentDirection: "column", // <-- Change direction to vertical
     backgroundOpacity: 0, // <-- Make background fully transparent
     borderRadius: 0,      // <-- Remove border radius
     borderWidth: 0,       // <-- Remove border
@@ -628,9 +628,9 @@ function initSceneWithScale(_scale) {
     0
   );
 
-  const shareTargetButton = new ThreeMeshUI.Block({
-    width: 160,
-    height: 40,
+  window.shareTargetButton = new ThreeMeshUI.Block({
+    width: 200,
+    height: 60,
     margin: 5,
     justifyContent: 'center',
     alignItems: 'center',
@@ -642,7 +642,7 @@ function initSceneWithScale(_scale) {
   });
   shareTargetButton.add(
     new ThreeMeshUI.Text({
-      content: "Share Target",
+      content: "1. Share Target",
       fontSize: 22,
       fontColor: new THREE.Color(0xffffff),
     })
@@ -653,7 +653,7 @@ function initSceneWithScale(_scale) {
     state: "idle",
     attributes: {
       offset: 0.035,
-      backgroundColor: new THREE.Color(0x999900),
+      backgroundColor: new THREE.Color(0x999900), // swapped with moveToTargetButton
       backgroundOpacity: 0.8,
       fontColor: new THREE.Color(0xffffff)
     },
@@ -662,7 +662,7 @@ function initSceneWithScale(_scale) {
     state: "hovered",
     attributes: {
       offset: 0.035,
-      backgroundColor: new THREE.Color(0xcccc33),
+      backgroundColor: new THREE.Color(0xcccc33), // swapped with moveToTargetButton
       backgroundOpacity: 1,
       fontColor: new THREE.Color(0xffffff)
     },
@@ -671,7 +671,7 @@ function initSceneWithScale(_scale) {
     state: "disabled",
     attributes: {
       offset: 0.035,
-      backgroundColor: new THREE.Color(0x333333),
+      backgroundColor: new THREE.Color(0x333333), // keep disabled color
       backgroundOpacity: 0.5,
       fontColor: new THREE.Color(0xaaaaaa)
     },
@@ -680,23 +680,96 @@ function initSceneWithScale(_scale) {
     state: "selected",
     attributes: {
       offset: 0.035,
-      backgroundColor: new THREE.Color(0xcccc33),
+      backgroundColor: new THREE.Color(0xcccc33), // swapped with moveToTargetButton
       backgroundOpacity: 1,
       fontColor: new THREE.Color(0xffffff)
     },
     onSet: () => {
-      console.log("Share target location");
-      window.shareTargetFlag = true;
+        console.log("Share target location");
+        window.shareTargetFlag = true;
+        window.shareTargetSent = true;
     }
   });
-  shareTargetButton.setState('idle');
+  window.shareTargetButton.setState('idle');
 
   // Add the button to its container
-  shareTargetContainer.add(shareTargetButton);
+  shareTargetContainer.add(window.shareTargetButton);
 
   // Add the container to the orthogonal scene
   sceneOrtho.add(shareTargetContainer);
-  objsToTest.push(shareTargetButton);
+  objsToTest.push(window.shareTargetButton);
+
+
+  window.moveToTargetButton = new ThreeMeshUI.Block({
+    width: 200,
+    height: 60,
+    margin: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    fontSize: 20,
+    borderRadius: 15,
+    borderOpacity: 1,
+    backgroundOpacity: 1,
+    isUI: true
+  });
+  moveToTargetButton.add(
+    new ThreeMeshUI.Text({
+      content: "2. Move to Target",
+      fontSize: 22,
+      fontColor: new THREE.Color(0xffffff),
+    })
+  );
+
+  // Use the same color states as the request button
+  moveToTargetButton.setupState({
+    state: "idle",
+    attributes: {
+      offset: 0.035,
+      backgroundColor: new THREE.Color(0x990000), // swapped with shareTargetButton
+      backgroundOpacity: 0.8,
+      fontColor: new THREE.Color(0xffffff)
+    },
+  });
+  moveToTargetButton.setupState({
+    state: "hovered",
+    attributes: {
+      offset: 0.035,
+      backgroundColor: new THREE.Color(0xcc3333), // swapped with shareTargetButton
+      backgroundOpacity: 1,
+      fontColor: new THREE.Color(0xffffff)
+    },
+  });
+  moveToTargetButton.setupState({
+    state: "disabled",
+    attributes: {
+      offset: 0.035,
+      backgroundColor: new THREE.Color(0x333333), // keep disabled color
+      backgroundOpacity: 0.5,
+      fontColor: new THREE.Color(0xaaaaaa)
+    },
+  });
+  moveToTargetButton.setupState({
+    state: "selected",
+    attributes: {
+      offset: 0.035,
+      backgroundColor: new THREE.Color(0xcc3333), // swapped with shareTargetButton
+      backgroundOpacity: 1,
+      fontColor: new THREE.Color(0xffffff)
+    },
+    onSet: () => {
+      console.log("Move to target location");
+      window.moveToTargetFlag = true;
+      window.moveToTargetSent = true;
+    }
+  });
+  window.moveToTargetButton.setState('idle');
+
+  // Add the button to its container
+  shareTargetContainer.add(window.moveToTargetButton);
+
+  // Add the container to the orthogonal scene
+  sceneOrtho.add(shareTargetContainer);
+  objsToTest.push(window.moveToTargetButton);
 
   // /*
   // *  Task Container
@@ -1748,6 +1821,17 @@ function updateButtons() {
 
 	});
 
+  /* Disable buttons according to current situation */ 
+  if ((!window.target_found && !window.shareTargetSent && !window.moveToTargetSent) ||
+      (window.target_found && window.shareTargetSent && window.moveToTargetSent)) {
+    shareTargetButton.setState('disabled');
+    moveToTargetButton.setState('disabled');
+  } else if (!window.shareTargetSent) {
+    moveToTargetButton.setState('disabled');
+  } else {
+    shareTargetButton.setState('disabled');
+  }
+
 };
 
 function raycast() {
@@ -1809,6 +1893,17 @@ function updateCommands() {
       console.log('Not connected to a robot');
     }
     window.shareTargetFlag = false;
+  }
+
+  /* Check for a move to target command */
+  if( window.moveToTargetFlag ) {
+    if(window.connected) {
+      window.moveToTargetCommand['signal'] = 'true';
+      commands.push(window.moveToTargetCommand);
+    } else {
+      console.log('Not connected to a robot');
+    }
+    window.moveToTargetFlag = false;
   }
 
   // /* Check for a new request command */

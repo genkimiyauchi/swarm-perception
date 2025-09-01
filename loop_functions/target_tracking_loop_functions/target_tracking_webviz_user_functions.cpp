@@ -188,6 +188,33 @@ void CTargetTrackingWebvizUserFunctions::HandleCommandFromClient(const std::stri
                 }
             }
         }
+        else if(c_data["command"] == "move_to_target") {
+
+            std::string signal = c_data["signal"];
+
+            if(signal == "true") {
+                std::cout << "Move to target received: " << signal << std::endl;
+
+                /* Get robot controller */
+                CSpace::TMapPerType& m_cEPucks = m_pcExperimentLoopFunctions->GetSpace().GetEntitiesByType("e-puck");
+                for(CSpace::TMapPerType::iterator it = m_cEPucks.begin();
+                    it != m_cEPucks.end();
+                    ++it) {
+
+                    /* Get handle to e-puck entity and controller */
+                    CEPuckEntity& cEPuck = *any_cast<CEPuckEntity*>(it->second);
+                    CRobot& cController = dynamic_cast<CRobot&>(cEPuck.GetControllableEntity().GetController());
+
+                    if(cController.GetId() == target) {
+                        
+                        /* Tell the e-puck to request robots from the other team */
+                        cController.SetMoveToTarget(true);
+                        break;
+                    }
+                }
+            }
+        }
+
         // else if(c_data["command"] == "request") {
 
         //     int num_robot = c_data["number"];

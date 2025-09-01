@@ -31,7 +31,11 @@ var onAllFilesLoaded = function () {
   window.sendFlag = false;
   window.sendCommand = { command: 'send', number: 0 };
   window.shareTargetFlag = false;
+  window.shareTargetSent = false;
   window.shareTargetCommand = { command: 'share_target', signal: 'false' };
+  window.moveToTargetFlag = false;
+  window.moveToTargetSent = false;
+  window.moveToTargetCommand = { command: 'move_to_target', signal: 'false' };
 
   /* Initial mode */
   window.mode = Mode.EXPERIMENT;
