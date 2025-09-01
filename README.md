@@ -1,1 +1,1 @@
-# swarm-competence
+# swarm-perception
