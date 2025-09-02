@@ -1821,9 +1821,12 @@ function updateButtons() {
 
 	});
 
+  console.log('window.target', window.target, window.target == '');
+
   /* Disable buttons according to current situation */ 
   if ((!window.target_found && !window.shareTargetSent && !window.moveToTargetSent) ||
-      (window.target_found && window.shareTargetSent && window.moveToTargetSent)) {
+      (window.target_found && window.shareTargetSent && window.moveToTargetSent) ||
+      window.target == '') {
     shareTargetButton.setState('disabled');
     moveToTargetButton.setState('disabled');
   } else if (!window.shareTargetSent) {

@@ -172,6 +172,8 @@
                 window.target_received = true;
               }
 
+              window.rab_range = data.user_data.rab_range;
+
             } else {
 
               window.connected = false;

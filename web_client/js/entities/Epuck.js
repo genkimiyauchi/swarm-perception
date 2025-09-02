@@ -58,6 +58,25 @@ class Epuck {
     var led = new THREE.Mesh( led_geometry, led_material );
     meshParent.add(led);
 
+    /* Add circle around robot with transparent fill and invisible border */
+    var circleGeometry = new THREE.CircleGeometry(350 * UNIT_SCALE, 32);
+    circleGeometry.translate(0, 0, 1 * UNIT_SCALE);
+
+    // Transparent fill
+    var circleMaterial = new THREE.MeshBasicMaterial({
+      color: 0xff0000,
+      opacity: 0.0,
+      transparent: true
+    });
+    var circle = new THREE.Mesh(circleGeometry, circleMaterial);
+    meshParent.add(circle);
+
+    // Invisible border (set opacity to 0)
+    var circleEdgeGeometry = new THREE.EdgesGeometry(circleGeometry);
+    var circleEdgeMaterial = new THREE.LineBasicMaterial({ color: 0xff0000, opacity: 0, transparent: true });
+    var circleEdge = new THREE.LineSegments(circleEdgeGeometry, circleEdgeMaterial);
+    meshParent.add(circleEdge);
+
     if(window.mode == Mode.DEBUG) {
       /* Add username label */
       this.sprite = new THREE.TextSprite({
@@ -133,6 +152,13 @@ class Epuck {
         entity.orientation.z,
         entity.orientation.w));
 
+      if(window.target == entity.id) {
+        // make border visible
+        this.mesh.children[5].material.opacity = 1;
+      } else {
+        this.mesh.children[5].material.opacity = 0;
+      }
+
       if(window.mode == Mode.DEBUG) {
 
         if (entity.leds) {
@@ -199,7 +225,7 @@ class Epuck {
 
         /* Hide all the previous lines */
         /* 14 are the number of objects in meshParent before rays (-1 children.length if label is added) */
-        for (let i = 15 + entity.rays.length; i < this.mesh.children.length - 1; i++) {
+        for (let i = 17 + entity.rays.length; i < this.mesh.children.length - 1; i++) {
           this.mesh.children[i].geometry.setDrawRange(0, 0);
         }
       }

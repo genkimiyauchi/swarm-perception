@@ -51,6 +51,7 @@ var onAllFilesLoaded = function () {
   
   window.target_found = false;
   window.target_received = false;
+  window.rab_range = {};
 
   window.logLatestTime = 0; // The latest time a log message was received
 

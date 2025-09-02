@@ -412,6 +412,8 @@ const nlohmann::json CTargetTrackingWebvizUserFunctions::sendUserData() {
         if(cController.HasReceivedTarget()) {
             outJson["target_received"].push_back(key);
         }
+
+        outJson["rab_range"][key] = cController.GetRABRange();
     }
 
     return outJson;
