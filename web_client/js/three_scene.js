@@ -593,7 +593,7 @@ function initSceneWithScale(_scale) {
   });
 
   const targetStatusContainer = new ThreeMeshUI.Block({
-    width: 300,
+    width: 350,
     height: 36,
     margin: 5,
     justifyContent: 'center',
