@@ -228,6 +228,18 @@ class Epuck {
         for (let i = 17 + entity.rays.length; i < this.mesh.children.length - 1; i++) {
           this.mesh.children[i].geometry.setDrawRange(0, 0);
         }
+      } else {
+        if(window.target == entity.id) {
+          if (entity.leds) {
+            /* Update LED colors */
+            this.mesh.children[3].material.color.setHex(entity.leds[0]);
+          }
+        } else {
+          if (entity.leds) {
+            /* Update LED colors */
+            this.mesh.children[3].material.color.setHex(0x000000);
+          }
+        }
       }
     }
   }
