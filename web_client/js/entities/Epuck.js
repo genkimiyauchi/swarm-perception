@@ -159,12 +159,12 @@ class Epuck {
         this.mesh.children[5].material.opacity = 0;
       }
 
-      if(window.mode == Mode.DEBUG) {
+      if (entity.leds) {
+        /* Update LED colors */
+        this.mesh.children[3].material.color.setHex(entity.leds[0]);
+      }
 
-        if (entity.leds) {
-          /* Update LED colors */
-          this.mesh.children[3].material.color.setHex(entity.leds[0]);
-        }
+      if(window.mode == Mode.DEBUG) {
 
         // /* Show connections for connectors only */
         // if(entity.user_data.state == 'C') {
@@ -227,18 +227,6 @@ class Epuck {
         /* 14 are the number of objects in meshParent before rays (-1 children.length if label is added) */
         for (let i = 17 + entity.rays.length; i < this.mesh.children.length - 1; i++) {
           this.mesh.children[i].geometry.setDrawRange(0, 0);
-        }
-      } else {
-        if(window.target == entity.id) {
-          if (entity.leds) {
-            /* Update LED colors */
-            this.mesh.children[3].material.color.setHex(entity.leds[0]);
-          }
-        } else {
-          if (entity.leds) {
-            /* Update LED colors */
-            this.mesh.children[3].material.color.setHex(0x000000);
-          }
         }
       }
     }
