@@ -199,7 +199,7 @@ var onAllFilesLoaded = function () {
 
       /* List of available modes */
       let dropListMode = "".concat(
-        "<select>"
+        "<select id='mode_selected'>"
         + "<option value='exp'>Experiment</option>"
         + "<option value='debug'>Debug</option>"
         + "</select>"
@@ -606,44 +606,6 @@ var onAllFilesLoaded = function () {
           }
         }
       }, 0);
-        
-      // switch(urlParams.get('rs')) {
-      //   case '0':
-      //     window.request_send_visible = false;
-      //     console.log(window.request_send_visible);
-      //     break;
-      //   case '1':
-      //     window.request_send_visible = true;
-      //     console.log(window.request_send_visible);
-      //     break;
-      //   default:
-      //     console.log('Unrecognized request-send signal passed in url: ' + urlParams.get('rs'))
-      // }
-
-      /* Set robot to connect from url param */
-      if(urlParams.get('l')) {
-        var robot_found = false;
-        switch(urlParams.get('l')) {
-          case '1':
-            window.target = 'L1';
-            robot_found = true;
-            break;
-          case '2':
-            window.target = 'L2';
-            robot_found = true;
-            break;
-          default:
-            console.log('Unrecognized robot passed in url: ' + urlParams.get('l'));
-        }
-
-        if(robot_found) {
-          window.targetChanged = true;
-          window.taskFlag = true;
-          window.taskCommand = { command: 'task', signal: 'start' };
-          window.connectFlag = true;
-          window.connectCommand = { command: 'select_robot' };
-        }
-      }
 
       /* Set user ID from url param */
       if(urlParams.get('id')) {
