@@ -17,14 +17,14 @@ class Epuck {
     var geometry = new THREE.CylinderBufferGeometry(
       35 * UNIT_SCALE,
       35 * UNIT_SCALE,
-      86 * UNIT_SCALE,
+      35 * UNIT_SCALE,
       32
     );
 
-    geometry.rotateX(-1.572);
+    geometry.rotateX(-Math.PI/2);
 
     /* Bring to on top of zero*/
-    geometry.translate(0, 0, 53 * UNIT_SCALE * 0.5 + 4.7 * UNIT_SCALE);
+    geometry.translate(0, 0, 57 * UNIT_SCALE);
 
     var material = new THREE.MeshPhongMaterial({
       color: 0x00ff00
@@ -36,26 +36,80 @@ class Epuck {
     /* Add all parts to a parent mesh */
     meshParent.add(epuck);
 
-    /* Direction indicator */
-    const dir_geometry = new THREE.CylinderGeometry( 0, 0.3, 1.5, 6 );
-    dir_geometry.translate(0, 0, 86 * UNIT_SCALE + 0.4);
-    dir_geometry.rotateZ(-Math.PI / 2);
-    const dir_material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-    const dir_cylinder = new THREE.Mesh( dir_geometry, dir_material );
-    meshParent.add(dir_cylinder);
+    var geometryLower = new THREE.BoxBufferGeometry(
+      55 * UNIT_SCALE,
+      48 * UNIT_SCALE,
+      45 * UNIT_SCALE,
+    );
 
-    const dir_edges = new THREE.EdgesGeometry( dir_geometry );
-    const dir_line = new THREE.LineSegments( dir_edges, new THREE.LineBasicMaterial( { color: 0x000000 } ) );
-    meshParent.add(dir_line);
+    /* Bring to on top of zero*/
+    geometryLower.translate(0, 0, 17 * UNIT_SCALE);
+
+    const geometryLowerMesh = new THREE.Mesh( geometryLower, material );
+    meshParent.add(geometryLowerMesh);
+
+    /* Direction indicator */
+    const x = 35 * UNIT_SCALE
+    const y = 0;
+    const triangle_shape = new THREE.Shape();
+
+    function rotatePoint(x, y, angleDegrees) {
+      let angle = angleDegrees * Math.PI / 180; // convert to radians
+      let xNew = x * Math.cos(angle) - y * Math.sin(angle);
+      let yNew = x * Math.sin(angle) + y * Math.cos(angle);
+      return [xNew, yNew];
+    }
+
+    triangle_shape.moveTo(x, y);
+    const point1 = rotatePoint(x, y, 150);
+    triangle_shape.lineTo(point1[0], point1[1]);
+    const point2 = rotatePoint(x, y, 210);
+    triangle_shape.lineTo(point2[0], point2[1]);
+    triangle_shape.lineTo(x, y);
+
+    const dir_geometry = new THREE.ShapeGeometry(triangle_shape);
+    const dir_material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+    const dir_mesh = new THREE.Mesh( dir_geometry, dir_material );
+    dir_mesh.position.z = 75 * UNIT_SCALE; // Move higher in z axis
+    meshParent.add(dir_mesh);
+
+    // const dir_edges = new THREE.EdgesGeometry( dir_geometry );
+    // const dir_line = new THREE.LineSegments( dir_edges, new THREE.LineBasicMaterial( { color: 0x000000 } ) );
+    // meshParent.add(dir_line);
+
+    /* Wheels */
+    var left_wheel_geometry = new THREE.CylinderBufferGeometry(
+      20 * UNIT_SCALE,
+      20 * UNIT_SCALE,
+      10 * UNIT_SCALE,
+      32
+    );
+    var right_wheel_geometry = new THREE.CylinderBufferGeometry(
+      20 * UNIT_SCALE,
+      20 * UNIT_SCALE,
+      10 * UNIT_SCALE,
+      32
+    );
+    left_wheel_geometry.rotateY(Math.PI/2);
+    right_wheel_geometry.rotateY(Math.PI/2);
+    left_wheel_geometry.translate(0, 30 * UNIT_SCALE, 16 * UNIT_SCALE);
+    right_wheel_geometry.translate(0, -30 * UNIT_SCALE, 16 * UNIT_SCALE);
+    var wheel_material = new THREE.MeshPhongMaterial({ color: 0xff0000 });
+    var left_wheel = new THREE.Mesh(left_wheel_geometry, wheel_material);
+    meshParent.add(left_wheel);
+    var right_wheel = new THREE.Mesh(right_wheel_geometry, wheel_material);
+    meshParent.add(right_wheel);
 
     /* LEDs */
-    var led_geometry = new THREE.TorusGeometry( 35 * UNIT_SCALE * 0.9, 
-                                                0.2, 
-                                                16, 
-                                                100 );
-    led_geometry.translate(0, 0, 86 * UNIT_SCALE * 0.9)
-    var led_material = new THREE.MeshBasicMaterial( { color: 0x000000 } );
-    var led = new THREE.Mesh( led_geometry, led_material );
+    var led_geometry = new THREE.TorusGeometry(
+      35 * UNIT_SCALE * 0.9,
+      0.08, // tube thickness
+      16,
+      100
+    );
+    led_geometry.translate(0, 0, 86 * UNIT_SCALE * 0.85);
+    var led_material = new THREE.MeshBasicMaterial({ color: 0x000000 });
+    var led = new THREE.Mesh(led_geometry, led_material);
     meshParent.add(led);
 
     /* Add circle around robot with transparent fill and invisible border */
@@ -154,14 +208,14 @@ class Epuck {
 
       if(window.target == entity.id) {
         // make border visible
-        this.mesh.children[5].material.opacity = 1;
+        this.mesh.children[7].material.opacity = 1;
       } else {
-        this.mesh.children[5].material.opacity = 0;
+        this.mesh.children[7].material.opacity = 0;
       }
 
       if (entity.leds) {
         /* Update LED colors */
-        this.mesh.children[3].material.color.setHex(entity.leds[0]);
+        this.mesh.children[5].material.color.setHex(entity.leds[0]);
       }
 
       if(window.mode == Mode.DEBUG) {
@@ -225,7 +279,7 @@ class Epuck {
 
         /* Hide all the previous lines */
         /* 14 are the number of objects in meshParent before rays (-1 children.length if label is added) */
-        for (let i = 17 + entity.rays.length; i < this.mesh.children.length - 1; i++) {
+        for (let i = 19 + entity.rays.length; i < this.mesh.children.length - 1; i++) {
           this.mesh.children[i].geometry.setDrawRange(0, 0);
         }
       }
