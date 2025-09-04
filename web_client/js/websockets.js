@@ -255,26 +255,26 @@
 
               } else {
 
-                /* Not in DEBUG mode */
+                // /* Not in DEBUG mode */
 
-                if(data.messages[i].log_message.startsWith('[LOG]') || window.target == '') {
+                // if(data.messages[i].log_message.startsWith('[LOG]') || window.target == '') {
 
-                  /* Print all [LOG] and leader messages */
+                //   /* Print all [LOG] and leader messages */
 
-                  log_.unshift("<div class='log'><pre><span class='b'>[t=" +
-                    step + "]</span> <span style='color:" + text_color + "'>" +
-                    message_content + "</span></pre></div>");
+                //   log_.unshift("<div class='log'><pre><span class='b'>[t=" +
+                //     step + "]</span> <span style='color:" + text_color + "'>" +
+                //     message_content + "</span></pre></div>");
 
-                } else {
+                // } else {
 
-                  /* Print messages from the specific leader that the user is controlling */
+                //   /* Print messages from the specific leader that the user is controlling */
 
-                  if(robot_id == window.target && window.target != '') {
-                    log_.unshift("<div class='log'><pre><span class='b'>[t=" +
-                      step + "]</span> <span style='color:" + text_color + "'>" +
-                      message_content + "</span></pre></div>");
-                  }
-                }
+                //   if(robot_id == window.target && window.target != '') {
+                //     log_.unshift("<div class='log'><pre><span class='b'>[t=" +
+                //       step + "]</span> <span style='color:" + text_color + "'>" +
+                //       message_content + "</span></pre></div>");
+                //   }
+                // }
               }
               
             } else {
