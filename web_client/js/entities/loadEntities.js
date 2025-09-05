@@ -22,8 +22,6 @@ loadJS("/js/entities/KheperaIV.js")
 
 /* Add your custom entity here.. */
 loadJS("/js/entities/Epuck.js")
-loadJS("/js/entities/EpuckLeader.js")
-loadJS("/js/entities/RectangleTask.js")
 
 
 function GetEntity(entity, scale, callback) {
@@ -37,16 +35,12 @@ function GetEntity(entity, scale, callback) {
       return new Box(entity, scale, callback)
     case 'cylinder':
       return new Cylinder(entity, scale, callback)
-    case 'rectangle_task':
-      return new RectangleTask(entity, scale, callback)
     case 'kheperaiv':
       return new KheperaIV(entity, scale, callback)
     case 'foot-bot':
       return new Footbot(entity, scale, callback)
     case 'e-puck':
       return new Epuck(entity, scale, callback)
-    case 'e-puck_leader':
-      return new EpuckLeader(entity, scale, callback)
     default:
       return new DefaultEntity(entity, scale, callback)
   }
