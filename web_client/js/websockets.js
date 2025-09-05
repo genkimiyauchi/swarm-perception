@@ -148,7 +148,7 @@
           if (!window.robotIDs || JSON.stringify(window.robotIDs) !== JSON.stringify(sortedRobotIDs)) {
             // console.log("Robot IDs: ", sortedRobotIDs);
             window.robotIDs = sortedRobotIDs;
-            window.updateRobotDropdown();
+            window.ReloadUIElements();
           }
         }
 
@@ -297,8 +297,8 @@
             $("#layout_app_layout_panel_top .button").removeClass("disabled")
           }
           setTimeout(() => { // due to some racing issues
-            if (window.log_clusterize) window.log_clusterize.clear();
-            if (window.logerr_clusterize) window.logerr_clusterize.clear();
+            window.log_clusterize.clear()
+            window.logerr_clusterize.clear()
           }, 10);
         }
 
