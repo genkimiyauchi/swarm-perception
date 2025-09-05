@@ -27,10 +27,10 @@
           $(function() {
             $('a#connect').on('click', function(e) {
               var link = 'http://localhost:8000?m=exp';
-              // if user has an id, send the id to the simulation
-              if("{{session.username}}" !== "None") {
-                link += "&id={{session.username}}"
-              }
+              // // if user has an id, send the id to the simulation
+              // if("{{session.username}}" !== "None") {
+              //   link += "&id={{session.username}}"
+              // }
               window.open(link, '_blank');
               return false;
             });
@@ -40,10 +40,10 @@
           $(function() {
             $('a#connect-debug').on('click', function(e) {
               var link = 'http://localhost:8000?m=debug';
-              // if user has an id, send the id to the simulation
-              if("{{session.username}}" !== "None") {
-                link += "&id={{session.username}}"
-              }
+              // // if user has an id, send the id to the simulation
+              // if("{{session.username}}" !== "None") {
+              //   link += "&id={{session.username}}"
+              // }
               window.open(link, '_blank');
               return false;
             });

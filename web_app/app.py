@@ -68,39 +68,22 @@ def default():
 # Access to "/startpage": redirect to start_page.html
 @app.route("/startpage", methods=["GET"])
 def startpage():
-    if 'username' in session:
-        stop_simulation()
-        return render_template("start_page.html", session=session)
-    else:
-        return render_template("start_page.html")
+    stop_simulation()
+    return render_template("start_page.html", session=session)
 
 
 # Access to "/experimentpage": redirect to experiment_page.html
 @app.route("/experimentpage", methods=["GET"])
 def experimentpage():
-    if 'username' in session:
-        stop_simulation()
-        return render_template("experiment_page.html", session=session, host_ip=ip_addr)
-    else:
-        return redirect(url_for('startpage'))
+    stop_simulation()
+    return render_template("experiment_page.html", session=session, host_ip=ip_addr)
 
 
 # Access to "/endpage": redirect to end_page.html
 @app.route("/endpage", methods=["GET"])
 def endpage():
-    if 'username' in session:
-        stop_simulation()
-        return render_template("end_page.html")
-    else:
-        return redirect(url_for('startpage'))
-
-
-# Clear the username stored in the session object
-@app.route('/delete')
-def delete_username():
-    session.pop('username', default=None)
-    session.pop('host_ip', default=None)
-    return redirect(url_for('startpage'))
+    stop_simulation()
+    return render_template("end_page.html")
 
 
 # Background process: Start the simulation
@@ -129,22 +112,6 @@ def background_process_start():
 def background_process_stop():
     print ("Stop")
     stop_simulation()
-    return ("nothing")
-
-
-# Background process: Record the user's ID
-@app.route('/background_process_record_id', methods=['POST'])
-def background_process_record_id():
-    session['username'] = request.get_data().decode('UTF-8')
-    print ("Received id: {}".format(session['username']))
-    return ("nothing")
-
-
-# Background process: Record the host IP address
-@app.route('/background_process_record_host_ip', methods=['POST'])
-def background_process_record_host_ip():
-    session['host_ip'] = request.get_data().decode('UTF-8')
-    print ("Received host_ip: {}".format(session['host_ip']))
     return ("nothing")
 
 

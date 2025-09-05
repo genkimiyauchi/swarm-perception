@@ -11,30 +11,30 @@
   </head>
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
   <script type="text/javascript">
-          // Load user's existing unique ID
-          $(document).ready(function(){
-            console.log("Existing ID: {{session.username}}");
-            if("{{session.username}}" !== "") {
-              document.getElementById('InputID').value = "{{session.username}}";
-              document.getElementById('myCurrentID').innerHTML = "{{session.username}}";
-            }
-          });
-          // Record the user's unique ID
-          $(function() {
-            $('a#button-input-ID').on('click', function(e) {
-              e.preventDefault()
-              const unique_id = document.getElementById('InputID').value;
-              if(unique_id) {
-                $.ajax({ 
-                    url: '/background_process_record_id', 
-                    type: 'POST', 
-                    data: unique_id
-                })
-                document.getElementById('myCurrentID').innerHTML = unique_id;
-              }
-              return false;
-            });
-          });
+          // // Load user's existing unique ID
+          // $(document).ready(function(){
+          //   console.log("Existing ID: {{session.username}}");
+          //   if("{{session.username}}" !== "") {
+          //     document.getElementById('InputID').value = "{{session.username}}";
+          //     document.getElementById('myCurrentID').innerHTML = "{{session.username}}";
+          //   }
+          // });
+          // // Record the user's unique ID
+          // $(function() {
+          //   $('a#button-input-ID').on('click', function(e) {
+          //     e.preventDefault()
+          //     const unique_id = document.getElementById('InputID').value;
+          //     if(unique_id) {
+          //       $.ajax({ 
+          //           url: '/background_process_record_id', 
+          //           type: 'POST', 
+          //           data: unique_id
+          //       })
+          //       document.getElementById('myCurrentID').innerHTML = unique_id;
+          //     }
+          //     return false;
+          //   });
+          // });
   </script>
   <body>
     <!-- Bootstrap Bundle with Popper -->
@@ -52,12 +52,10 @@
         </div>
       </div>
 
-      <div class="row p-4 bg-light justify-content-md-center">
+      <!-- <div class="row p-4 bg-light justify-content-md-center">
         <div class="col col-lg-3">
           <div class="form-group">
-            <!-- <label for="InputIP">Optional Setting</label> -->
             <input type="text" class="form-control" id="InputID" aria-describedby="idHelp" placeholder="Enter your participant ID here">
-            <!-- <small id="ipHelp" class="form-text text-muted">Use this when connecting to a simulation running on a different computer.</small> -->
           </div>
         </div>
         <form class="text-center" style="margin-top:0.5cm;">
@@ -66,7 +64,7 @@
         <div class="text-center" style="margin-top:0.5cm;">        
           <p style="font-family:'Courier New'; font-size:20px"><b>My participant ID:</b> <span id="myCurrentID">empty</span></p>
         </div>
-      </div>
+      </div> -->
 
       <div class="row p-4 justify-content-md-center">
         <div class="col col-md-auto">
