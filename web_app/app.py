@@ -50,9 +50,18 @@ log.setLevel(logging.ERROR)
 # log.disabled = True
 
 
+def stop_simulation():
+    global proc_simulation, proc_webclient
+    if proc_simulation:
+        proc_simulation.stop()
+    if proc_webclient:
+        proc_webclient.stop()
+
+
 # Access to "/": redirect to start_page.html
 @app.route("/")
 def default():
+    stop_simulation()
     return redirect(url_for('startpage'))
 
 
@@ -60,6 +69,7 @@ def default():
 @app.route("/startpage", methods=["GET"])
 def startpage():
     if 'username' in session:
+        stop_simulation()
         return render_template("start_page.html", session=session)
     else:
         return render_template("start_page.html")
@@ -69,6 +79,7 @@ def startpage():
 @app.route("/experimentpage", methods=["GET"])
 def experimentpage():
     if 'username' in session:
+        stop_simulation()
         return render_template("experiment_page.html", session=session, host_ip=ip_addr)
     else:
         return redirect(url_for('startpage'))
@@ -78,6 +89,7 @@ def experimentpage():
 @app.route("/endpage", methods=["GET"])
 def endpage():
     if 'username' in session:
+        stop_simulation()
         return render_template("end_page.html")
     else:
         return redirect(url_for('startpage'))
@@ -99,11 +111,7 @@ def background_process_start():
 
     global proc_simulation, proc_webclient
 
-    # Stop any existing processes
-    if proc_simulation:
-        proc_simulation.stop()
-    if proc_webclient:
-        proc_webclient.stop()
+    stop_simulation()
 
     if(scenario == 'experiment'):
         proc_simulation = SimulationProcess(SCENARIO_EXPERIMENT)        
@@ -120,11 +128,7 @@ def background_process_start():
 @app.route('/background_process_stop')
 def background_process_stop():
     print ("Stop")
-    global proc_simulation, proc_webclient
-    if proc_simulation:
-        proc_simulation.stop()
-    if proc_webclient:
-        proc_webclient.stop()
+    stop_simulation()
     return ("nothing")
 
 
