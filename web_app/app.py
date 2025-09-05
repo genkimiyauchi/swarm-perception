@@ -99,6 +99,12 @@ def background_process_start():
 
     global proc_simulation, proc_webclient
 
+    # Stop any existing processes
+    if proc_simulation:
+        proc_simulation.stop()
+    if proc_webclient:
+        proc_webclient.stop()
+
     if(scenario == 'experiment'):
         proc_simulation = SimulationProcess(SCENARIO_EXPERIMENT)        
     else:
