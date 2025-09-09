@@ -278,9 +278,15 @@
               }
               
             } else {
-              logerr_.unshift("<div class='log'><pre><span class='b'>[t=" +
-                step + "]</span> " +
-                data.messages[i].log_message + "</pre></div>");
+              if(window.mode == Mode.DEBUG) {
+
+                /* In DEBUG mode */
+
+                log_.unshift("<div class='log'><pre><span class='b'>[t=" +
+                  step + "]</span> <span style='color:" + text_color + "'>" +
+                  message_content + "</span></pre></div>");
+
+              }
             }
           }
           window.log_clusterize.prepend(log_)
@@ -335,7 +341,7 @@
       window.experiment.isConnected = false;
     });
 
-    wsp.open().catch(e => console.error(e));
+    // wsp.open().catch(e => console.error(e));
   }
 
   // commonjs
