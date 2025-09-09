@@ -466,7 +466,8 @@ var onAllFilesLoaded = function () {
                         'mode_divider',
                         'mode_selected',
                         'button_mode_select',
-                        // 'robot_selected'
+                        'robot_selected',
+                        'button_connect'
                       ];
 
             /* Hide toolbar components */
