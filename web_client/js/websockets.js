@@ -341,7 +341,7 @@
       window.experiment.isConnected = false;
     });
 
-    // wsp.open().catch(e => console.error(e));
+    wsp.open().catch(e => console.error(e));
   }
 
   // commonjs
