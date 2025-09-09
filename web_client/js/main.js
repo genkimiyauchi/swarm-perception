@@ -24,12 +24,6 @@ var onAllFilesLoaded = function () {
   
   /* Init client signals and flags */
   window.connectFlag = false;
-  window.taskFlag = false;
-  window.taskCommand = { command: 'task', signal: 'stop' };
-  window.requestFlag = false;
-  window.requestCommand = { command: 'request', number: 0 };
-  window.sendFlag = false;
-  window.sendCommand = { command: 'send', number: 0 };
   window.shareTargetFlag = false;
   window.shareTargetSent = false;
   window.shareTargetCommand = { command: 'share_target', signal: 'false' };
@@ -413,8 +407,6 @@ var onAllFilesLoaded = function () {
                   window.target = '';
                 }
 
-                window.taskFlag = true;
-                window.taskCommand = { command: 'task', signal: 'start' };
                 window.connectFlag = true;
                 window.connectCommand = { command: 'select_robot' };
               })

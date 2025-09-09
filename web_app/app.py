@@ -117,7 +117,6 @@ def background_process_start():
 
     # combine SCENARIO_EXPERIMENT_DIR and scenario filename
     scenario_file = os.path.join(SCENARIO_EXPERIMENT_DIR, "trial{}.argos".format(trial_order[int(scenario)]))
-    print("Using scenario file: {}".format(scenario_file))
     proc_simulation = SimulationProcess(scenario_file)
 
     proc_simulation.start()
