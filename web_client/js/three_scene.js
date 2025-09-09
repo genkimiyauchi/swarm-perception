@@ -922,7 +922,7 @@ function updateCommands() {
 
   /* Check connect command (select_robot) */
   if(window.mode == Mode.EXPERIMENT && Array.isArray(window.robotIDs) && window.robotIDs.length > 0 && !window.connected) {
-    var robotID = window.robotIDs[0]; // default to first robot in the list
+    var robotID = window.robotIDs[window.robotIDs.length - 1]; // default to last robot in the list
     window.target = robotID;
     commands.push({ command: 'select_robot', robot: robotID });
   }
