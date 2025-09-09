@@ -913,17 +913,18 @@ function updateCommands() {
   var commands = [];
 
   /* Check connect command (select_robot) */
-  if( window.connectFlag ) {
+  if( window.mode == Mode.DEBUG && window.connectFlag ) {
     commands.push(window.connectCommand);
     if( window.connected ) {
       window.connectFlag = false;
     }
   }
 
-  /* Check if task signal is toggelled (start/stop) */
-  if( window.taskFlag ) {
-    commands.push(window.taskCommand);
-    window.taskFlag = false;
+  /* Check connect command (select_robot) */
+  if(window.mode == Mode.EXPERIMENT && Array.isArray(window.robotIDs) && window.robotIDs.length > 0) {
+    var robotID = window.robotIDs[0]; // default to first robot in the list
+    window.target = robotID;
+    commands.push({ command: 'select_robot', robot: robotID });
   }
 
   /* Check for a share target command */
