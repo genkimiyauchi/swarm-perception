@@ -32,6 +32,9 @@ simulation_link = "{}:8000".format(ip_addr)
 proc_simulation = None
 proc_webclient  = None
 
+# Experiment group
+mode = None # 1 or 2
+
 app = Flask(__name__)
 
 # Based on https://testdriven.io/blog/flask-sessions/
@@ -129,4 +132,18 @@ def connect_to_server():
 
 
 if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description='Run ARGoS simulations.')
+    parser.add_argument('-m', '--mode', type=int, choices=[1, 2], required=True,
+                       help='Experiment group: 1 or 2.')
+    
+    args = parser.parse_args()
+
+    if args.mode == 1:
+        mode = 1
+        print('Mode: 1')
+    elif args.mode == 2:
+        mode = 2
+        print('Mode: 2')
+
     app.run(debug=False, host='0.0.0.0')
