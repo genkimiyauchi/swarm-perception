@@ -15,7 +15,7 @@ import random
 import datetime
 
 # Scenarios
-SCENARIO_EXPERIMENT = "experiments/target_tracking_webviz.argos"
+SCENARIO_EXPERIMENT_DIR = "experiments/study2/"
 
 # Local machine IP address
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -87,6 +87,17 @@ def experimentpage():
     return render_template("experiment_page.html", session=session, host_ip=ip_addr)
 
 
+# Access to "/trial1" to "/trial20": render trialX.html
+for i in range(1, 21):
+    def make_trial_route(trial_num):
+        def trial_page():
+            stop_simulation()
+            return render_template(f"trial{trial_num}.html", session=session, host_ip=ip_addr)
+        return trial_page
+    endpoint_name = f"trial{i}_page"
+    app.add_url_rule(f"/trial{i}", endpoint=endpoint_name, view_func=make_trial_route(i), methods=["GET"])
+
+
 # Access to "/endpage": redirect to end_page.html
 @app.route("/endpage", methods=["GET"])
 def endpage():
@@ -104,10 +115,10 @@ def background_process_start():
 
     stop_simulation()
 
-    if(scenario == 'experiment'):
-        proc_simulation = SimulationProcess(SCENARIO_EXPERIMENT)        
-    else:
-        print('No scenario provided.')
+    # combine SCENARIO_EXPERIMENT_DIR and scenario filename
+    scenario_file = os.path.join(SCENARIO_EXPERIMENT_DIR, "trial{}.argos".format(trial_order[int(scenario)]))
+    print("Using scenario file: {}".format(scenario_file))
+    proc_simulation = SimulationProcess(scenario_file)
 
     proc_simulation.start()
     proc_webclient = WebClientProcess()
