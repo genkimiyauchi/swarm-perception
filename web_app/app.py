@@ -80,6 +80,13 @@ def startpage():
     return render_template("start_page.html", session=session)
 
 
+# Access to "/practicepage": redirect to practice_page.html
+@app.route("/practicepage", methods=["GET"])
+def practicepage():
+    stop_simulation()
+    return render_template("practice_page.html", session=session, host_ip=ip_addr)
+
+
 # Access to "/experimentpage": redirect to experiment_page.html
 @app.route("/experimentpage", methods=["GET"])
 def experimentpage():
@@ -115,10 +122,12 @@ def background_process_start():
 
     stop_simulation()
 
-    # combine SCENARIO_EXPERIMENT_DIR and scenario filename
-    scenario_file = os.path.join(SCENARIO_EXPERIMENT_DIR, "trial{}.argos".format(trial_order[int(scenario)]))
-    proc_simulation = SimulationProcess(scenario_file)
+    if scenario == 'practice':
+        scenario_file = os.path.join(SCENARIO_EXPERIMENT_DIR, "practice.argos")
+    else:
+        scenario_file = os.path.join(SCENARIO_EXPERIMENT_DIR, "trial{}.argos".format(trial_order[int(scenario)]))
 
+    proc_simulation = SimulationProcess(scenario_file)
     proc_simulation.start()
     proc_webclient = WebClientProcess()
     proc_webclient.start()
