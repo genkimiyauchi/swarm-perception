@@ -11,6 +11,8 @@ import os
 import os.path
 import argparse
 import logging
+import random
+import datetime
 
 # Scenarios
 SCENARIO_EXPERIMENT = "experiments/target_tracking_webviz.argos"
@@ -34,6 +36,9 @@ proc_webclient  = None
 
 # Experiment group
 mode = None # 1 or 2
+group1_trials = [122, 99, 26, 109, 105, 70, 63, 64, 14, 49, 10, 9, 65, 17, 6, 18, 20, 66, 22, 93]
+group2_trials = [115, 71, 107, 62, 121, 51, 7, 34, 94, 50, 100, 40, 85, 119, 95, 60, 36, 21, 82, 23]
+trial_order = []
 
 app = Flask(__name__)
 
@@ -142,8 +147,32 @@ if __name__ == "__main__":
     if args.mode == 1:
         mode = 1
         print('Mode: 1')
+        trial_order = group1_trials
     elif args.mode == 2:
         mode = 2
         print('Mode: 2')
+        trial_order = group2_trials
+
+    random.shuffle(trial_order)
+
+    print("Randomized order of trials 1 to 20:")
+    print(trial_order)
+
+    filename = "{}.txt".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
+
+    if os.path.basename(os.path.expanduser("~")) == "docker":
+        # Save to /home/docker/swarm-perception/results/
+        results_dir = os.path.expanduser("~/swarm-perception/results")
+    else:
+        # Save to ./results/ in the current working directory
+        results_dir = os.path.join(os.getcwd(), "results")
+
+    os.makedirs(results_dir, exist_ok=True)
+    filename = os.path.join(results_dir, filename)
+
+    print("Saving trial order to {}".format(filename))
+
+    with open(filename, "w") as f:
+        f.write("\n".join(map(str, trial_order)))
 
     app.run(debug=False, host='0.0.0.0')
