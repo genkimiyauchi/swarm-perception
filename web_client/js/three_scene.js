@@ -410,6 +410,10 @@ function initSceneWithScale(_scale) {
   });
   window.shareTargetButton.setState('idle');
 
+  if(window.mode == Mode.DEBUG) {
+    window.shareTargetButton.visible = false;
+  }
+
   // Add the button to its container
   shareTargetContainer.add(window.shareTargetButton);
 
@@ -481,6 +485,10 @@ function initSceneWithScale(_scale) {
     }
   });
   window.moveToTargetButton.setState('idle');
+
+  if(window.mode == Mode.DEBUG) {
+    window.moveToTargetButton.visible = false;
+  }
 
   // Add the button to its container
   shareTargetContainer.add(window.moveToTargetButton);
