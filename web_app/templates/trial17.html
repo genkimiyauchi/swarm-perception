@@ -50,6 +50,15 @@
               return false;
             });
           });
+
+          // Connect to simulation
+          $(function() {
+            $('a#connect-observer').on('click', function(e) {
+              var link = 'http://localhost:8000?m=obs';
+              window.open(link, '_blank');
+              return false;
+            });
+          });
   </script>
   <body class="text-center">
     <!-- Bootstrap Bundle with Popper -->
@@ -78,9 +87,12 @@
         <details class="mt-3">
           <summary style="cursor:pointer;">More Options</summary>
           <ul class="list-group list-group-flush mt-2">
-            <li class="list-group-item bg-light">
+            <div class="bg-light p-2">
               <a href="#" id="connect-debug">Connect to Simulation (Debug mode)</a>
-            </li>
+            </div>
+            <div class="bg-light p-2">
+              <a href="#" id="connect-observer">Connect to Simulation (Observer mode)</a>
+            </div>
           </ul>
         </details>
       </div>
@@ -100,7 +112,7 @@
           </form>
         </div>
         <div class="col-2">
-          <p">19 of 23</p>
+          <p>19 of 23</p>
         </div>
         <!-- Button to jump to /endpage -->
         <div class="col-2">

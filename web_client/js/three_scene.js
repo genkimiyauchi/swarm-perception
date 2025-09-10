@@ -410,7 +410,7 @@ function initSceneWithScale(_scale) {
   });
   window.shareTargetButton.setState('idle');
 
-  if(window.mode == Mode.DEBUG) {
+  if(window.mode == Mode.DEBUG || window.mode == Mode.OBSERVER) {
     window.shareTargetButton.visible = false;
   }
 
@@ -486,7 +486,7 @@ function initSceneWithScale(_scale) {
   });
   window.moveToTargetButton.setState('idle');
 
-  if(window.mode == Mode.DEBUG) {
+  if(window.mode == Mode.DEBUG || window.mode == Mode.OBSERVER) {
     window.moveToTargetButton.visible = false;
   }
 

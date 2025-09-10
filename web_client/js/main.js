@@ -13,7 +13,8 @@
 /* List of modes that the web client can take. Each mode changes what UI is displayed. */
 const Mode = Object.freeze({
   EXPERIMENT: 'experiment',
-  DEBUG: 'debug'
+  DEBUG: 'debug',
+  OBSERVER: 'observer'
 })
 
 /* Define function to run after all files are loaded */
@@ -375,6 +376,11 @@ var onAllFilesLoaded = function () {
                     window.mode = Mode.EXPERIMENT;
                     mode_param = 'exp';
                     break;
+                  case 'Observer':
+                    console.log('Load ' + Mode.OBSERVER);
+                    window.mode = Mode.OBSERVER;
+                    mode_param = 'obs';
+                    break;
                   default:
                     console.log('Unrecognised mode selected');
                 }
@@ -441,6 +447,10 @@ var onAllFilesLoaded = function () {
                 window.mode = Mode.EXPERIMENT;
                 document.getElementById('mode_selected').selectedIndex = 0;
                 break;
+              case 'obs':
+                window.mode = Mode.OBSERVER;
+                document.getElementById('mode_selected').selectedIndex = 2;
+                break;
               default:
                 console.log('Unrecognized mode passed in url: ' + urlParams.get('m'));
             }
@@ -449,7 +459,7 @@ var onAllFilesLoaded = function () {
           console.log("Mode: " + window.mode);
 
           /* Modify toolbar according to the current mode */
-          if(window.mode == Mode.EXPERIMENT) {
+          if(window.mode !== Mode.DEBUG) {
 
             /* Id of the components to hide */
             let ids = [
