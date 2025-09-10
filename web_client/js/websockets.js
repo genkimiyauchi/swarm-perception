@@ -179,8 +179,6 @@
                 window.target_received = true;
               }
 
-              window.rab_range = data.user_data.rab_range;
-
             } else {
 
               window.connected = false;
@@ -193,6 +191,19 @@
             setTimeout(() => setStatusDisconnected(retries - 1, delay), delay);
           }
         };
+
+        if(window.mode == Mode.DEBUG) {
+
+          const exp_robot_id = 'ep10'; // hard-coded for experiment
+
+          if (data.user_data.target_found && data.user_data.target_found.includes(exp_robot_id)) {
+            window.target_found = true;
+          }
+
+          if (data.user_data.target_received && data.user_data.target_received.includes(exp_robot_id)) {
+            window.target_received = true;
+          }
+        }
 
         setStatusDisconnected();
 
