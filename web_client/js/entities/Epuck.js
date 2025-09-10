@@ -206,11 +206,13 @@ class Epuck {
         entity.orientation.z,
         entity.orientation.w));
 
-      if(window.target == entity.id) {
-        // make border visible
-        this.mesh.children[7].material.opacity = 1;
-      } else {
-        this.mesh.children[7].material.opacity = 0;
+      if(window.mode == Mode.DEBUG || window.mode == Mode.EXPERIMENT) {
+        if(entity.user_data.current_user !== '') {
+          // make border visible
+          this.mesh.children[7].material.opacity = 1;
+        } else {
+          this.mesh.children[7].material.opacity = 0;
+        }
       }
 
       if (entity.leds) {

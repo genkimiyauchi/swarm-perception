@@ -417,9 +417,9 @@ const nlohmann::json CTargetTrackingWebvizUserFunctions::sendRobotData(CEPuckEnt
 
     CRobot& cController = dynamic_cast<CRobot&>(robot.GetControllableEntity().GetController());
 
+    /* Robot's current state */
     std::string state = cController.GetState();
 
-    /* Robot's current state */
     if(state == "RANDOM_WALK") {
         outJson["state"] = "Searching";
     } else if(state == "BROADCAST_WALK") {
@@ -431,6 +431,9 @@ const nlohmann::json CTargetTrackingWebvizUserFunctions::sendRobotData(CEPuckEnt
     } else {
         outJson["state"] = state;
     }
+
+    /* Current user in control */
+    outJson["current_user"] = cController.GetUsername();
 
     // LOG << "ID: " << cController.GetId();
 
