@@ -249,6 +249,8 @@ function initSceneWithScale(_scale) {
   mainContainer.add(targetStatusContainer);
   targetStatusContainer.position.set(0, 0, 0);
   
+  /* Number of robots in target */
+
   const upperStatusContainer = new ThreeMeshUI.Block({
     // ref: 'container',
     padding: 0.025,
@@ -261,8 +263,6 @@ function initSceneWithScale(_scale) {
   });
   upperStatusContainer.position.set( 0, window.threejs_panel.height() / 2 - 45, 0 );
   sceneOrtho.add(upperStatusContainer);
-
-  /* Number of robots in target */
 
   window.numRobotsText = new ThreeMeshUI.Text({
     content: "Number of robots in target: 0 / 10",
@@ -281,6 +281,47 @@ function initSceneWithScale(_scale) {
 
   numRobotsContainer.add(window.numRobotsText);
   upperStatusContainer.add(numRobotsContainer);
+
+  /* Trial termination text */
+
+  const trialStatusContainer = new ThreeMeshUI.Block({
+    // ref: 'container',
+    padding: 0.025,
+    fontFamily: '/fonts/Roboto-msdf.json',
+    fontTexture: '/fonts/Roboto-msdf.png',
+    fontColor: new THREE.Color(0xffffff),
+    fontSupersampling: true,
+    backgroundOpacity: 0,
+    alignItems: 'start',
+  });
+  trialStatusContainer.position.set( 0, window.threejs_panel.height()*0.1, 0 );
+  sceneOrtho.add(trialStatusContainer);
+
+  window.trialTerminationText = new ThreeMeshUI.Text({
+    content: "Trial has ended!",
+    fontSize: 52,
+    fontColor: new THREE.Color(0x000000),
+  });
+
+  window.trialTerminationContainer = new ThreeMeshUI.Block({
+    width: 500,
+    height: 100,
+    margin: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: new THREE.Color(0xffffff), // white background
+    backgroundOpacity: 0.7, // semi-transparent
+    borderRadius: 15,
+    borderWidth: 2,
+    borderColor: new THREE.Color(0x000000),
+    borderOpacity: 0.3,
+  });
+
+  window.trialTerminationContainer.visible = false;
+  window.trialTerminationText.visible = false;
+
+  window.trialTerminationContainer.add(window.trialTerminationText);
+  trialStatusContainer.add(window.trialTerminationContainer);
 
   /* Share target location / Move to target */
   const shareTargetContainer = new ThreeMeshUI.Block({
@@ -1086,6 +1127,12 @@ function render() {
         content: `Number of robots in target: ${window.num_robots_in_target} / ${window.robotIDs.length}`,
       })
     }
+
+    /* Update  trial termination status */
+    if (window.experiment.status == "Done") {
+      window.trialTerminationContainer.visible = true;
+      window.trialTerminationText.visible = true;
+    } 
 
     /* Update target discovery */
     if (window.target_found && !window.target_received) {
