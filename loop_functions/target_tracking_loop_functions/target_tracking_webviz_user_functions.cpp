@@ -417,21 +417,18 @@ const nlohmann::json CTargetTrackingWebvizUserFunctions::sendRobotData(CEPuckEnt
 
     CRobot& cController = dynamic_cast<CRobot&>(robot.GetControllableEntity().GetController());
     
-    // /* Robot's current state */
-    // switch(cController.GetRobotState()) {
-    //     case RobotState::FOLLOWER: 
-    //         outJson["state"] = "F";
-    //         break;
-    //     case RobotState::CONNECTOR: 
-    //         outJson["state"] = "C";
-    //         break;
-    //     case RobotState::TRAVELER:
-    //         outJson["state"] = "T";
-    //         break;
-    //     default:
-    //         std::cerr << "[ERROR] Worker robot should not be a leader!" << std::endl;
-    //         break;
-    // }
+    /* Robot's current state */
+    if(cController.GetState() == "RANDOM_WALK") {
+        outJson["state"] = "Searching";
+    } else if(cController.GetState() == "BROADCAST_WALK") {
+        outJson["state"] = "Sharing target";
+    } else if(cController.GetState() == "BROADCAST_HOMING") {
+        outJson["state"] = "Moving to target";
+    } else if(cController.GetState() == "IN_TARGET") {
+        outJson["state"] = "Moving to target";
+    } else {
+        outJson["state"] = cController.GetState();
+    }
 
     // LOG << "ID: " << cController.GetId();
 

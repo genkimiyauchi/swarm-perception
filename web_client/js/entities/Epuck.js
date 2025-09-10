@@ -135,19 +135,19 @@ class Epuck {
       /* Add username label */
       this.sprite = new THREE.TextSprite({
         alignment: 'center',
-        color: '#000000',
-        strokeColor: '#ff0000',
-        backgroundColor: 'rgba(100,100,100,0.2)',
-        fontWeight: 'bold',
-        fontFamily: '"Times New Roman", Times, serif',
-        fontSize: 1,
+        color: '#0000ff',
+        // strokeColor: '#0000ff',
+        // backgroundColor: 'rgba(100,100,100,0.2)',
+        // fontWeight: 'bold',
+        fontFamily: 'Roboto, Arial, sans-serif',
+        fontSize: 0.45,
         padding: 0.2,
         text: [
-            entity.id,
+          "Searching",
         ].join('\n'),
       });
 
-      this.sprite.position.z = 4;
+      this.sprite.position.z = 2.5;
 
       meshParent.add(this.sprite);
 
@@ -219,6 +219,17 @@ class Epuck {
       }
 
       if(window.mode == Mode.DEBUG) {
+
+        /* Update label */
+        const state = entity.user_data.state;
+        if(state == 'Searching') {
+          this.mesh.children[8].color = '#0000ff';
+        } else if(state == 'Sharing target') {
+          this.mesh.children[8].color = '#ff0000';
+        } else if(state == 'Moving to target') {
+          this.mesh.children[8].color = '#006f00';
+        }
+        this.mesh.children[8].text = entity.user_data.state;
 
         // /* Show connections for connectors only */
         // if(entity.user_data.state == 'C') {
