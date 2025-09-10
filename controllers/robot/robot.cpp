@@ -1025,7 +1025,7 @@ void CRobot::SetWheelSpeedsFromVectorEightDirections(const CVector2& c_heading) 
         }
     }
 
-    RLOG << "fLeftWheelSpeed: " << fLeftWheelSpeed << ", fRightWheelSpeed: " << fRightWheelSpeed << std::endl;
+    // RLOG << "fLeftWheelSpeed: " << fLeftWheelSpeed << ", fRightWheelSpeed: " << fRightWheelSpeed << std::endl;
 
     /* Finally, set the wheel speeds */
     m_pcWheels->SetLinearVelocity(fLeftWheelSpeed, fRightWheelSpeed);
