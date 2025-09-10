@@ -216,23 +216,23 @@ function initSceneWithScale(_scale) {
   /* Main Block */
 
   const mainContainer = new ThreeMeshUI.Block({
-    // ref: 'container',
     padding: 0.025,
     fontFamily: '/fonts/Roboto-msdf.json',
     fontTexture: '/fonts/Roboto-msdf.png',
     fontColor: new THREE.Color(0xffffff),
     fontSupersampling: true,
     backgroundOpacity: 0,
-    alignItems: 'start',
+    alignItems: 'center',
+    justifyContent: 'center',
   });
-  mainContainer.position.set( 0, window.threejs_panel.height() / 2 - 45, 0 );
+  mainContainer.position.set(0, 0, 0);
   sceneOrtho.add(mainContainer);
 
   /* Target Discovery */
 
   window.targetStatusText = new ThreeMeshUI.Text({
-    content: "Find the target",
-    fontSize: 36,
+    content: "",
+    fontSize: 28,
     fontColor: new THREE.Color(0x000000),
   });
 
@@ -247,6 +247,7 @@ function initSceneWithScale(_scale) {
 
   targetStatusContainer.add(window.targetStatusText);
   mainContainer.add(targetStatusContainer);
+  targetStatusContainer.position.set(0, 0, 0);
   
   /* Share target location / Move to target */
   const shareTargetContainer = new ThreeMeshUI.Block({
