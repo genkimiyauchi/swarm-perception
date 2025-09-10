@@ -152,6 +152,13 @@
           }
         }
 
+        /* Get number of robots in target */
+        if (data.user_data.num_robots_in_target !== undefined) {
+          window.num_robots_in_target = data.user_data.num_robots_in_target;
+        } else {
+          window.num_robots_in_target = "?";
+        }
+
         // let e_status = document.getElementById('connection-status');
 
         const setStatusDisconnected = (retries = 10, delay = 100) => {

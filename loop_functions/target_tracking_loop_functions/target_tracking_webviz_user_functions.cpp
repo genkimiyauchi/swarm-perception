@@ -403,6 +403,9 @@ const nlohmann::json CTargetTrackingWebvizUserFunctions::sendUserData() {
         outJson["rab_range"][key] = cController.GetRABRange();
     }
 
+    /* Send number of robots in target */
+    outJson["num_robots_in_target"] = m_pcExperimentLoopFunctions->GetNumRobotsInTarget();
+
     return outJson;
 }
 

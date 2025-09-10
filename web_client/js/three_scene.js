@@ -249,6 +249,39 @@ function initSceneWithScale(_scale) {
   mainContainer.add(targetStatusContainer);
   targetStatusContainer.position.set(0, 0, 0);
   
+  const upperStatusContainer = new ThreeMeshUI.Block({
+    // ref: 'container',
+    padding: 0.025,
+    fontFamily: '/fonts/Roboto-msdf.json',
+    fontTexture: '/fonts/Roboto-msdf.png',
+    fontColor: new THREE.Color(0xffffff),
+    fontSupersampling: true,
+    backgroundOpacity: 0,
+    alignItems: 'start',
+  });
+  upperStatusContainer.position.set( 0, window.threejs_panel.height() / 2 - 45, 0 );
+  sceneOrtho.add(upperStatusContainer);
+
+  /* Number of robots in target */
+
+  window.numRobotsText = new ThreeMeshUI.Text({
+    content: "Number of robots in target: 0 / 10",
+    fontSize: 30,
+    fontColor: new THREE.Color(0x000000),
+  });
+
+  const numRobotsContainer = new ThreeMeshUI.Block({
+    width: 700,
+    height: 36,
+    margin: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundOpacity: 0,
+  });
+
+  numRobotsContainer.add(window.numRobotsText);
+  upperStatusContainer.add(numRobotsContainer);
+
   /* Share target location / Move to target */
   const shareTargetContainer = new ThreeMeshUI.Block({
     padding: 0.025,
@@ -1043,7 +1076,18 @@ function render() {
       }
     }
 
-    /* Update target discovery */ 
+    /* Update number of robots in target */
+    if(window.num_robots_in_target == "?") {
+      window.numRobotsText.set({
+        content: `Number of robots in target: ? / ${window.robotIDs.length}`,
+      })
+    } else {
+      window.numRobotsText.set({
+        content: `Number of robots in target: ${window.num_robots_in_target} / ${window.robotIDs.length}`,
+      })
+    }
+
+    /* Update target discovery */
     if (window.target_found && !window.target_received) {
       window.targetStatusText.set({
         content: `You found the target`,
