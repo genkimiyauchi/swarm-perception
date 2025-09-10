@@ -968,7 +968,7 @@ void CRobot::SetWheelSpeedsFromVectorHoming(const CVector2& c_heading) {
     Real fLeftWheelSpeed, fRightWheelSpeed;
     fLeftWheelSpeed  = m_sWheelTurningParams.MaxSpeed - abs(fSpeed) + fSpeed;
     fRightWheelSpeed = m_sWheelTurningParams.MaxSpeed - abs(fSpeed) - fSpeed;
-    RLOG << "fSpeed " << fSpeed << ", abs " << abs(fSpeed) << ", left " << fLeftWheelSpeed << ", right " << fRightWheelSpeed << std::endl;
+    // RLOG << "fSpeed " << fSpeed << ", abs " << abs(fSpeed) << ", left " << fLeftWheelSpeed << ", right " << fRightWheelSpeed << std::endl;
 
     /* Clamp the speed so that it's not greater than MaxSpeed */
     fLeftWheelSpeed = Min<Real>(fLeftWheelSpeed, m_sWheelTurningParams.MaxSpeed);
