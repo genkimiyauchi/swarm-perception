@@ -27,6 +27,8 @@ public:
 
     virtual void PostStep();
 
+    virtual void LogExperiment();
+
     virtual bool IsExperimentFinished();
 
     virtual size_t GetNumRobots() const {

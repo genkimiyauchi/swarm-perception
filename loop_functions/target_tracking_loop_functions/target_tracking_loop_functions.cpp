@@ -313,6 +313,54 @@ void CTargetTrackingLoopFunctions::PostStep() {
 /****************************************/
 /****************************************/
 
+void CTargetTrackingLoopFunctions::LogExperiment() {
+
+    int final_time = GetSpace().GetSimulationClock();
+    Real final_time_seconds = final_time * m_fSecondsPerStep;
+    LOG << "[LOG] Final Timestep: " << final_time << " steps = " << final_time_seconds << " seconds" << std::endl;
+
+    LOG << "[LOG] Logging experiment results to " << m_strLogFilePath << std::endl;
+
+    // Check if the heading is already present
+    std::ifstream infile(m_strLogFilePath);
+    bool has_heading = false;
+    std::string first_line;
+    if (std::getline(infile, first_line)) {
+        if (first_line.find("ID,TIME,SPEED,SEPARATION,BROADCAST,TARGET_X,TARGET_Y") != std::string::npos) {
+            has_heading = true;
+        }
+    }
+    infile.close();
+    
+    m_cOutput.open(m_strLogFilePath, std::ios_base::app);
+    if (!has_heading) {
+        m_cOutput << "ID,TIME,SPEED,SEPARATION,BROADCAST,TARGET_X,TARGET_Y";
+        for (size_t i = 0; i < m_vecRobotArrivalTime.size(); ++i) {
+            m_cOutput << ",ARRIVAL_" << (i + 1);
+        }
+        m_cOutput << "\n";
+    }
+
+    m_cOutput << CSimulator::GetInstance().GetRandomSeed() << ","
+            << final_time_seconds << ","
+            << m_fSpeed << ","
+            << m_fSeparation << ","
+            << m_fBroadcastDuration << ","
+            << m_vecTargetsTemp[0].first.GetX() << ","
+            << m_vecTargetsTemp[0].first.GetY();
+    for(const auto& arrival_time : m_vecRobotArrivalTime) {
+        m_cOutput << "," << arrival_time;
+    }
+    m_cOutput << "\n";
+    
+    m_cOutput.close();
+
+    LOG << "[LOG] Experiment results logged successfully." << std::endl;
+}
+
+/****************************************/
+/****************************************/
+
 bool CTargetTrackingLoopFunctions::IsExperimentFinished() {
 
     /* Check the number of robots in state: IN_TARGET */
@@ -338,65 +386,38 @@ bool CTargetTrackingLoopFunctions::IsExperimentFinished() {
     }
 
     /* Check termination condition */
+    int fFinalTime = GetSpace().GetSimulationClock();
+    Real fFinalTimeSeconds = fFinalTime * m_fSecondsPerStep;
+    UInt32 seed = CSimulator::GetInstance().GetRandomSeed();
+    UInt32 seed_practice = 10000; // Seed used for practice runs
+
     if(m_unNumRobotsInTarget == m_unNumRobots && unNumRobotsStateInTarget == m_unNumRobots) {
 
         LOG << "[LOG] All robots are in the target area! " << m_unTargetTimer << std::endl;
 
         if(m_unTargetTimer >= (3/m_fSecondsPerStep)) {
             LOG << "[LOG] All robots are in the target area for 3 seconds!" << std::endl;
-            int final_time = GetSpace().GetSimulationClock();
-            Real final_time_seconds = final_time * m_fSecondsPerStep;
-            LOG << "[LOG] Final Timestep: " << final_time << " steps = " << final_time_seconds << " seconds" << std::endl;
 
             /* Log experiment */
-            
-            UInt32 seed = CSimulator::GetInstance().GetRandomSeed();
-            UInt32 seed_practice = 10000; // Seed used for practice runs
-
             if(seed != seed_practice) {
-                LOG << "[LOG] Logging experiment results to " << m_strLogFilePath << std::endl;
-
-                // Check if the heading is already present
-                std::ifstream infile(m_strLogFilePath);
-                bool has_heading = false;
-                std::string first_line;
-                if (std::getline(infile, first_line)) {
-                    if (first_line.find("ID,TIME,SPEED,SEPARATION,BROADCAST,TARGET_X,TARGET_Y") != std::string::npos) {
-                        has_heading = true;
-                    }
-                }
-                infile.close();
-                
-                m_cOutput.open(m_strLogFilePath, std::ios_base::app);
-                if (!has_heading) {
-                    m_cOutput << "ID,TIME,SPEED,SEPARATION,BROADCAST,TARGET_X,TARGET_Y";
-                    for (size_t i = 0; i < m_vecRobotArrivalTime.size(); ++i) {
-                        m_cOutput << ",ARRIVAL_" << (i + 1);
-                    }
-                    m_cOutput << "\n";
-                }
-
-                m_cOutput << CSimulator::GetInstance().GetRandomSeed() << ","
-                        << final_time_seconds << ","
-                        << m_fSpeed << ","
-                        << m_fSeparation << ","
-                        << m_fBroadcastDuration << ","
-                        << m_vecTargetsTemp[0].first.GetX() << ","
-                        << m_vecTargetsTemp[0].first.GetY();
-                for(const auto& arrival_time : m_vecRobotArrivalTime) {
-                    m_cOutput << "," << arrival_time;
-                }
-                m_cOutput << "\n";
-                
-                m_cOutput.close();
-
-                LOG << "[LOG] Experiment results logged successfully." << std::endl;
+                LogExperiment();
             }
 
             return true;
         }
 
         ++m_unTargetTimer;
+
+    } else if(fFinalTimeSeconds >= 60) {
+
+        LOG << "[LOG] Maximum time reached: " << fFinalTimeSeconds << " seconds" << std::endl;
+
+        /* Log experiment */
+        if(seed != seed_practice) {
+            LogExperiment();
+        }
+
+        return true;
     }
 
     return false;
