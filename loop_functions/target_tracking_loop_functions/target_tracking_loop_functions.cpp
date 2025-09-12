@@ -342,7 +342,9 @@ void CTargetTrackingLoopFunctions::LogExperiment() {
     m_cOutput.open(m_strLogFilePath, std::ios_base::app);
     if (!has_heading) {
         m_cOutput << "ID,TIME,SPEED,SEPARATION,BROADCAST,TARGET_X,TARGET_Y";
-        for (size_t i = 0; i < m_vecRobotArrivalTime.size(); ++i) {
+        const size_t uNumRobots = 10; // TEMP: Assume max 10 robots for the current study 
+        // for (size_t i = 0; i < m_vecRobotArrivalTime.size(); ++i) {
+        for (size_t i = 0; i < uNumRobots; ++i) {
             m_cOutput << ",ARRIVAL_" << (i + 1);
         }
         m_cOutput << "\n";
