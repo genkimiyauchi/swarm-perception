@@ -298,14 +298,14 @@ function initSceneWithScale(_scale) {
   sceneOrtho.add(trialStatusContainer);
 
   window.trialTerminationText = new ThreeMeshUI.Text({
-    content: "Trial has ended!",
+    content: "Success!\nAll robots reached the target",
     fontSize: 52,
     fontColor: new THREE.Color(0x000000),
   });
 
   window.trialTerminationContainer = new ThreeMeshUI.Block({
-    width: 500,
-    height: 100,
+    width: 720,
+    height: 150,
     margin: 5,
     justifyContent: 'center',
     alignItems: 'center',
@@ -1138,8 +1138,16 @@ function render() {
 
     /* Update  trial termination status */
     if (window.experiment.status == "Done") {
-      window.trialTerminationContainer.visible = true;
-      window.trialTerminationText.visible = true;
+      if(window.num_robots_in_target == window.robotIDs.length) {
+        window.trialTerminationContainer.visible = true;
+        window.trialTerminationText.visible = true;
+      } else {
+        window.trialTerminationText.set({
+          content: "Timeout!\nTarget not reached",
+        })
+        window.trialTerminationContainer.visible = true;
+        window.trialTerminationText.visible = true;
+      }
     } 
 
     /* Update target discovery */
