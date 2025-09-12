@@ -80,11 +80,16 @@ def startpage():
     return render_template("start_page.html", session=session)
 
 
-# Access to "/practicepage": redirect to practice_page.html
-@app.route("/practicepage", methods=["GET"])
-def practicepage():
-    stop_simulation()
-    return render_template("practice_page.html", session=session, host_ip=ip_addr)
+
+# Access to "/practicepage1" to "/practicepage3": render practice_pageX.html
+for i in range(1, 4):
+    def make_practice_route(practice_num):
+        def practice_page():
+            stop_simulation()
+            return render_template(f"practice_page{practice_num}.html", session=session, host_ip=ip_addr)
+        return practice_page
+    endpoint_name = f"practice{i}_page"
+    app.add_url_rule(f"/practicepage{i}", endpoint=endpoint_name, view_func=make_practice_route(i), methods=["GET"])
 
 
 # Access to "/experimentpage": redirect to experiment_page.html
@@ -122,8 +127,8 @@ def background_process_start():
 
     stop_simulation()
 
-    if scenario == 'practice':
-        scenario_file = os.path.join(SCENARIO_EXPERIMENT_DIR, "practice.argos")
+    if 'practice' in scenario:
+        scenario_file = os.path.join(SCENARIO_EXPERIMENT_DIR, "{}.argos".format(scenario))
     else:
         scenario_file = os.path.join(SCENARIO_EXPERIMENT_DIR, "trial{}.argos".format(trial_order[int(scenario)]))
 

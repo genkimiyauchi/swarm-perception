@@ -14,7 +14,7 @@
   <script type=text/javascript>
           // Start simulation
           $(function() {
-            scenario = 'practice';
+            scenario = 'practice2';
 
             $('a#start').on('click', function(e) {
               e.preventDefault();
@@ -57,7 +57,7 @@
 
     <div class="container">
       <div class="row p-4 bg-light">
-        <h1>Practice</h1>
+        <h1>Practice 2</h1>
         <p>Local simulation: <b id="simulationState" style="color:black;">UNKNOWN</b></p>
       </div>
 
@@ -95,19 +95,19 @@
         </form>
       </div> -->
 
-      <!-- Button to jump to /startpage -->
+      <!-- Button to jump to previous page -->
       <div class="row p-4 bg-light justify-content-center">
         <div class="col-2">
-          <form action="/startpage" method="get">
+          <form action="/practicepage1" method="get">
             <input class="btn btn-outline-secondary" type="submit" value='&larr; Back'>
           </form>
         </div>
         <div class="col-2">
-          <p>2 of 23</p>
+          <p>3 of 25</p>
         </div>
-        <!-- Button to jump to /endpage -->
+        <!-- Button to jump to next page -->
         <div class="col-2">
-          <form action="/trial1" method="get">
+          <form action="/practicepage3" method="get">
             <input class="btn btn-outline-secondary" type="submit" value='Next &rarr;'>
           </form>
         </div>

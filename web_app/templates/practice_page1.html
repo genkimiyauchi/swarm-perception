@@ -14,21 +14,12 @@
   <script type=text/javascript>
           // Start simulation
           $(function() {
-            // Specify the scenario to run
-            scenario = 'experiment';
-            const filename = window.location.pathname.split('/').pop();
-            const match = filename.match(/^trial(\d+)$/);
-            if (match) {
-              let trialNumber = match[1];
-              trialNumber = parseInt(trialNumber) - 1;
-              console.log("Trial number:", trialNumber);
-              $('a#start').on('click', function(e) {
-                e.preventDefault();
-                start_simulation(String(trialNumber));
-              });
-            } else {
-              console.log("Filename does not match the pattern 'trial<number>.html'");
-            }
+            scenario = 'practice1';
+
+            $('a#start').on('click', function(e) {
+              e.preventDefault();
+              start_simulation(scenario);
+            });
 
             return false;
           });
@@ -66,7 +57,7 @@
 
     <div class="container">
       <div class="row p-4 bg-light">
-        <h1>Trial 9</h1>
+        <h1>Practice 1</h1>
         <p>Local simulation: <b id="simulationState" style="color:black;">UNKNOWN</b></p>
       </div>
 
@@ -107,16 +98,16 @@
       <!-- Button to jump to previous page -->
       <div class="row p-4 bg-light justify-content-center">
         <div class="col-2">
-          <form action="/trial8" method="get">
+          <form action="/startpage" method="get">
             <input class="btn btn-outline-secondary" type="submit" value='&larr; Back'>
           </form>
         </div>
         <div class="col-2">
-          <p>13 of 25</p>
+          <p>2 of 25</p>
         </div>
         <!-- Button to jump to next page -->
         <div class="col-2">
-          <form action="/trial10" method="get">
+          <form action="/practicepage2" method="get">
             <input class="btn btn-outline-secondary" type="submit" value='Next &rarr;'>
           </form>
         </div>

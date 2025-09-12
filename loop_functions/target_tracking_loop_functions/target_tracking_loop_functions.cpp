@@ -408,7 +408,7 @@ bool CTargetTrackingLoopFunctions::IsExperimentFinished() {
             LOG << "[LOG] All robots are in the target area for 3 seconds!" << std::endl;
 
             /* Log experiment */
-            if(seed != seed_practice) {
+            if(seed < seed_practice) {
                 LogExperiment();
             }
 
@@ -422,7 +422,7 @@ bool CTargetTrackingLoopFunctions::IsExperimentFinished() {
         LOG << "[LOG] Maximum time reached: " << fFinalTimeSeconds << " seconds" << std::endl;
 
         /* Log experiment */
-        if(seed != seed_practice) {
+        if(seed < seed_practice) {
             LogExperiment();
         }
 

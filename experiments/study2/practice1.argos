@@ -6,7 +6,7 @@
   <!-- ************************* -->
   <framework>
     <system threads="0" />
-    <experiment length="60"
+    <experiment 
                 ticks_per_second="10"
                 random_seed="10000" />
   </framework>
@@ -77,7 +77,7 @@
       <robots controller="epc1"
               base_name="ep"
               base_num="1"
-              quantity="10"
+              quantity="1"
               max_trials="100" 
               rab_range="0.35" />
     </teams>
