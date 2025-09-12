@@ -7,6 +7,11 @@
 #       where <command> is {run, save}
 #       where <mode> is {1, 2} (only when command is "run")
 
+if [ $# -eq 0 ]; then
+    echo "No command provided. Usage: ./experiment.sh <command={run,save}> <group={1,2}(only for run)>"
+    exit 1
+fi
+
 command=$1
 mode=$2
 
