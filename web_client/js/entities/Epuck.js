@@ -131,25 +131,26 @@ class Epuck {
     var circleEdge = new THREE.LineSegments(circleEdgeGeometry, circleEdgeMaterial);
     meshParent.add(circleEdge);
 
+    /* Add username label */
+    this.sprite = new THREE.TextSprite({
+      alignment: 'center',
+      color: '#000000',
+      // strokeColor: '#0000ff',
+      // backgroundColor: 'rgba(100,100,100,0.2)',
+      // fontWeight: 'bold',
+      fontFamily: 'Roboto, Arial, sans-serif',
+      fontSize: 0.45,
+      padding: 0.2,
+      text: [
+        "",
+      ].join('\n'),
+    });
+
+    this.sprite.position.z = 2;
+
+    meshParent.add(this.sprite);
+
     if(window.mode == Mode.DEBUG) {
-      /* Add username label */
-      this.sprite = new THREE.TextSprite({
-        alignment: 'center',
-        color: '#0000ff',
-        // strokeColor: '#0000ff',
-        // backgroundColor: 'rgba(100,100,100,0.2)',
-        // fontWeight: 'bold',
-        fontFamily: 'Roboto, Arial, sans-serif',
-        fontSize: 0.45,
-        padding: 0.2,
-        text: [
-          "Searching",
-        ].join('\n'),
-      });
-
-      this.sprite.position.z = 2.5;
-
-      meshParent.add(this.sprite);
 
       /* Add Intersection Points */
       var pointsGeom = new THREE.BufferGeometry();
@@ -220,18 +221,31 @@ class Epuck {
         this.mesh.children[5].material.color.setHex(entity.leds[0]);
       }
 
-      if(window.mode == Mode.DEBUG) {
+      if(window.mode == Mode.EXPERIMENT) {
+          /* Update label */
+          const state = entity.user_data.state;
+          if(entity.user_data.current_user !== '') {
+            this.mesh.children[8].text = "You";
+          }
+      } else if(window.mode == Mode.DEBUG) {
+          /* Update label */
+          const state = entity.user_data.state;
+          if(state == 'Searching') {
+            this.mesh.children[8].color = '#0000ff';
+          } else if(state == 'Sharing target') {
+            this.mesh.children[8].color = '#ff0000';
+          } else if(state == 'Moving to target') {
+            this.mesh.children[8].color = '#006f00';
+          }
+          this.mesh.children[8].text = entity.user_data.state;
 
-        /* Update label */
-        const state = entity.user_data.state;
-        if(state == 'Searching') {
-          this.mesh.children[8].color = '#0000ff';
-        } else if(state == 'Sharing target') {
-          this.mesh.children[8].color = '#ff0000';
-        } else if(state == 'Moving to target') {
-          this.mesh.children[8].color = '#006f00';
-        }
-        this.mesh.children[8].text = entity.user_data.state;
+          if(entity.user_data.current_user !== '') {
+            this.mesh.children[8].text = (this.mesh.children[8].text || "") + " (You)";
+            console.log(this.mesh.children[8].text);
+          }
+      }
+
+      if(window.mode == Mode.DEBUG) {
 
         // /* Show connections for connectors only */
         // if(entity.user_data.state == 'C') {
