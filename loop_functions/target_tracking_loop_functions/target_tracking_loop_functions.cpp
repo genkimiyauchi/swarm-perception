@@ -315,9 +315,16 @@ void CTargetTrackingLoopFunctions::PostStep() {
 
 void CTargetTrackingLoopFunctions::LogExperiment() {
 
-    int final_time = GetSpace().GetSimulationClock();
-    Real final_time_seconds = final_time * m_fSecondsPerStep;
-    LOG << "[LOG] Final Timestep: " << final_time << " steps = " << final_time_seconds << " seconds" << std::endl;
+    int fTinalTime = GetSpace().GetSimulationClock();
+    Real fFinalTimeSeconds = fTinalTime * m_fSecondsPerStep;
+    std::string strFinalTimeSeconds;
+    if(fTinalTime == 599) {
+        strFinalTimeSeconds = "Timeout";
+    } else {
+        strFinalTimeSeconds = std::to_string(fFinalTimeSeconds);
+    }
+
+    LOG << "[LOG] Final Timestep: " << fTinalTime << " steps = " << fFinalTimeSeconds << " seconds" << std::endl;
 
     LOG << "[LOG] Logging experiment results to " << m_strLogFilePath << std::endl;
 
@@ -342,7 +349,7 @@ void CTargetTrackingLoopFunctions::LogExperiment() {
     }
 
     m_cOutput << CSimulator::GetInstance().GetRandomSeed() << ","
-            << final_time_seconds << ","
+            << strFinalTimeSeconds << ","
             << m_fSpeed << ","
             << m_fSeparation << ","
             << m_fBroadcastDuration << ","
@@ -408,7 +415,7 @@ bool CTargetTrackingLoopFunctions::IsExperimentFinished() {
 
         ++m_unTargetTimer;
 
-    } else if(fFinalTimeSeconds >= 60) {
+    } else if(fFinalTime >= 599) {
 
         LOG << "[LOG] Maximum time reached: " << fFinalTimeSeconds << " seconds" << std::endl;
 
