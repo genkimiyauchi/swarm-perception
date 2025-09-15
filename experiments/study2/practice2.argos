@@ -8,7 +8,7 @@
     <system threads="0" />
     <experiment 
                 ticks_per_second="10"
-                random_seed="10001" />
+                random_seed="10005" />
   </framework>
 
   <!-- *************** -->
