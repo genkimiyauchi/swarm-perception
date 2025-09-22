@@ -14,21 +14,12 @@
   <script type=text/javascript>
           // Start simulation
           $(function() {
-            // Specify the scenario to run
-            scenario = 'experiment';
-            const filename = window.location.pathname.split('/').pop();
-            const match = filename.match(/^trial(\d+)$/);
-            if (match) {
-              let trialNumber = match[1];
-              trialNumber = parseInt(trialNumber) - 1;
-              console.log("Trial number:", trialNumber);
-              $('a#start').on('click', function(e) {
-                e.preventDefault();
-                start_simulation(String(trialNumber));
-              });
-            } else {
-              console.log("Filename does not match the pattern 'trial<number>.html'");
-            }
+            scenario = 'practice{{ practice_number }}';
+            
+            $('a#start').on('click', function(e) {
+              e.preventDefault();
+              start_simulation(scenario);
+            });
 
             return false;
           });
@@ -66,7 +57,7 @@
 
     <div class="container">
       <div class="row p-4 bg-light">
-        <h1>Trial 6</h1>
+        <h1>Practice {{ practice_number }}</h1>
         <p>Local simulation: <b id="simulationState" style="color:black;">UNKNOWN</b></p>
       </div>
 
@@ -107,18 +98,21 @@
       <!-- Button to jump to previous page -->
       <div class="row p-4 bg-light justify-content-center">
         <div class="col-2">
-          <form action="/trial5" method="get">
+          {% if prev_url %}
+          <form action="{{ prev_url }}" method="get">
             <input class="btn btn-outline-secondary" type="submit" value='&larr; Back'>
           </form>
+          {% endif %}
         </div>
         <div class="col-2">
-          <p>10 of 25</p>
+          <p>{{ current_page }} of {{ total_pages }}</p>
         </div>
-        <!-- Button to jump to next page -->
         <div class="col-2">
-          <form action="/trial7" method="get">
+          {% if next_url %}
+          <form action="{{ next_url }}" method="get">
             <input class="btn btn-outline-secondary" type="submit" value='Next &rarr;'>
           </form>
+          {% endif %}
         </div>
       </div>
     </div>

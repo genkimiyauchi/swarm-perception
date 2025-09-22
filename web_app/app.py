@@ -39,6 +39,8 @@ mode = None # 1 or 2
 group1_trials = [122, 99, 26, 109, 105, 70, 63, 64, 14, 49, 10, 9, 65, 17, 6, 18, 20, 66, 22, 93]
 group2_trials = [115, 71, 107, 62, 121, 51, 7, 34, 94, 50, 100, 40, 85, 119, 95, 60, 36, 21, 82, 23]
 trial_order = []
+total_practices = 3
+total_pages = 0
 
 app = Flask(__name__)
 
@@ -77,19 +79,17 @@ def default():
 @app.route("/startpage", methods=["GET"])
 def startpage():
     stop_simulation()
-    return render_template("start_page.html", session=session)
+    return render_template("start_page.html", session=session, current_page=1, total_pages=total_pages)
 
 
-
-# Access to "/practicepage1" to "/practicepage3": render practice_pageX.html
-for i in range(1, 4):
-    def make_practice_route(practice_num):
-        def practice_page():
-            stop_simulation()
-            return render_template(f"practice_page{practice_num}.html", session=session, host_ip=ip_addr)
-        return practice_page
-    endpoint_name = f"practice{i}_page"
-    app.add_url_rule(f"/practicepage{i}", endpoint=endpoint_name, view_func=make_practice_route(i), methods=["GET"])
+@app.route('/practicepage<int:practice_number>', methods=["GET"])
+def practice_page(practice_number):
+    stop_simulation()
+    current_page = practice_number + 1
+    prev_url = url_for('startpage') if practice_number == 1 else url_for('practice_page', practice_number=practice_number-1)
+    # If last practice, next goes to first trial
+    next_url = url_for('trial_page', trial_number=1) if practice_number == total_practices else url_for('practice_page', practice_number=practice_number+1)
+    return render_template('practice_page.html', practice_number=practice_number, current_page=current_page, total_pages=total_pages, prev_url=prev_url, next_url=next_url, session=session, host_ip=ip_addr)
 
 
 # Access to "/experimentpage": redirect to experiment_page.html
@@ -99,22 +99,23 @@ def experimentpage():
     return render_template("experiment_page.html", session=session, host_ip=ip_addr)
 
 
-# Access to "/trial1" to "/trial20": render trialX.html
-for i in range(1, 21):
-    def make_trial_route(trial_num):
-        def trial_page():
-            stop_simulation()
-            return render_template(f"trial{trial_num}.html", session=session, host_ip=ip_addr)
-        return trial_page
-    endpoint_name = f"trial{i}_page"
-    app.add_url_rule(f"/trial{i}", endpoint=endpoint_name, view_func=make_trial_route(i), methods=["GET"])
+@app.route('/trial<int:trial_number>', methods=["GET"])
+def trial_page(trial_number):
+    stop_simulation()
+    current_page = total_practices + trial_number + 1
+    if trial_order:
+        total_trials = len(trial_order)
+    # Back button on first trial links to last practice page
+    prev_url = url_for('practice_page', practice_number=total_practices) if trial_number == 1 else url_for('trial_page', trial_number=trial_number-1)
+    next_url = url_for('endpage') if trial_number == total_trials else url_for('trial_page', trial_number=trial_number+1)
+    return render_template('trial.html', trial_number=trial_number, current_page=current_page, total_pages=total_pages, prev_url=prev_url, next_url=next_url, session=session, host_ip=ip_addr)
 
 
 # Access to "/endpage": redirect to end_page.html
 @app.route("/endpage", methods=["GET"])
 def endpage():
     stop_simulation()
-    return render_template("end_page.html")
+    return render_template("end_page.html", current_page=total_pages, total_pages=total_pages)
 
 
 # Background process: Start the simulation
@@ -163,24 +164,34 @@ def connect_to_server():
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Run ARGoS simulations.')
-    parser.add_argument('-m', '--mode', type=int, choices=[1, 2], required=True,
-                       help='Experiment group: 1 or 2.')
-    
+    parser.add_argument('-m', '--mode', type=int, choices=[0, 1, 2], required=True,
+                       help='Experiment group: 1 or 2. (0: all trials in order)')
+
     args = parser.parse_args()
 
-    if args.mode == 1:
-        mode = 1
-        print('Mode: 1')
-        trial_order = group1_trials
-    elif args.mode == 2:
-        mode = 2
-        print('Mode: 2')
-        trial_order = group2_trials
+    if args.mode == 0:
+        mode = 0
+        print('Mode: 0')
+        trial_order = group1_trials + group2_trials
+        trial_order.sort()
+        print("Sorted order of trials 1 to 40:")
+    else:
+        if args.mode == 1:
+            mode = 1
+            print('Mode: 1')
+            trial_order = group1_trials
+        elif args.mode == 2:
+            mode = 2
+            print('Mode: 2')
+            trial_order = group2_trials
 
-    random.shuffle(trial_order)
+        random.shuffle(trial_order)
 
-    print("Randomized order of trials 1 to 20:")
+        print("Randomized order of trials 1 to 20:")
+
     print(trial_order)
+
+    total_pages = len(trial_order) + total_practices + 2
 
     filename = "{}.txt".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
 

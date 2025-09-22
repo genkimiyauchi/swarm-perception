@@ -66,7 +66,7 @@
 
     <div class="container">
       <div class="row p-4 bg-light">
-        <h1>Trial 9</h1>
+        <h1>Trial {{ trial_number }}</h1>
         <p>Local simulation: <b id="simulationState" style="color:black;">UNKNOWN</b></p>
       </div>
 
@@ -107,18 +107,21 @@
       <!-- Button to jump to previous page -->
       <div class="row p-4 bg-light justify-content-center">
         <div class="col-2">
-          <form action="/trial8" method="get">
+          {% if prev_url %}
+          <form action="{{ prev_url }}" method="get">
             <input class="btn btn-outline-secondary" type="submit" value='&larr; Back'>
           </form>
+          {% endif %}
         </div>
         <div class="col-2">
-          <p>13 of 25</p>
+          <p>{{ current_page }} of {{ total_pages }}</p>
         </div>
-        <!-- Button to jump to next page -->
         <div class="col-2">
-          <form action="/trial10" method="get">
+          {% if next_url %}
+          <form action="{{ next_url }}" method="get">
             <input class="btn btn-outline-secondary" type="submit" value='Next &rarr;'>
           </form>
+          {% endif %}
         </div>
       </div>
     </div>
