@@ -107,8 +107,8 @@ RUN git clone -b swarm-perception https://gitlab.com/genki_miyauchi/argos3-webvi
     rm -rf argos3-webviz
 
 # Install swarm-perception
-ADD "https://api.github.com/repos/genkimiyauchi/swarm-perception/branches/main" latest_info
-RUN git clone -b main https://github.com/genkimiyauchi/swarm-perception.git /home/docker/swarm-perception &&\
+ADD "https://api.github.com/repos/genkimiyauchi/swarm-perception/branches/study1-replication" latest_info
+RUN git clone -b study1-replication https://github.com/genkimiyauchi/swarm-perception.git /home/docker/swarm-perception &&\
     cd /home/docker/swarm-perception && \
     # mkdir results && \
     mkdir build && \
